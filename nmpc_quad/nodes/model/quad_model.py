@@ -1,6 +1,8 @@
 from acados_template import AcadosModel
+
 import numpy as np
 import casadi as cs
+
 
 g = 9.81
 class QuadModel:
@@ -25,7 +27,7 @@ class QuadModel:
         self.x = cs.vertcat(self.p, self.v, self.q, self.w)     #state
         self.x_dim = 13
 
-        # Casadi: Assign u (control input)
+        # Casadi: Assign u (control input: rotor speed)
         self.u1 = cs.MX.sym('u1')
         self.u2 = cs.MX.sym('u2')
         self.u3 = cs.MX.sym('u3')
@@ -49,8 +51,16 @@ class QuadModel:
     def p_dynamics(self):
         return self.v
 
-    def v_dynamics(self):
+    def v_dynamics(self, sigma):
+        thrust = self.C_lift * self.u**2
+        g_vec = cs.vertcat(0.0, 0.0, g)
+
+    def q_dynamics(self):
+
+    def w_dynamics(self, theta):
         
+
+
 
 
 
