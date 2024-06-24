@@ -14,10 +14,11 @@ X0 = np.array([
 
 
 class OcpSolver():
-    def __init__(self, N = 20, T_horizon = 2.0):
+    def __init__(self, u_min = 100, u_max = 1000 ,n_nodes = 20, t_horizon = 2.0):
         '''
         Constructor for OcpSolver
-        :param N: Number of nodes for NMPC
+        :param u_max: maximum rotor speed
+        :param n_nodes: Number of nodes for NMPC
         :param T_horizon: Prediction horizon
         '''
 
@@ -40,7 +41,7 @@ class OcpSolver():
         self.ocp.model = self.model
 
         # Set horizon
-        self.N = N
+        self.N = n_nodes
         self.ocp.dims.N = self.N
 
         # Get the dimension of state, input, y and y_e (terminal)
@@ -52,7 +53,7 @@ class OcpSolver():
         # cost Q:
         # px, py, pz,
         # vx, vy, vz,
-        # qx, qy, qz, qw
+        # qx, qy, qz, qw(Ignore)
         # wx, wy, wz
         self.Q_mat = np.diag([1.0, 1.0, 1.0,
                               0.05, 0.05, 0.05,
@@ -67,11 +68,18 @@ class OcpSolver():
         self.ocp.cost.cost_type = 'Linear_LS'
         self.ocp.cost.cost_type_e = 'Linear_LS'
 
+        # Cost setup for state
         self.ocp.cost.Vx = np.zeros((self.ny, self.nx))
         self.ocp.cost.Vx[:self.nx, :self.nx] = np.eye(self.nx)
 
+        # Cost setup for control input
+        self.ocp.cost.Vu = np.zeros((self.ny, self.nu))
+        self.ocp.cost.Vu[-4:, -4:] = np.eye(self.nu)
+
+        # Weight setup
         self.ocp.cost.W = scipy.linalg.block_diag(self.Q_mat, self.R_mat)
         self.ocp.cost.W_e = self.Q_mat
+
 
 
 
