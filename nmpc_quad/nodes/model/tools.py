@@ -4,6 +4,11 @@ g = 9.81
 
 def quaternion2rotm(q):
 
+    '''
+    Convert quaternion to rotation
+    :param q: quaternion
+    :return: rotation matrix
+    '''
     q_vec = quat2quat_vec(q)
 
 
@@ -41,10 +46,20 @@ def quaternion2rotm(q):
 
 
 def quat2quat_vec(q):
+    '''
+    Convert quaternion to quaternion vector
+    :param q: qx, qy, qz, qw
+    :return: qx, qy, qx
+    '''
     q_vec = q[:3]
     return q_vec
 
 def vec2skew_symm(v):
+    '''
+    Convert vector to skew symmetric matrix
+    :param v: vx, vy, vz
+    :return: skew symmetric matrix
+    '''
 
     # Not casadi --> represent the return value as np.array
     if isinstance(v, np.ndarray):
@@ -61,7 +76,12 @@ def vec2skew_symm(v):
     )
 
 def otimes(q1,q2):
-
+    '''
+    Calculate multiplication of two quaternion
+    :param q1: Left quaternion
+    :param q2: Right quaternion
+    :return: otimes
+    '''
     # Not Casadi form --> return np.array
     if isinstance(q1,np.ndarray):
         q1_L = np.array([
@@ -82,7 +102,14 @@ def otimes(q1,q2):
     return cs.mtimes(q1_L, q2)
 
 def thrust2moment(model_description, thrust, arm_length, C_moment):
-
+    '''
+    Convert thrust to moment
+    :param model_description: '+' or 'x'
+    :param thrust: Four rotor thrusts
+    :param arm_length: arm length
+    :param C_moment: Coefficient of moment
+    :return: m_x, m_y, m_z
+    '''
     if model_description == '+':
         l = arm_length
         m_x = l*( thrust[1] - thrust[3])
