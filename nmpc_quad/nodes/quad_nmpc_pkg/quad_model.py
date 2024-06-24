@@ -7,6 +7,15 @@ import casadi as cs
 g = 9.81
 class QuadModel:
     def __init__(self, m, J, l, C_lift, C_moment, model_description):
+        '''
+        Constructor for QuadModel
+        :param m: mass
+        :param J: Put np.diag([Jxx, Jyy, Jzz])
+        :param l: arm length
+        :param C_lift: Coefficient of lift
+        :param C_moment: Coefficient of moment
+        :param model_description: '+' or 'x'
+        '''
 
         # Model name and create AcadosModel object.
         self.model_name = 'Quadrotor model'
@@ -99,14 +108,20 @@ class QuadModel:
         # Four rotor thrust: C_lift*u**2
         thrust = self.C_lift * self.u**2
 
-        m_x, m_y, m_z = tools.theta2quat(self.model_description, thrust, self.l, self.C_moment)
+
+        # Convert Four rotor thrusts to moment
+        m_x, m_y, m_z = tools.thrust2moment(self.model_description, thrust, self.l, self.C_moment)
         M_vec = cs.vertcat(m_x , m_y, m_z)
 
+        # J*w
         J_w = cs.vertcat(self.J[0]*self.w[0],
                          self.J[1]*self.w[1],
                          self.J[2]*self.w[2])
 
-        J_dwdt = M_vec - tools.vec2skew_symm(self.w[0])*J_w
+        # J*dwdt = M - w x (J*w)
+        J_dwdt = M_vec - tools.vec2skew_symm(self.w)*J_w
+
+        # dwdt = J^{-1}*(M - w x (Jw))
         dwdt = cs.vertcat(1/self.J[0]*J_dwdt[0],
                           1/self.J[1]*J_dwdt[1],
                           1/self.J[2]*J_dwdt[2])
