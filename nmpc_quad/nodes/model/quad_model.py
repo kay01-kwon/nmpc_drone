@@ -70,13 +70,23 @@ class QuadModel:
         # Get rotation matrix from quaternion
         rotm = tools.quat2rotmat(self.q)
 
-        dvdt = rotm*acc_input - g
+        dvdt = rotm*acc_input - g + sigma/self.m
         return dvdt
 
 
     def q_dynamics(self):
+        w_quat_form = cs.vertcat(0.0, self.w)
+        dqdt = tools.orientmat(w_quat_form, self.q)
+        return dqdt
 
     def w_dynamics(self, theta):
+
+        # Four rotor thrust: C_lift*u**2
+        thrust = self.C_lift * self.u**2
+
+        Moment = 
+
+        thrust = self.C_lift
 
 
 
