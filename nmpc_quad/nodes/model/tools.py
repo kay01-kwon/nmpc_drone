@@ -14,7 +14,7 @@ def quaternion2rotm(q):
             [q_vec[1]*q_vec[1], q_vec[1]*q_vec[1], q_vec[1]*q_vec[2]],
             [q_vec[2]*q_vec[1], q_vec[2]*q_vec[1], q_vec[2]*q_vec[2]]
         ])
-        rotm = (q[3]*q[3] - sum(q_vec[:]*q_vec[:])*np.eye(3)
+        rotm = (q[3]*q[3] - np.dot(q_vec, q_vec))*np.eye(3)
         + 2 * outer_product
         + 2 * q[3] * vec2skew_symm(q_vec)
 
@@ -33,7 +33,7 @@ def quaternion2rotm(q):
         cs.horzcat(q_vec[2]*q_vec[1], q_vec[2]*q_vec[1], q_vec[2]*q_vec[2])
     )
 
-    rotm = (q[3]*q[3] - sum(q_vec[:]*q_vec[:])*eye_mat
+    rotm = (q[3]*q[3] - q_vec.T * q_vec)*eye_mat
     + 2 * outer_product
     + q[3] * vec2skew_symm(q_vec)
 
@@ -80,3 +80,18 @@ def otimes(q1,q2):
     )
 
     return cs.mtimes(q1_L, q2)
+
+def thrust2moment(model_description, thrust, arm_length, C_moment):
+
+    if model_description == '+':
+        l = arm_length
+        m_x = l*( thrust[1] - thrust[3])
+        m_y = l*( thrust[2] - thrust[0])
+    else:
+        l = arm_length*np.sqrt(2)/2
+        m_x = l*( -thrust[0] + thrust[1] + thrust[2] - thrust[3])
+        m_y = l*( -(thrust[0] + thrust[1]) + (thrust[2] + thrust[3]))
+
+    m_z = C_moment*( thrust[0] - thrust[1] + thrust[2] - thrust[3])
+
+    return m_x, m_y, m_z

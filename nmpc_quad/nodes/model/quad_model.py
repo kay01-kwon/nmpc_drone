@@ -6,11 +6,13 @@ import casadi as cs
 
 g = 9.81
 class QuadModel:
-    def __init__(self, m, J, C_lift, C_moment):
+    def __init__(self, m, J, l, C_lift, C_moment, model_description):
 
         # Model name and create AcadosModel object.
         self.model_name = 'Quadrotor model'
         self.model = AcadosModel()
+
+        self.l = l
 
         # Get parameters
         # mass, moment of inertia, lift coefficient, moment coefficient
@@ -18,6 +20,9 @@ class QuadModel:
         self.J = J
         self.C_lift = C_lift
         self.C_moment = C_moment
+
+        # Model description ('x' or '+')
+        self.model_description = model_description
 
         # Casadi: Assign x (state)
         self.p = cs.MX.sym('p',3)   # position
@@ -83,8 +88,8 @@ class QuadModel:
 
         # Four rotor thrust: C_lift*u**2
         thrust = self.C_lift * self.u**2
+        m_x, m_y, m_z = tools.theta2quat(self.model_description, thrust, self.l, self.C_moment)
 
-        Moment = 
 
         thrust = self.C_lift
 
