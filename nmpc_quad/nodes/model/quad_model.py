@@ -52,13 +52,18 @@ class QuadModel:
         return self.v
 
     def v_dynamics(self, sigma):
+
         thrust = self.C_lift * self.u**2
+
+        collective_thrust = thrust[0] + thrust[1] + thrust[2] + thrust[3]
+
+        force = cs.vertcat(0.0, 0.0, collective_thrust)
         g_vec = cs.vertcat(0.0, 0.0, g)
+
 
     def q_dynamics(self):
 
     def w_dynamics(self, theta):
-        
 
 
 
