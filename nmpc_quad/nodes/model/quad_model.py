@@ -50,13 +50,23 @@ class QuadModel:
 
     def get_acados_model(self):
 
+        self.f_expl = cs.vertcat(self.p_dynamics(), self.v_dynamics(),
+                                 self.q_dynamics(), self.w_dynamics())
 
+        self.f_impl = self.xdot - self.f_expl
+
+        self.model.f_expl_expr = self.f_expl
+        self.model.f_impl_expr = self.f_impl
+        self.model.x = self.x
+        self.model.xdot = self.xdot
+        self.model.u = self.u
+        self.model.name = self.model_name
         return self.model
 
     def p_dynamics(self):
         return self.v
 
-    def v_dynamics(self, sigma):
+    def v_dynamics(self):
 
         # Four rotor thrust: C_lift*u**2
         thrust = self.C_lift * self.u**2
@@ -75,7 +85,7 @@ class QuadModel:
         # Get rotation matrix from quaternion
         rotm = tools.quat2rotmat(self.q)
 
-        dvdt = rotm*acc_input - g + sigma/self.m
+        dvdt = rotm*acc_input - g
         return dvdt
 
 
@@ -84,14 +94,24 @@ class QuadModel:
         dqdt = tools.orientmat(w_quat_form, self.q)
         return dqdt
 
-    def w_dynamics(self, theta):
+    def w_dynamics(self):
 
         # Four rotor thrust: C_lift*u**2
         thrust = self.C_lift * self.u**2
+
         m_x, m_y, m_z = tools.theta2quat(self.model_description, thrust, self.l, self.C_moment)
+        M_vec = cs.vertcat(m_x , m_y, m_z)
 
+        J_w = cs.vertcat(self.J[0]*self.w[0],
+                         self.J[1]*self.w[1],
+                         self.J[2]*self.w[2])
 
-        thrust = self.C_lift
+        J_dwdt = M_vec - tools.vec2skew_symm(self.w[0])*J_w
+        dwdt = cs.vertcat(1/self.J[0]*J_dwdt[0],
+                          1/self.J[1]*J_dwdt[1],
+                          1/self.J[2]*J_dwdt[2])
+
+        return dwdt
 
 
 
