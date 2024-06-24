@@ -15,6 +15,12 @@ X0 = np.array([
 
 class OcpSolver():
     def __init__(self, N = 20, T_horizon = 2.0):
+        '''
+        Constructor for OcpSolver
+        :param N: Number of nodes for NMPC
+        :param T_horizon: Prediction horizon
+        '''
+
         # Create AcadosOcp
         self.ocp = AcadosOcp()
 
@@ -48,10 +54,26 @@ class OcpSolver():
         # vx, vy, vz,
         # qx, qy, qz, qw
         # wx, wy, wz
-        self.Q_mat = 2*np.diag([1.0, 1.0, 1.0,
-                                0.05, 0.05, 0.05,
-                                0.1, 0.1, 0.1,
-                                0.05, 0.05, 0.05])
+        self.Q_mat = np.diag([1.0, 1.0, 1.0,
+                              0.05, 0.05, 0.05,
+                              0.1, 0.1, 0.1, 0,
+                              0.05, 0.05, 0.05])
+
+        # cost R:
+        # u1, u2, u3, u4 (RPM)
+        self.R_mat = np.diag([0.1, 0.1, 0.1, 0.1])
+
+        # Set cost type for OCP
+        self.ocp.cost.cost_type = 'Linear_LS'
+        self.ocp.cost.cost_type_e = 'Linear_LS'
+
+        self.ocp.cost.Vx = np.zeros((self.ny, self.nx))
+        self.ocp.cost.Vx[:self.nx, :self.nx] = np.eye(self.nx)
+
+        self.ocp.cost.W = scipy.linalg.block_diag(self.Q_mat, self.R_mat)
+        self.ocp.cost.W_e = self.Q_mat
+
+
 
 
 
