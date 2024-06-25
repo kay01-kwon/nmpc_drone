@@ -91,7 +91,8 @@ class QuadModel:
         # Get rotation matrix from quaternion
         rotm = tools.quaternion2rotm(self.q)
 
-        dvdt = rotm*acc_input - g_vec
+        dvdt = cs.mtimes(rotm, acc_input) - g_vec
+
         return dvdt
 
 
@@ -116,7 +117,7 @@ class QuadModel:
                          self.J[2]*self.w[2])
 
         # J*dwdt = M - w x (J*w)
-        J_dwdt = M_vec - tools.vec2skew_symm(self.w)*J_w
+        J_dwdt = M_vec - cs.mtimes(tools.vec2skew_symm(self.w), J_w)
 
         # dwdt = J^{-1}*(M - w x (Jw))
         dwdt = cs.vertcat(1/self.J[0]*J_dwdt[0],
