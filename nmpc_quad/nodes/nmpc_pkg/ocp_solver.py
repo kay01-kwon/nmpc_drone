@@ -134,7 +134,7 @@ class OcpSolver():
 
         self.ocp.solver_options.tf = self.T_horizon
 
-    def set_ocp_solver(self, state, y_ref):
+    def set_ocp_solver(self, state, ref):
         '''
         Set ocp solver (State and reference)
         :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz
@@ -142,13 +142,16 @@ class OcpSolver():
         :return: u
         '''
 
+        y_ref = np.concatenate(state, np.zeros_like(self.nu))
+        y_ref_N = ref
+
         # Fill in initial state
         self.acados_ocp_solver.set(0 ,"lbx",state)
         self.acados_ocp_solver.set(0, "ubx",state)
 
         for i in range(self.ocp.dims.N):
             self.acados_ocp_solver.set(i, "y_ref", y_ref)
-        self.acados_ocp_solver.set(self.ocp.dims.N,"y_ref", y_ref)
+        self.acados_ocp_solver.set(self.ocp.dims.N,"y_ref", y_ref_N)
 
         status = self.acados_ocp_solver.solve()
 
