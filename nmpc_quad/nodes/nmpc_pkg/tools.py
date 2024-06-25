@@ -24,22 +24,12 @@ def quaternion2rotm(q):
         return rotm
 
     # Represent the return value as Casadi format
-    eye_mat = cs.vertcat(
-        cs.horzcat(1.0, 0.0, 0.0),
-        cs.horzcat(0.0, 1.0, 0.0),
-        cs.horzcat(0.0, 0.0, 1.0)
+
+    rotm = cs.vertcat(
+        cs.horzcat(1-2*(q[1]*q[1] + q[2]*q[2]), 2*(q[0]*q[1]-q[3]*q[2]), 2*(q[0]*q[2]+q[3]*q[1])),
+        cs.horzcat(2*(q[0]*q[1]+q[3]*q[2]), 1-2*(q[0]*q[0]+q[2]*q[2]), 2*(q[1]*q[2]-q[3]*q[0])),
+        cs.horzcat(2*(q[0]*q[2]-q[3]*q[1]), 2*(q[1]*q[2]+q[3]*q[0]), 1-2*(q[0]*q[0]+q[1]*q[1]))
     )
-
-    outer_product = cs.vertcat(
-        cs.horzcat(q_vec[0]*q_vec[0], q_vec[0]*q_vec[1], q_vec[0]*q_vec[2]),
-        cs.horzcat(q_vec[1]*q_vec[1], q_vec[1]*q_vec[1], q_vec[1]*q_vec[2]),
-        cs.horzcat(q_vec[2]*q_vec[1], q_vec[2]*q_vec[1], q_vec[2]*q_vec[2])
-    )
-
-    rotm = (q[3]*q[3] - q_vec * q_vec)*eye_mat
-    + 2 * outer_product
-    + q[3] * vec2skew_symm(q_vec)
-
     return rotm
 
 

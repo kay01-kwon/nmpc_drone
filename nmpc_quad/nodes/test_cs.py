@@ -25,4 +25,4 @@ q_vec = tools.quat2quat_vec(q)
 test_mat = tools.vec2skew_symm(q_vec)
 
 
-print(q_vec*q_vec)
+print(cs.dot(q,q))

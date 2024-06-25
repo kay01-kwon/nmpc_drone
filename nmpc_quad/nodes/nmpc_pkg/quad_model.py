@@ -91,13 +91,13 @@ class QuadModel:
         # Get rotation matrix from quaternion
         rotm = tools.quaternion2rotm(self.q)
 
-        dvdt = rotm*acc_input - g
+        dvdt = rotm*acc_input - g_vec
         return dvdt
 
 
     def q_dynamics(self):
         w_quat_form = cs.vertcat(0.0, self.w)
-        dqdt = tools.orientmat(w_quat_form, self.q)
+        dqdt = tools.otimes(w_quat_form, self.q)
         return dqdt
 
     def w_dynamics(self):
