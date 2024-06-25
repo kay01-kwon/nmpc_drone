@@ -1,8 +1,7 @@
 from acados_template import AcadosOcp, AcadosOcpSolver
-import quad_model
+from quad_model import QuadModel
 import scipy.linalg
 import numpy as np
-import casadi as cs
 
 # Initial state
 X0 = np.array([
@@ -27,12 +26,12 @@ class OcpSolver():
         self.ocp = AcadosOcp()
 
         # Object generation
-        quad_model_obj = quad_model.QuadModel(m = 1,
-                                          J =np.diag([1.0, 1.0, 1.0]),
-                                          l = 0.2,
-                                          C_lift = 1,
-                                          C_moment = 1,
-                                          model_description = '+')
+        quad_model_obj = QuadModel(m = 1,
+                                J =np.diag([1.0, 1.0, 1.0]),
+                                l = 0.2,
+                                C_lift = 1,
+                                C_moment = 1,
+                                model_description = '+')
 
         # Get Quad model from the quad_model_obj
         self.model = quad_model_obj.get_acados_model()

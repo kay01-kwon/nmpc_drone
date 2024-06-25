@@ -1,9 +1,7 @@
 import numpy as np
 import casadi as cs
-g = 9.81
 
 def quaternion2rotm(q):
-
     '''
     Convert quaternion to rotation
     :param q: quaternion

@@ -1,5 +1,5 @@
+#! /usr/bin/env python3.8
 import numpy as np
-
 from nmpc_pkg import ocp_solver
 import rospy
 from nav_msgs.msg import Odometry

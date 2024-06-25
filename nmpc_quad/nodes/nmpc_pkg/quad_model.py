@@ -1,10 +1,7 @@
 from acados_template import AcadosModel
 import tools
-import numpy as np
 import casadi as cs
 
-
-g = 9.81
 class QuadModel:
     def __init__(self, m, J, l, C_lift, C_moment, model_description):
         '''
@@ -89,7 +86,7 @@ class QuadModel:
         # Divide mass to get acceleration control input
         acc_input = force/self.m
 
-        g_vec = cs.vertcat(0.0, 0.0, g)
+        g_vec = cs.vertcat(0.0, 0.0, -9.81)
 
         # Get rotation matrix from quaternion
         rotm = tools.quat2rotmat(self.q)
