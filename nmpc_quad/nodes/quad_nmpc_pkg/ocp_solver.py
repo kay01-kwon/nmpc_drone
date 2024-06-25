@@ -40,9 +40,15 @@ class OcpSolver():
         # Set ocp model
         self.ocp.model = self.model
 
+        # Set min max value of the rotor speed
+        self.u_min = u_min
+        self.u_max = u_max
+
         # Set horizon
         self.N = n_nodes
         self.ocp.dims.N = self.N
+
+        self.T_horizon = t_horizon
 
         # Get the dimension of state, input, y and y_e (terminal)
         self.nx = self.model.x.rows()
@@ -50,6 +56,19 @@ class OcpSolver():
         self.ny = self.nx + self.nu
         self.ny_e = self.nx
 
+        self.set_ocp_cost()
+
+        self.set_constraints()
+
+        self.set_constraints()
+
+
+
+    def set_ocp_cost(self):
+        '''
+        Set OCP cost
+        :return:
+        '''
         # cost Q:
         # px, py, pz,
         # vx, vy, vz,
@@ -81,16 +100,33 @@ class OcpSolver():
         self.ocp.cost.W_e = self.Q_mat
 
         # Reference setup
-        self.ocp.cost.yref = np.zeros((self.ny,))
+        self.ocp.cost.yref = np.concatenate((X0, np.zeros(4)))
         self.ocp.cost.yref_e = np.zeros((self.ny,))
 
+    def set_constraints(self):
+        '''
+        Set constraints
+        :return: None
+        '''
         # Constraint on initial state
-        self.ocp.constraints.x0 = np.zeros((self.nx,))
+        self.ocp.constraints.x0 = X0
 
         # Constraint on control input
-        self.ocp.constraints.lbu = np.array([u_min]**4)
-        self.ocp.constraints.ubu = np.array([u_max]**4)
+        self.ocp.constraints.lbu = np.array([self.u_min] ** 4)
+        self.ocp.constraints.ubu = np.array([self.u_max] ** 4)
         self.ocp.constraints.idxbu = np.array([0, 1, 2, 3])
+
+    def set_solver_options(self):
+        '''
+        Set solver options
+        :return: None
+        '''
+        self.ocp.solver_options.qp_solver = "FULL_CONDENSING_HPIPM"
+        self.ocp.solver_options.hessian_solver = "GAUSSIAN_NEWTON"
+        self.ocp.solver_options.integrand_solver = "ERK"
+        self.ocp.solver_options.nlp_solver = "SQP_RTI"
+
+        self.ocp.solver_options.tf = self.T_horizon
 
 
 
