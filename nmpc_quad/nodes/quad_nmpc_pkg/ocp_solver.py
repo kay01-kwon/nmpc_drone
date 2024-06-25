@@ -56,11 +56,14 @@ class OcpSolver():
         self.ny = self.nx + self.nu
         self.ny_e = self.nx
 
+        # Set ocp cost
         self.set_ocp_cost()
 
+        # Set constraint for state and input
         self.set_constraints()
 
-        self.set_constraints()
+        # Set solver options
+        self.set_solver_options()
 
 
 
@@ -127,6 +130,9 @@ class OcpSolver():
         self.ocp.solver_options.nlp_solver = "SQP_RTI"
 
         self.ocp.solver_options.tf = self.T_horizon
+
+    def get_ocp_solver(self)->AcadosOcp:
+        return self.ocp
 
 
 
