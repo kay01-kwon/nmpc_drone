@@ -97,8 +97,15 @@ class nmpc_quad_node:
         self.ref[11] = msg.pose.pose.twist.twist.angular.y
         self.ref[12] = msg.pose.pose.twist.twist.angular.z
 
+def main():
+    rospy.init_node('nmpc_quad', anonymous=True)
+    nmpc_quad = nmpc_quad_node()
+    ros_rate = rospy.Rate(50)
+    while not rospy.is_shutdown():
+        ros_rate.sleep()
 
-
+if __name__ == '__main__':
+    main()
 
 
 
