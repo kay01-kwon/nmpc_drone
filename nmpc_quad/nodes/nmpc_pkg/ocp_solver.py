@@ -142,7 +142,7 @@ class OcpSolver():
         :return: u
         '''
 
-        y_ref = np.concatenate(state, np.zeros_like(self.nu))
+        y_ref = np.concatenate(state, np.zeros(self.nu))
         y_ref_N = ref
 
         # Fill in initial state
