@@ -89,7 +89,7 @@ class QuadModel:
         g_vec = cs.vertcat(0.0, 0.0, -9.81)
 
         # Get rotation matrix from quaternion
-        rotm = tools.quat2rotmat(self.q)
+        rotm = tools.quaternion2rotm(self.q)
 
         dvdt = rotm*acc_input - g
         return dvdt

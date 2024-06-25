@@ -36,7 +36,7 @@ def quaternion2rotm(q):
         cs.horzcat(q_vec[2]*q_vec[1], q_vec[2]*q_vec[1], q_vec[2]*q_vec[2])
     )
 
-    rotm = (q[3]*q[3] - q_vec.T * q_vec)*eye_mat
+    rotm = (q[3]*q[3] - q_vec * q_vec)*eye_mat
     + 2 * outer_product
     + q[3] * vec2skew_symm(q_vec)
 
@@ -49,7 +49,12 @@ def quat2quat_vec(q):
     :param q: qx, qy, qz, qw
     :return: qx, qy, qx
     '''
-    q_vec = q[:3]
+    if isinstance(q, np.ndarray):
+        q_vec = q[:3]
+        return  q_vec
+
+
+    q_vec = cs.vertcat(q[0], q[1], q[2])
     return q_vec
 
 def vec2skew_symm(v):
@@ -68,9 +73,9 @@ def vec2skew_symm(v):
 
     # Represent the return value as Casadi format
     return cs.vertcat(
-        cs.horzcat(0, -v[2], v[1]),
-        cs.horzcat(v[2], 0, -v[0]),
-        cs.horzcat([-v[1], v[0], 0])
+        cs.horzcat(0.0, -v[2], v[1]),
+        cs.horzcat(v[2], 0.0, -v[0]),
+        cs.horzcat(-v[1], v[0], 0.0)
     )
 
 def otimes(q1,q2):

@@ -1,13 +1,27 @@
 #! /usr/bin/env python3.8
+import os
+import sys
+
+'''
+Append nmpc_pkg directory using sys module
+'''
+dir_path = os.path.dirname(os.path.realpath(__file__))
+print(dir_path)
+pkg_dir = dir_path + '/nmpc_pkg'
+print(pkg_dir)
+sys.path.append(dir_path + '/nmpc_pkg')
+
 import numpy as np
 from nmpc_pkg import ocp_solver
 import rospy
 from nav_msgs.msg import Odometry
 from mav_msgs.msg import Actuators
+
 from std_srvs.srv import Empty
 
 class nmpc_quad_node:
     def __init__(self):
+
         # Create ocp solver object
         self.ocp_solver_obj = ocp_solver.OcpSolver()
 
