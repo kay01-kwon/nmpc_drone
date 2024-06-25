@@ -33,6 +33,8 @@ class nmpc_quad_node:
         self.u = np.zeros((4,))
         self.u_msg = Actuators()
 
+        self.ros_setup()
+
 
     def ros_setup(self):
 
@@ -59,23 +61,23 @@ class nmpc_quad_node:
         self.state[2] = msg.pose.pose.position.z
 
         # Get current linear velocity
-        self.state[3] = msg.pose.pose.twist.twist.linear.x
-        self.state[4] = msg.pose.pose.twist.twist.linear.y
-        self.state[5] = msg.pose.pose.twist.twist.linear.z
+        self.state[3] = msg.twist.twist.linear.x
+        self.state[4] = msg.twist.twist.linear.y
+        self.state[5] = msg.twist.twist.linear.z
 
         # Get current quaternion
-        self.state[6] = msg.pose.pose.orientation.quaternion.x
-        self.state[7] = msg.pose.pose.orientation.quaternion.y
-        self.state[8] = msg.pose.pose.orientation.quaternion.z
-        self.state[9] = msg.pose.pose.orientation.quaternion.w
+        self.state[6] = msg.pose.pose.orientation.x
+        self.state[7] = msg.pose.pose.orientation.y
+        self.state[8] = msg.pose.pose.orientation.z
+        self.state[9] = msg.pose.pose.orientation.w
 
         # Get current angular velocity
-        self.state[10] = msg.pose.pose.twist.twist.angular.x
-        self.state[11] = msg.pose.pose.twist.twist.angular.y
-        self.state[12] = msg.pose.pose.twist.twist.angular.z
+        self.state[10] = msg.twist.twist.angular.x
+        self.state[11] = msg.twist.twist.angular.y
+        self.state[12] = msg.twist.twist.angular.z
 
         try:
-            self.u = self.ocp_solver_obj.set_state(self, self.state, self.ref)
+            self.u = self.ocp_solver_obj.ocp_solve(self, self.state, self.ref)
 
             self.u_msg.header.stamp = rospy.Time.now()
             self.u_msg.header.frame_id = "nmpc_node"

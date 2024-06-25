@@ -89,12 +89,13 @@ class OcpSolver():
         self.R_mat = np.diag([0.1, 0.1, 0.1, 0.1])
 
         # Set cost type for OCP
-        self.ocp.cost.cost_type = 'Linear_LS'
-        self.ocp.cost.cost_type_e = 'Linear_LS'
+        self.ocp.cost.cost_type = 'LINEAR_LS'
+        self.ocp.cost.cost_type_e = 'LINEAR_LS'
 
         # Cost setup for state
         self.ocp.cost.Vx = np.zeros((self.ny, self.nx))
         self.ocp.cost.Vx[:self.nx, :self.nx] = np.eye(self.nx)
+        self.ocp.cost.Vx_e = np.eye(self.nx)
 
         # Cost setup for control input
         self.ocp.cost.Vu = np.zeros((self.ny, self.nu))
@@ -106,7 +107,7 @@ class OcpSolver():
 
         # Reference setup
         self.ocp.cost.yref = np.concatenate((X0, np.zeros(4)))
-        self.ocp.cost.yref_e = np.zeros((self.ny,))
+        self.ocp.cost.yref_e = X0
 
     def set_ocp_constraints(self):
         '''
@@ -117,8 +118,8 @@ class OcpSolver():
         self.ocp.constraints.x0 = X0
 
         # Constraint on control input
-        self.ocp.constraints.lbu = np.array([self.u_min] ** 4)
-        self.ocp.constraints.ubu = np.array([self.u_max] ** 4)
+        self.ocp.constraints.lbu = np.array([self.u_min] * 4)
+        self.ocp.constraints.ubu = np.array([self.u_max] * 4)
         self.ocp.constraints.idxbu = np.array([0, 1, 2, 3])
 
     def set_ocp_solver_options(self):
@@ -133,7 +134,7 @@ class OcpSolver():
 
         self.ocp.solver_options.tf = self.T_horizon
 
-    def set_ocp_solver(self, state, ref):
+    def ocp_solve(self, state, ref):
         '''
         Set ocp solver (State and reference)
         :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz

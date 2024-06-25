@@ -15,7 +15,7 @@ class QuadModel:
         '''
 
         # Model name and create AcadosModel object.
-        self.model_name = 'Quadrotor model'
+        self.model_name = 'Quadrotor_model'
         self.model = AcadosModel()
 
         self.l = l
