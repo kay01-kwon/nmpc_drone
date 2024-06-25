@@ -26,10 +26,10 @@ class OcpSolver():
         self.ocp = AcadosOcp()
 
         # Object generation
-        quad_model_obj = QuadModel(m = 1,
+        quad_model_obj = QuadModel(m = 0.68,
                                 J =np.array([1.0, 1.0, 1.0]),
                                 l = 0.2,
-                                C_lift = 1,
+                                C_lift = 8.06428e-05,
                                 C_moment = 1,
                                 model_description = '+')
 
