@@ -17,6 +17,7 @@ class OcpSolver():
     def __init__(self, u_min = 100, u_max = 1000 ,n_nodes = 20, t_horizon = 2.0):
         '''
         Constructor for OcpSolver
+        :param u_min: minimum rotor speed
         :param u_max: maximum rotor speed
         :param n_nodes: Number of nodes for NMPC
         :param T_horizon: Prediction horizon
@@ -24,7 +25,6 @@ class OcpSolver():
 
         # Create AcadosOcp
         self.ocp = AcadosOcp()
-
 
         # Object generation
         quad_model_obj = quad_model.QuadModel(m = 1,
@@ -80,6 +80,17 @@ class OcpSolver():
         self.ocp.cost.W = scipy.linalg.block_diag(self.Q_mat, self.R_mat)
         self.ocp.cost.W_e = self.Q_mat
 
+        # Reference setup
+        self.ocp.cost.yref = np.zeros((self.ny,))
+        self.ocp.cost.yref_e = np.zeros((self.ny,))
+
+        # Constraint on initial state
+        self.ocp.constraints.x0 = np.zeros((self.nx,))
+
+        # Constraint on control input
+        self.ocp.constraints.lbu = np.array([u_min]**4)
+        self.ocp.constraints.ubu = np.array([u_max]**4)
+        self.ocp.constraints.idxbu = np.array([0, 1, 2, 3])
 
 
 
