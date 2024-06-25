@@ -44,16 +44,16 @@ class nmpc_quad_node:
         self.state[1] = msg.pose.pose.position.y
         self.state[2] = msg.pose.pose.position.z
 
-        # Get current quaternion
-        self.state[3] = msg.pose.pose.orientation.quaternion.x
-        self.state[4] = msg.pose.pose.orientation.quaternion.y
-        self.state[5] = msg.pose.pose.orientation.quaternion.z
-        self.state[6] = msg.pose.pose.orientation.quaternion.w
-
         # Get current linear velocity
-        self.state[7] = msg.pose.pose.twist.twist.linear.x
-        self.state[8] = msg.pose.pose.twist.twist.linear.y
-        self.state[9] = msg.pose.pose.twist.twist.linear.z
+        self.state[3] = msg.pose.pose.twist.twist.linear.x
+        self.state[4] = msg.pose.pose.twist.twist.linear.y
+        self.state[5] = msg.pose.pose.twist.twist.linear.z
+
+        # Get current quaternion
+        self.state[6] = msg.pose.pose.orientation.quaternion.x
+        self.state[7] = msg.pose.pose.orientation.quaternion.y
+        self.state[8] = msg.pose.pose.orientation.quaternion.z
+        self.state[9] = msg.pose.pose.orientation.quaternion.w
 
         # Get current angular velocity
         self.state[10] = msg.pose.pose.twist.twist.angular.x
@@ -81,16 +81,16 @@ class nmpc_quad_node:
         self.ref[1] = msg.pose.pose.position.y
         self.ref[2] = msg.pose.pose.position.z
 
-        # Get ref quaternion
-        self.ref[3] = msg.pose.pose.orientation.quaternion.x
-        self.ref[4] = msg.pose.pose.orientation.quaternion.y
-        self.ref[5] = msg.pose.pose.orientation.quaternion.z
-        self.ref[6] = msg.pose.pose.orientation.quaternion.w
-
         # Get ref linear velocity
-        self.ref[7] = msg.pose.pose.twist.twist.linear.x
-        self.ref[8] = msg.pose.pose.twist.twist.linear.y
-        self.ref[9] = msg.pose.pose.twist.twist.linear.z
+        self.ref[3] = msg.pose.pose.twist.twist.linear.x
+        self.ref[4] = msg.pose.pose.twist.twist.linear.y
+        self.ref[5] = msg.pose.pose.twist.twist.linear.z
+
+        # Get ref quaternion
+        self.ref[6] = msg.pose.pose.orientation.quaternion.x
+        self.ref[7] = msg.pose.pose.orientation.quaternion.y
+        self.ref[8] = msg.pose.pose.orientation.quaternion.z
+        self.ref[9] = msg.pose.pose.orientation.quaternion.w
 
         # Get ref angular velocity
         self.ref[10] = msg.pose.pose.twist.twist.angular.x
