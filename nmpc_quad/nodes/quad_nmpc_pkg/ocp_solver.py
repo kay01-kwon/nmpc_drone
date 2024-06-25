@@ -60,10 +60,13 @@ class OcpSolver():
         self.set_ocp_cost()
 
         # Set constraint for state and input
-        self.set_constraints()
+        self.set_ocp_constraints()
 
         # Set solver options
-        self.set_solver_options()
+        self.set_ocp_solver_options()
+
+        # Create ocp solver
+        self.acados_ocp_solver = AcadosOcpSolver(self.ocp)
 
 
 
@@ -106,7 +109,7 @@ class OcpSolver():
         self.ocp.cost.yref = np.concatenate((X0, np.zeros(4)))
         self.ocp.cost.yref_e = np.zeros((self.ny,))
 
-    def set_constraints(self):
+    def set_ocp_constraints(self):
         '''
         Set constraints
         :return: None
@@ -119,7 +122,7 @@ class OcpSolver():
         self.ocp.constraints.ubu = np.array([self.u_max] ** 4)
         self.ocp.constraints.idxbu = np.array([0, 1, 2, 3])
 
-    def set_solver_options(self):
+    def set_ocp_solver_options(self):
         '''
         Set solver options
         :return: None
@@ -131,8 +134,28 @@ class OcpSolver():
 
         self.ocp.solver_options.tf = self.T_horizon
 
-    def get_ocp_solver(self)->AcadosOcp:
-        return self.ocp
+    def set_ocp_solver(self, state, y_ref):
+        '''
+        Set ocp solver (State and reference)
+        :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz
+        :param y_ref: p_xyz_ref, q_xyzw_ref, v_xyz_ref, w_xyz_ref, u_ref
+        :return: u
+        '''
+
+        # Fill in initial state
+        self.acados_ocp_solver.set(0 ,"lbx",state)
+        self.acados_ocp_solver.set(0, "ubx",state)
+
+        for i in range(self.ocp.dims.N):
+            self.acados_ocp_solver.set(i, "y_ref", y_ref)
+        self.acados_ocp_solver.set(self.ocp.dims.N,"y_ref", y_ref)
+
+        status = self.acados_ocp_solver.solve()
+
+        u = self.acados_ocp_solver.get(0,"u")
+
+        return u
+
 
 
 
