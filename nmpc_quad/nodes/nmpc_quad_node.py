@@ -22,6 +22,9 @@ from std_srvs.srv import Empty
 
 class nmpc_quad_node:
     def __init__(self):
+        '''
+        Initialize the ocp solver and store data for state, reference and so on.
+        '''
 
         # Create ocp solver object
         self.ocp_solver_obj = ocp_solver.OcpSolver()
@@ -29,16 +32,22 @@ class nmpc_quad_node:
         self.state = np.zeros((13,))
         self.state[6] = 1.0
 
-        self.ref = self.state
+        self.ref = np.zeros((13,))
 
         self.u = np.zeros((4,))
+        self.rpm_des = np.zeros((4,))
         self.u_msg = Actuators()
+
+        self.C_lift = 8.54858e-06
 
         self.ros_setup()
 
 
     def ros_setup(self):
-
+        '''
+        Publisher and subscriber setup
+        :return:
+        '''
         self.state_sub = rospy.Subscriber('/hummingbird/ground_truth/odometry',
                                           Odometry,
                                           self.state_callback,
@@ -55,7 +64,11 @@ class nmpc_quad_node:
                                          queue_size=1)
 
     def state_callback(self, msg):
-
+        '''
+        State call back function
+        :param msg: Odometry message
+        Solve NMPC for quadrotor
+        '''
         # Get current position
         self.state[0] = msg.pose.pose.position.x
         self.state[1] = msg.pose.pose.position.y
@@ -78,11 +91,18 @@ class nmpc_quad_node:
         self.state[12] = msg.twist.twist.angular.z
 
         try:
+            # if self.ref is not None:
+                # print('Reference position: ', self.ref[:3])
             self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
+
+            # u[i] = C_lift * rpm[i]^2
+            # rpm[i] = sqrt(u[i]/C_lift)
+            for i in range(4):
+                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
 
             self.u_msg.header.stamp = rospy.Time.now()
             self.u_msg.header.frame_id = "nmpc_node"
-            self.u_msg.angular_velocities = self.u
+            self.u_msg.angular_velocities = self.rpm_des
 
         except rospy.ROSInterruptException:
             rospy.logerr("NMPC is infeasible")
@@ -92,7 +112,11 @@ class nmpc_quad_node:
 
 
     def ref_callback(self, msg):
-
+        '''
+        Callback function for reference
+        :param msg: nmpc_pkg/ref.msg
+        Store reference values to the self.ref
+        '''
         # Get reference position
         for i in range(3):
             self.ref[i] = msg.p_des[i]
@@ -101,6 +125,8 @@ class nmpc_quad_node:
 
         for i in range(4):
             self.ref[i+6] = msg.q_des[i]
+
+        # print('Reference position: ', self.ref[:3])
 
 def main():
     rospy.init_node('nmpc_quad', anonymous=True)

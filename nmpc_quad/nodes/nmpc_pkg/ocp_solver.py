@@ -13,7 +13,7 @@ X0 = np.array([
 
 
 class OcpSolver():
-    def __init__(self, u_min = 100, u_max = 1000 ,n_nodes = 20, t_horizon = 2.0):
+    def __init__(self, u_min = 0.1, u_max = 2 ,n_nodes = 20, t_horizon = 2.0):
         '''
         Constructor for OcpSolver
         :param u_min: minimum rotor speed
@@ -27,9 +27,8 @@ class OcpSolver():
 
         # Object generation
         quad_model_obj = QuadModel(m = 0.68,
-                                J =np.array([1.0, 1.0, 1.0]),
+                                J =np.array([0.007, 0.007, 0.012]),
                                 l = 0.2,
-                                C_lift = 8.06428e-05,
                                 C_moment = 1,
                                 model_description = '+')
 
@@ -67,26 +66,20 @@ class OcpSolver():
         # Create ocp solver
         self.acados_ocp_solver = AcadosOcpSolver(self.ocp)
 
-
-
     def set_ocp_cost(self):
         '''
         Set OCP cost
         :return:
         '''
-        # cost Q:
-        # px, py, pz,
-        # vx, vy, vz,
-        # qx, qy, qz, qw(Ignore)
-        # wx, wy, wz
-        self.Q_mat = np.diag([1.0, 1.0, 1.0,
-                              0.05, 0.05, 0.05,
-                              0.1, 0.1, 0.1, 0,
-                              0.05, 0.05, 0.05])
+        # cost Q
+        self.Q_mat = np.diag([10.0, 10.0, 10.0,     #   px py pz
+                              0.05, 0.05, 0.05,     #   vx vy vz
+                              0.1, 0.1, 0.1, 0,     #   qx qy qz qw (Ignore qw)
+                              0.05, 0.05, 0.05])    #   wx wy wz
 
         # cost R:
         # u1, u2, u3, u4 (RPM)
-        self.R_mat = np.diag([0.1, 0.1, 0.1, 0.1])
+        self.R_mat = np.diag([0.01, 0.01, 0.01, 0.01])
 
         # Set cost type for OCP
         self.ocp.cost.cost_type = 'LINEAR_LS'
@@ -129,7 +122,7 @@ class OcpSolver():
         '''
         self.ocp.solver_options.qp_solver = "FULL_CONDENSING_HPIPM"
         self.ocp.solver_options.hessian_solver = "GAUSSIAN_NEWTON"
-        self.ocp.solver_options.integrand_solver = "ERK"
+        self.ocp.solver_options.integrator_type = "ERK"
         self.ocp.solver_options.nlp_solver = "SQP_RTI"
 
         self.ocp.solver_options.tf = self.T_horizon
@@ -144,18 +137,23 @@ class OcpSolver():
 
         y_ref = np.concatenate((ref, np.zeros((self.nu,))))
         y_ref_N = ref
+        # print('Reference position: ', y_ref[:3])
+        # print('State position: ', state[:3])
 
         # Fill in initial state
-        self.acados_ocp_solver.set(0 ,"lbx",state)
-        self.acados_ocp_solver.set(0, "ubx",state)
+        self.acados_ocp_solver.set(0,"lbx", state)
+        self.acados_ocp_solver.set(0, "ubx", state)
 
-        for i in range(self.ocp.dims.N):
-            self.acados_ocp_solver.set(i, "y_ref", y_ref)
+        for stage in range(self.ocp.dims.N):
+            self.acados_ocp_solver.set(stage, "y_ref", y_ref)
         self.acados_ocp_solver.set(self.ocp.dims.N,"y_ref", y_ref_N)
 
         status = self.acados_ocp_solver.solve()
+        # print(status)
 
         u = self.acados_ocp_solver.get(0,"u")
+
+        print('Control input: ', u)
 
         return u
 

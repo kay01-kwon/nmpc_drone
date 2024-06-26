@@ -24,7 +24,6 @@ def quaternion2rotm(q):
         return rotm
 
     # Represent the return value as Casadi format
-
     rotm = cs.vertcat(
         cs.horzcat(1-2*(q[1]*q[1] + q[2]*q[2]), 2*(q[0]*q[1]-q[3]*q[2]), 2*(q[0]*q[2]+q[3]*q[1])),
         cs.horzcat(2*(q[0]*q[1]+q[3]*q[2]), 1-2*(q[0]*q[0]+q[2]*q[2]), 2*(q[1]*q[2]-q[3]*q[0])),
@@ -59,7 +58,8 @@ def vec2skew_symm(v):
         return np.array([
                         [ 0, -v[2], v[1] ],
                         [ v[2], 0, -v[0] ],
-                        [-v[1], v[0], 0] ])
+                        [-v[1], v[0], 0]
+        ])
 
     # Represent the return value as Casadi format
     return cs.vertcat(
@@ -112,6 +112,6 @@ def thrust2moment(model_description, thrust, arm_length, C_moment):
         m_x = l*( -thrust[0] + thrust[1] + thrust[2] - thrust[3])
         m_y = l*( -(thrust[0] + thrust[1]) + (thrust[2] + thrust[3]))
 
-    m_z = C_moment*( thrust[0] - thrust[1] + thrust[2] - thrust[3])
+    m_z = C_moment*( thrust[0] - thrust[1] + thrust[2] - thrust[3] )
 
     return m_x, m_y, m_z

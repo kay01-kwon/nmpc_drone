@@ -3,7 +3,7 @@ import tools
 import casadi as cs
 
 class QuadModel:
-    def __init__(self, m, J, l, C_lift, C_moment, model_description):
+    def __init__(self, m, J, l, C_moment, model_description):
         '''
         Constructor for QuadModel
         :param m: mass
@@ -24,7 +24,6 @@ class QuadModel:
         # mass, moment of inertia, lift coefficient, moment coefficient
         self.m = m
         self.J = J
-        self.C_lift = C_lift
         self.C_moment = C_moment
 
         # Model description ('x' or '+')
@@ -56,9 +55,8 @@ class QuadModel:
 
     def get_acados_model(self):
 
-        self.f_expl = cs.vertcat(self.p_dynamics(), self.v_dynamics(),
-                                 self.q_dynamics(), self.w_dynamics())
-
+        self.f_expl = cs.vertcat(self.p_kinematics(), self.v_dynamics(),
+                                 self.q_kinematics(), self.w_dynamics())
         self.f_impl = self.xdot - self.f_expl
 
         self.model.f_expl_expr = self.f_expl
@@ -69,16 +67,13 @@ class QuadModel:
         self.model.name = self.model_name
         return self.model
 
-    def p_dynamics(self):
+    def p_kinematics(self):
         return self.v
 
     def v_dynamics(self):
 
-        # Four rotor thrust: C_lift*u**2
-        thrust = self.C_lift * self.u**2
-
         # Get the collective thrust to compute the dynamics
-        collective_thrust = thrust[0] + thrust[1] + thrust[2] + thrust[3]
+        collective_thrust = self.u[0] + self.u[1] + self.u[2] + self.u[3]
 
         # Represent it as force vector
         force = cs.vertcat(0.0, 0.0, collective_thrust)
@@ -92,23 +87,21 @@ class QuadModel:
         rotm = tools.quaternion2rotm(self.q)
 
         dvdt = cs.mtimes(rotm, acc_input) - g_vec
-
         return dvdt
 
 
-    def q_dynamics(self):
+    def q_kinematics(self):
+        '''
+        q kinematics
+        :return: dqdt
+        '''
         w_quat_form = cs.vertcat(0.0, self.w)
         dqdt = tools.otimes(w_quat_form, self.q)
         return dqdt
 
     def w_dynamics(self):
-
-        # Four rotor thrust: C_lift*u**2
-        thrust = self.C_lift * self.u**2
-
-
         # Convert Four rotor thrusts to moment
-        m_x, m_y, m_z = tools.thrust2moment(self.model_description, thrust, self.l, self.C_moment)
+        m_x, m_y, m_z = tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
         M_vec = cs.vertcat(m_x , m_y, m_z)
 
         # J*w
