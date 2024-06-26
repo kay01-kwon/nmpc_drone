@@ -13,11 +13,11 @@ X0 = np.array([
 
 
 class OcpSolver():
-    def __init__(self, u_min = 0.1, u_max = 2 ,n_nodes = 20, t_horizon = 2.0):
+    def __init__(self, u_min = 0.2, u_max = 7 ,n_nodes = 10, t_horizon = 1.0):
         '''
         Constructor for OcpSolver
-        :param u_min: minimum rotor speed
-        :param u_max: maximum rotor speed
+        :param u_min: minimum rotor thrust (N)
+        :param u_max: maximum rotor thrust (N)
         :param n_nodes: Number of nodes for NMPC
         :param T_horizon: Prediction horizon
         '''
@@ -28,8 +28,8 @@ class OcpSolver():
         # Object generation
         quad_model_obj = QuadModel(m = 0.68,
                                 J =np.array([0.007, 0.007, 0.012]),
-                                l = 0.2,
-                                C_moment = 1,
+                                l = 0.17,
+                                C_moment = 0.1,
                                 model_description = '+')
 
         # Get Quad model from the quad_model_obj
@@ -72,7 +72,7 @@ class OcpSolver():
         :return:
         '''
         # cost Q
-        self.Q_mat = np.diag([10.0, 10.0, 10.0,     #   px py pz
+        self.Q_mat = np.diag([1.0, 1.0, 1.0,     #   px py pz
                               0.05, 0.05, 0.05,        #   vx vy vz
                               0.1, 0.1, 0.1, 0,           #   qx qy qz qw
                               0.05, 0.05, 0.05])    #   wx wy wz

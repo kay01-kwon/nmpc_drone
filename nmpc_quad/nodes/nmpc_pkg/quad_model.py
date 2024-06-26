@@ -9,7 +9,6 @@ class QuadModel:
         :param m: mass
         :param J: Put np.diag([Jxx, Jyy, Jzz])
         :param l: arm length
-        :param C_lift: Coefficient of lift
         :param C_moment: Coefficient of moment
         :param model_description: '+' or 'x'
         '''
@@ -102,7 +101,7 @@ class QuadModel:
         q kinematics
         :return: dqdt (dqdt = 0.5 * w otimes q)
         '''
-        w_quat_form = cs.vertcat(0.0, self.w)
+        w_quat_form = cs.vertcat(0.0, self.w)       # [0 w]
         dqdt = 0.5*tools.otimes(w_quat_form, self.q)
         return dqdt
 
