@@ -131,7 +131,7 @@ class nmpc_quad_node:
 def main():
     rospy.init_node('nmpc_quad', anonymous=True)
     nmpc_quad = nmpc_quad_node()
-    ros_rate = rospy.Rate(20)
+    ros_rate = rospy.Rate(50)
     while not rospy.is_shutdown():
         ros_rate.sleep()
 

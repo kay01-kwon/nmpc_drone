@@ -72,9 +72,9 @@ class OcpSolver():
         :return:
         '''
         # cost Q
-        self.Q_mat = np.diag([1000.0, 1000.0, 1000.0,     #   px py pz
-                              0.05, 0.05, 0.05,     #   vx vy vz
-                              0.1, 0.1, 0.1, 0,     #   qx qy qz qw (Ignore qw)
+        self.Q_mat = np.diag([10.0, 10.0, 10.0,     #   px py pz
+                              0.05, 0.05, 0.05,        #   vx vy vz
+                              0.1, 0.1, 0.1, 0,           #   qx qy qz qw
                               0.05, 0.05, 0.05])    #   wx wy wz
 
         # cost R:
