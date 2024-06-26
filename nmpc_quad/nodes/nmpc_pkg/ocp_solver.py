@@ -72,7 +72,7 @@ class OcpSolver():
         :return:
         '''
         # cost Q
-        self.Q_mat = np.diag([10.0, 10.0, 10.0,     #   px py pz
+        self.Q_mat = np.diag([1000.0, 1000.0, 1000.0,     #   px py pz
                               0.05, 0.05, 0.05,     #   vx vy vz
                               0.1, 0.1, 0.1, 0,     #   qx qy qz qw (Ignore qw)
                               0.05, 0.05, 0.05])    #   wx wy wz
@@ -127,16 +127,16 @@ class OcpSolver():
 
         self.ocp.solver_options.tf = self.T_horizon
 
-    def ocp_solve(self, state, reference):
+    def ocp_solve(self, state, ref):
         '''
         Set ocp solver (State and reference)
         :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz
-        :param y_ref: p_xyz_ref, q_xyzw_ref, v_xyz_ref, w_xyz_ref, u_ref
+        :param ref: p_xyz_ref, v_xyz_ref, q_xyzw, w_xyz
         :return: u
         '''
 
-        y_ref = np.concatenate((reference, np.zeros((self.nu,))))
-        y_ref_N = reference
+        y_ref = np.concatenate((ref, np.zeros((self.nu,))))
+        y_ref_N = ref
         # print('Reference position: ', y_ref[:3])
         # print('State position: ', state[:3])
 
@@ -149,11 +149,8 @@ class OcpSolver():
         self.acados_ocp_solver.set(self.ocp.dims.N,"y_ref", y_ref_N)
 
         status = self.acados_ocp_solver.solve()
-        # print(status)
 
         u = self.acados_ocp_solver.get(0,"u")
-
-        print('Control input: ', u)
 
         return u
 

@@ -68,10 +68,17 @@ class QuadModel:
         return self.model
 
     def p_kinematics(self):
+        '''
+        p kinematics
+        :return: v (linear velocity)
+        '''
         return self.v
 
     def v_dynamics(self):
-
+        '''
+        v dynamics
+        :return: dvdt (linear acceleration)
+        '''
         # Get the collective thrust to compute the dynamics
         collective_thrust = self.u[0] + self.u[1] + self.u[2] + self.u[3]
 
@@ -86,20 +93,24 @@ class QuadModel:
         # Get rotation matrix from quaternion
         rotm = tools.quaternion2rotm(self.q)
 
-        dvdt = cs.mtimes(rotm, acc_input) - g_vec
+        dvdt = cs.mtimes(rotm, acc_input) + g_vec
         return dvdt
 
 
     def q_kinematics(self):
         '''
         q kinematics
-        :return: dqdt
+        :return: dqdt (dqdt = 0.5 * w otimes q)
         '''
         w_quat_form = cs.vertcat(self.w, 0.0)
         dqdt = 0.5*tools.otimes(w_quat_form, self.q)
         return dqdt
 
     def w_dynamics(self):
+        '''
+        w_dynamics
+        :return: dwdt
+        '''
         # Convert Four rotor thrusts to moment
         m_x, m_y, m_z = tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
         M_vec = cs.vertcat(m_x , m_y, m_z)
