@@ -88,7 +88,7 @@ def otimes(q1,q2):
     q1_L = cs.vertcat(
         cs.horzcat(q1[3], -q1[0], -q1[2], -q1[3]),
         cs.horzcat(q1[0], q1[3], -q1[2], q1[1]),
-        cs.horzcat(q1[1], q1[3], q1[3], -q1[0]),
+        cs.horzcat(q1[1], q1[2], q1[3], -q1[0]),
         cs.horzcat(q1[2], -q1[1], q1[0], q1[3])
     )
 

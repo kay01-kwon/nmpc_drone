@@ -127,7 +127,7 @@ class OcpSolver():
 
         self.ocp.solver_options.tf = self.T_horizon
 
-    def ocp_solve(self, state, ref):
+    def ocp_solve(self, state, reference):
         '''
         Set ocp solver (State and reference)
         :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz
@@ -135,8 +135,8 @@ class OcpSolver():
         :return: u
         '''
 
-        y_ref = np.concatenate((ref, np.zeros((self.nu,))))
-        y_ref_N = ref
+        y_ref = np.concatenate((reference, np.zeros((self.nu,))))
+        y_ref_N = reference
         # print('Reference position: ', y_ref[:3])
         # print('State position: ', state[:3])
 

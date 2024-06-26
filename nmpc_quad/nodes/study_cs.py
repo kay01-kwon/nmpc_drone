@@ -16,7 +16,8 @@ from nmpc_pkg import tools
 # print(thrust.shape)
 #
 #
-# q = cs.MX.sym('q',4)
+q1 = cs.MX.sym('q1',4)
+q2 = cs.MX.sym('q2',4)
 #
 # test_mat = cs.MX.sym('R', 3, 3)
 #
@@ -30,3 +31,13 @@ u_ref = np.zeros((4,))
 y_ref = np.concatenate((x_ref,u_ref))
 
 print(y_ref)
+
+q1_L = cs.vertcat(
+    cs.horzcat(q1[3], -q1[0], -q1[2], -q1[3]),
+    cs.horzcat(q1[0], q1[3], -q1[2], q1[1]),
+    cs.horzcat(q1[1], q1[3], q1[3], -q1[0]),
+    cs.horzcat(q1[2], -q1[1], q1[0], q1[3])
+)
+
+print(cs.mtimes(q1_L,q2))
+
