@@ -16,6 +16,7 @@ from nmpc_pkg import ocp_solver
 import rospy
 from nav_msgs.msg import Odometry
 from mav_msgs.msg import Actuators
+from nmpc_quad.msg import nmpc_ref
 
 from std_srvs.srv import Empty
 
@@ -44,7 +45,7 @@ class nmpc_quad_node:
                                           queue_size=1)
 
         self.ref_sub = rospy.Subscriber('/nmpc_quad/ref',
-                                        Odometry,
+                                        nmpc_ref,
                                         self.ref_callback,
                                         queue_size=1)
 
@@ -93,25 +94,13 @@ class nmpc_quad_node:
     def ref_callback(self, msg):
 
         # Get reference position
-        self.ref[0] = msg.pose.pose.position.x
-        self.ref[1] = msg.pose.pose.position.y
-        self.ref[2] = msg.pose.pose.position.z
+        for i in range(3):
+            self.ref[i] = msg.p_des[i]
+            self.ref[i+3] = msg.v_des[i]
+            self.ref[i+10] = msg.w_des[i]
 
-        # Get ref linear velocity
-        self.ref[3] = msg.twist.twist.linear.x
-        self.ref[4] = msg.twist.twist.linear.y
-        self.ref[5] = msg.twist.twist.linear.z
-
-        # Get ref quaternion
-        self.ref[6] = msg.pose.pose.orientation.x
-        self.ref[7] = msg.pose.pose.orientation.y
-        self.ref[8] = msg.pose.pose.orientation.z
-        self.ref[9] = msg.pose.pose.orientation.w
-
-        # Get ref angular velocity
-        self.ref[10] = msg.twist.twist.angular.x
-        self.ref[11] = msg.twist.twist.angular.y
-        self.ref[12] = msg.twist.twist.angular.z
+        for i in range(4):
+            self.ref[i+6] = msg.q_des[i]
 
 def main():
     rospy.init_node('nmpc_quad', anonymous=True)
