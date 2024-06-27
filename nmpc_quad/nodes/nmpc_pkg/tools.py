@@ -23,10 +23,10 @@ def quaternion2rotm(q):
 
         return rotm
 
-    qx = q[0]
-    qy = q[1]
-    qz = q[2]
-    qw = q[3]
+    qw = q[0]
+    qx = q[1]
+    qy = q[2]
+    qz = q[3]
 
     # Represent the return value as Casadi format
     rotm = cs.vertcat(
@@ -90,10 +90,10 @@ def otimes(q1,q2):
         ])
         return np.matmul(q1_L, q2)
 
-    q1_x = q1[0]
-    q1_y = q1[1]
-    q1_z = q1[2]
-    q1_w = q1[3]
+    q1_w = q1[0]
+    q1_x = q1[1]
+    q1_y = q1[2]
+    q1_z = q1[3]
 
     q1_L = cs.vertcat(
         cs.horzcat(q1_w, -q1_x, -q1_y, -q1_z),
