@@ -83,16 +83,16 @@ class nmpc_quad_node:
         self.state[6] = msg.pose.pose.orientation.w
         self.state[7] = msg.pose.pose.orientation.x
         self.state[8] = msg.pose.pose.orientation.y
-        self.state[0] = msg.pose.pose.orientation.z
+        self.state[9] = msg.pose.pose.orientation.z
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x
         self.state[11] = msg.twist.twist.angular.y
         self.state[12] = msg.twist.twist.angular.z
 
+        # print('position: ',self.state[0], ', ', self.state[1], ', ', self.state[2])
+
         try:
-            # if self.ref is not None:
-                # print('Reference position: ', self.ref[:3])
             self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
 
             # u[i] = C_lift * rpm[i]^2
@@ -123,8 +123,8 @@ class nmpc_quad_node:
             self.ref[i+3] = msg.v_des[i]
             self.ref[i+10] = msg.w_des[i]
 
-        for i in range(4):
-            self.ref[i+6] = msg.q_des[i]
+        for j in range(4):
+            self.ref[j+6] = msg.q_des[j]
 
         # print('Reference position: ', self.ref[:3])
 

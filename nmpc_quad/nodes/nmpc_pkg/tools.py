@@ -44,7 +44,7 @@ def quat2quat_vec(q):
     :return: qx, qy, qx
     '''
     if isinstance(q, np.ndarray):
-        q_vec = q[:3]
+        q_vec = q[1:4]
         return  q_vec
 
     qx = q[1]
@@ -69,11 +69,15 @@ def vec2skew_symm(v):
                         [-v[1], v[0], 0]
         ])
 
+    vx = v[0]
+    vy = v[1]
+    vz = v[2]
+
     # Represent the return value as Casadi format
     return cs.vertcat(
-        cs.horzcat(0.0, -v[2], v[1]),
-        cs.horzcat(v[2], 0.0, -v[0]),
-        cs.horzcat(-v[1], v[0], 0.0)
+        cs.horzcat(0.0, -vz, vy),
+        cs.horzcat(vz, 0.0, -vx),
+        cs.horzcat(-vy, vx, 0.0)
     )
 
 def otimes(q1,q2):

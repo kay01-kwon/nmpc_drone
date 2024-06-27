@@ -41,3 +41,10 @@ q1_L = cs.vertcat(
 
 print(cs.mtimes(q1_L,q2))
 
+state = np.zeros((3,))
+
+state[0] = 1
+state[1] = 2
+state[2] = 3
+
+print("state",state[:3])

@@ -76,7 +76,7 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([1.0, 1.0, 1.0,
+        self.Q_mat = np.diag([10.0, 10.0, 10.0,
                               0.05, 0.05, 0.05,
                               0, 0.1, 0.1, 0.1,
                               0.05, 0.05, 0.05])
@@ -134,7 +134,7 @@ class OcpSolver():
     def ocp_solve(self, state, ref):
         '''
         Set ocp solver (State and reference)
-        :param state: Initial state of p_xyz, q_xyzw, v_xyz, w_xyz
+        :param state: Initial state of p_xyz, q_wxyz, v_xyz, w_xyz
         :param ref: p_xyz_ref, v_xyz_ref, q_xyzw, w_xyz
         :return: u
         '''
