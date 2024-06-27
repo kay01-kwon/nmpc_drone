@@ -29,10 +29,10 @@ class QuadModel:
         self.model_description = model_description
 
         # Casadi: Assign x (state)
-        self.p = cs.MX.sym('p',3)   # position
-        self.v = cs.MX.sym('v',3)   # velocity
-        self.q = cs.MX.sym('q',4)   # quaternion
-        self.w = cs.MX.sym('w',3)   # angular velocity
+        self.p = cs.MX.sym('p',3)   # position              px py pz
+        self.v = cs.MX.sym('v',3)   # linear velocity       vx vy vz
+        self.q = cs.MX.sym('q',4)   # quaternion            qw qx qy qz
+        self.w = cs.MX.sym('w',3)   # angular velocity      wx wy wz
         self.x = cs.vertcat(self.p, self.v, self.q, self.w)     #state
         self.x_dim = 13
 

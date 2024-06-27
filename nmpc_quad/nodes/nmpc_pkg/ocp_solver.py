@@ -7,7 +7,7 @@ import numpy as np
 X0 = np.array([
     0.0, 0.0, 0.0,          # position
     0.0, 0.0, 0.0,          # velocity
-    0.0, 0.0, 0.0, 1.0,     # quaternion
+    1.0, 0.0, 0.0, 0.0,     # quaternion
     0.0, 0.0, 0.0           # angular velocity
 ])
 
@@ -72,10 +72,14 @@ class OcpSolver():
         :return:
         '''
         # cost Q
-        self.Q_mat = np.diag([1.0, 1.0, 1.0,     #   px py pz
-                              0.05, 0.05, 0.05,        #   vx vy vz
-                              0.1, 0.1, 0.1, 0,           #   qx qy qz qw
-                              0.05, 0.05, 0.05])    #   wx wy wz
+        # px py pz
+        # vx vy vz
+        # qw qx qy qz
+        # wx wy wz
+        self.Q_mat = np.diag([1.0, 1.0, 1.0,
+                              0.05, 0.05, 0.05,
+                              0, 0.1, 0.1, 0.1,
+                              0.05, 0.05, 0.05])
 
         # cost R:
         # u1, u2, u3, u4 (RPM)

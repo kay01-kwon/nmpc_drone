@@ -80,10 +80,10 @@ class nmpc_quad_node:
         self.state[5] = msg.twist.twist.linear.z
 
         # Get current quaternion
-        self.state[6] = msg.pose.pose.orientation.x
-        self.state[7] = msg.pose.pose.orientation.y
-        self.state[8] = msg.pose.pose.orientation.z
-        self.state[9] = msg.pose.pose.orientation.w
+        self.state[6] = msg.pose.pose.orientation.w
+        self.state[7] = msg.pose.pose.orientation.x
+        self.state[8] = msg.pose.pose.orientation.y
+        self.state[0] = msg.pose.pose.orientation.z
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x

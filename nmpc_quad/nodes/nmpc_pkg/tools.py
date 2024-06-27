@@ -47,8 +47,11 @@ def quat2quat_vec(q):
         q_vec = q[:3]
         return  q_vec
 
+    qx = q[1]
+    qy = q[2]
+    qz = q[3]
 
-    q_vec = cs.vertcat(q[0], q[1], q[2])
+    q_vec = cs.vertcat(qx, qy, qz)
     return q_vec
 
 def vec2skew_symm(v):
