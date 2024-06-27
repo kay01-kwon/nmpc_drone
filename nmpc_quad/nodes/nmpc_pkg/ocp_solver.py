@@ -76,7 +76,7 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([10.0, 10.0, 10.0,
+        self.Q_mat = np.diag([1.0, 1.0, 1.0,
                               0.05, 0.05, 0.05,
                               0, 0.1, 0.1, 0.1,
                               0.05, 0.05, 0.05])
