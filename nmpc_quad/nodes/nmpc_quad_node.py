@@ -6,9 +6,10 @@ import sys
 Append nmpc_pkg directory using sys module
 '''
 dir_path = os.path.dirname(os.path.realpath(__file__))
-print(dir_path)
+# print(dir_path)
+
 pkg_dir = dir_path + '/nmpc_pkg'
-print(pkg_dir)
+# print(pkg_dir)
 sys.path.append(dir_path + '/nmpc_pkg')
 
 import numpy as np

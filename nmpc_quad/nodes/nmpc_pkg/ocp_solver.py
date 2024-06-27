@@ -1,3 +1,6 @@
+import os
+import shutil
+import sys
 from acados_template import AcadosOcp, AcadosOcpSolver
 from quad_model import QuadModel
 import scipy.linalg
@@ -22,6 +25,23 @@ class OcpSolver():
         :param T_horizon: Prediction horizon
         '''
 
+        # If there exist c_generated_code and acados json file
+        # remove it.
+        nmpc_pkg_dir = os.getcwd()
+        print(nmpc_pkg_dir)
+        node_dir = os.path.dirname(nmpc_pkg_dir)
+        nmpc_quad_dir = os.path.dirname(node_dir)
+        prev_dir = os.path.dirname(nmpc_quad_dir)
+        acados_json_dir = os.path.join(prev_dir, "acados_ocp_nlp.json")
+        acados_c_dir = prev_dir + '/c_generated_code'
+        print('Acados json directory: ',acados_json_dir)
+        print('Acados c generated directory: ',acados_c_dir)
+
+        if os.path.exists(acados_json_dir):
+            os.remove(acados_json_dir)
+
+        if os.path.exists(acados_c_dir):
+            shutil.rmtree(acados_c_dir)
         # Create AcadosOcp
         self.ocp = AcadosOcp()
 
@@ -158,9 +178,5 @@ class OcpSolver():
 
         return u
 
-
-
-
-
-
-
+if __name__ == "__main__":
+    ocp_solver = OcpSolver()
