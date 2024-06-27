@@ -1,6 +1,7 @@
 #! /usr/bin/env python3.8
 import os
 import sys
+import shutil
 
 '''
 Append nmpc_pkg directory using sys module
