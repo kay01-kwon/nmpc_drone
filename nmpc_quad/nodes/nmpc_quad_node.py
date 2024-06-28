@@ -98,8 +98,13 @@ class nmpc_quad_node:
 
         # u[i] = C_lift * rpm[i]^2
         # rpm[i] = sqrt(u[i]/C_lift)
-        for i in range(4):
-            self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
+        if status != 0:
+            for i in range(4):
+                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
+        else:
+            for i in range(4):
+                self.rpm_des[i] = 0
+            print('NMPC : Infeasible')
 
         self.u_msg.header.stamp = rospy.Time.now()
         self.u_msg.header.frame_id = "nmpc_node"
