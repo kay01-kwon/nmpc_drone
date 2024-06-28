@@ -94,20 +94,17 @@ class nmpc_quad_node:
 
         # print('position: ',self.state[0], ', ', self.state[1], ', ', self.state[2])
 
-        try:
-            self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
+        status, self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
 
-            # u[i] = C_lift * rpm[i]^2
-            # rpm[i] = sqrt(u[i]/C_lift)
-            for i in range(4):
-                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
+        # u[i] = C_lift * rpm[i]^2
+        # rpm[i] = sqrt(u[i]/C_lift)
+        for i in range(4):
+            self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
 
-            self.u_msg.header.stamp = rospy.Time.now()
-            self.u_msg.header.frame_id = "nmpc_node"
-            self.u_msg.angular_velocities = self.rpm_des
+        self.u_msg.header.stamp = rospy.Time.now()
+        self.u_msg.header.frame_id = "nmpc_node"
+        self.u_msg.angular_velocities = self.rpm_des
 
-        except rospy.ROSInterruptException:
-            rospy.logerr("NMPC is infeasible")
 
         self.input_pub.publish(self.u_msg)
 

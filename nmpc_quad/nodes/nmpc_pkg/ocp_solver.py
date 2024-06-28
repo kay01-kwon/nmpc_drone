@@ -189,4 +189,4 @@ class OcpSolver():
 
         u = self.acados_ocp_solver.get(0,"u")
 
-        return u
+        return status, u
