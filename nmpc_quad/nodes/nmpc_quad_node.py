@@ -98,7 +98,7 @@ class nmpc_quad_node:
 
         # u[i] = C_lift * rpm[i]^2
         # rpm[i] = sqrt(u[i]/C_lift)
-        if status != 0:
+        if status == 0:
             for i in range(4):
                 self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
         else:
