@@ -6,14 +6,8 @@ Convex_fn::Convex_fn()
     bound << 1, 1, 1;
     bound_scalar_ = sqrt(bound.transpose()*bound);
     epsilon_ = 1;
-    
-    cout << "Value for bound: " << endl;
 
-    for(int i = 0 ; i < 3; i++)
-        cout << bound(i) << endl;
-    
-
-    cout << "Value for epsilon: " << epsilon_ <<endl;
+    print_parameter_value();
 
 }
 
@@ -21,7 +15,7 @@ Convex_fn::Convex_fn(const mat31_t &bound,
 const double &epsilon):epsilon_(epsilon), 
 bound_scalar_(sqrt(bound.transpose()*bound))
 {
-    cout << "Value for epsilon: " << epsilon_ <<endl;
+    print_parameter_value();
 }
 
 void Convex_fn::get_fn_value(const mat31_t &vec, 
@@ -38,6 +32,13 @@ double &f, mat31_t &Df) const
     f = num/den;
     
     Df = 2*vec/den;
+}
+
+void Convex_fn::print_parameter_value()
+{
+    cout<<"Convex function parameter"<<endl;
+    cout<<"Value for scalared bound: "<< bound_scalar_<<endl;
+    cout<<"Value for epsilon: "<< epsilon_<<endl;
 }
 
 Convex_fn::~Convex_fn()
