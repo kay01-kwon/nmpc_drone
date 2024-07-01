@@ -13,6 +13,8 @@ class Convex_fn{
     void get_fn_value(const mat31_t& vec,
     double& f, mat31_t& Df) const;
 
+    ~Convex_fn();
+
     private:
 
         double bound_scalar_;

@@ -39,3 +39,8 @@ double &f, mat31_t &Df) const
     
     Df = 2*vec/den;
 }
+
+Convex_fn::~Convex_fn()
+{
+    
+}
