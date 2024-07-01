@@ -3,11 +3,13 @@
 GammaPrj::GammaPrj()
 :Gamma_(1000*Gamma_.setIdentity())
 {
+    print_Gamma_value();
 }
 
 GammaPrj::GammaPrj(const mat33_t &Gamma)
 :Gamma_(Gamma)
 {
+    print_Gamma_value();
 }
 
 void GammaPrj::getProjGamma(const mat31_t &vec, 
@@ -28,4 +30,10 @@ mat31_t &vec_proj)
     {
         vec_proj = Gamma_*y;
     }
+}
+
+void GammaPrj::print_Gamma_value()
+{
+    cout << "Value for Gamma:" << endl;
+    cout << Gamma_ <<endl;
 }
