@@ -47,6 +47,18 @@ void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
 
 void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
 {
+    mat33_t eye_m;
+    mat31_t q_vec;
+    mat33_t skew_sym;
+
+    eye_m.setIdentity();
+
+    convert_quat_to_quat_vec(q, q_vec);
+    convert_vec_to_skew(q_vec,skew_sym);
+
+    rotm = (q.w()*q.w() - q_vec.transpose()*q_vec)*eye_m
+    + 2 * q_vec * q_vec.transpose()
+    + 2 * q.w() * skew_sym;
 
 }
 
