@@ -1,16 +1,5 @@
 #include "convex_fn.hpp"
 
-Convex_fn::Convex_fn()
-{
-    mat31_t bound;
-    bound << 1, 1, 1;
-    bound_scalar_ = sqrt(bound.transpose()*bound);
-    epsilon_ = 1;
-
-    print_parameter_value();
-
-}
-
 Convex_fn::Convex_fn(const mat31_t &bound, 
 const double &epsilon):epsilon_(epsilon), 
 bound_scalar_(sqrt(bound.transpose()*bound))
