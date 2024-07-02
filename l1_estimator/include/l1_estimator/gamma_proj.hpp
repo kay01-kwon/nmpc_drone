@@ -6,7 +6,7 @@ class GammaPrj{
 
     public:
 
-        GammaPrj();
+        GammaPrj() = delete;
 
         GammaPrj(const mat33_t& Gamma);
 
@@ -14,9 +14,9 @@ class GammaPrj{
         const mat31_t& y, 
         const double& f, 
         const mat31_t& grad_f,
-        mat31_t& vec_proj);
+        mat31_t& vec_proj) const;
 
-        void print_Gamma_value();
+        void print_Gamma_value() const;
 
     private:
 

@@ -1,11 +1,5 @@
 #include "gamma_proj.hpp"
 
-GammaPrj::GammaPrj()
-:Gamma_(1000*Gamma_.setIdentity())
-{
-    print_Gamma_value();
-}
-
 GammaPrj::GammaPrj(const mat33_t &Gamma)
 :Gamma_(Gamma)
 {
@@ -16,7 +10,7 @@ void GammaPrj::getProjGamma(const mat31_t &vec,
 const mat31_t &y, 
 const double &f, 
 const mat31_t &grad_f, 
-mat31_t &vec_proj)
+mat31_t &vec_proj) const
 {
     if( (f > 0) && ( y.transpose()*Gamma_*grad_f > 0 ))
     {
@@ -32,7 +26,7 @@ mat31_t &vec_proj)
     }
 }
 
-void GammaPrj::print_Gamma_value()
+void GammaPrj::print_Gamma_value() const
 {
     cout << "Value for Gamma:" << endl;
     cout << Gamma_ <<endl;
