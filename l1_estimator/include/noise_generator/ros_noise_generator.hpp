@@ -14,7 +14,8 @@ class RosNoiseGenerator
         RosNoiseGenerator() = delete;
 
         RosNoiseGenerator(const NodeHandle& nh,
-        const mat31_t& mag, const mat31_t& freq);
+        const mat31_t& mag, const mat31_t& freq,
+        const double& stddev);
 
         void noise_publish();
 
@@ -26,5 +27,6 @@ class RosNoiseGenerator
 
         mat31_t mag_;
         mat31_t freq_;
+        double stddev_;
 
 };

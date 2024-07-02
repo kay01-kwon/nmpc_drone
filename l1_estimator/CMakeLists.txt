@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS system)
 
-
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
@@ -25,20 +24,28 @@ generate_messages(
 )
 
 include_directories(
-# include
+include
   ${catkin_INCLUDE_DIRS}
 )
-
 
 catkin_package(
   LIBRARIES l1_estimator
   CATKIN_DEPENDS roscpp std_msgs message_runtime
 )
 
+
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/l1_estimator_node.cpp)
+add_executable(noise_generator_node 
+src/noise_generator_node.cpp
+include/noise_generator/noise_generator.cpp
+include/noise_generator/ros_noise_generator.cpp)
+
+target_link_libraries(noise_generator_node
+${catkin_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
