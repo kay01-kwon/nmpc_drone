@@ -1,36 +1,37 @@
 {
-  "configurations": [
-    {
-      "browse": {
-        "databaseFilename": "${default}",
-        "limitSymbolsToIncludedHeaders": false
-      },
-      "includePath": [
-        "/home/kay/catkin_ws/devel/include/**",
-        "/opt/ros/noetic/include/**",
-        "/home/kay/voxfield_ws/devel/include/**",
-        "/home/kay/voxfield_ws/src/eigen_checks/include/**",
-        "/home/kay/catkin_ws/src/mav_comm/mav_msgs/include/**",
-        "/home/kay/catkin_ws/src/mav_comm/mav_planning_msgs/include/**",
-        "/home/kay/voxfield_ws/src/minkindr/minkindr/include/**",
-        "/home/kay/voxfield_ws/src/minkindr_ros/minkindr_conversions/include/**",
-        "/home/kay/catkin_ws/src/rotors_simulator/rotors_control/include/**",
-        "/home/kay/catkin_ws/src/rotors_simulator/rotors_gazebo_plugins/include/**",
-        "/home/kay/catkin_ws/src/rotors_simulator/rotors_hil_interface/include/**",
-        "/home/kay/catkin_ws/src/rotors_simulator/rotors_joy_interface/include/**",
-        "/home/kay/catkin_ws/src/mpc_test/simple_system/include/**",
-        "/home/kay/catkin_ws/src/mpc_test/simple_system_msg/include/**",
-        "/home/kay/voxfield_ws/src/voxfield/voxblox/include/**",
-        "/home/kay/voxfield_ws/src/voxfield/voxblox_ros/include/**",
-        "/home/kay/voxfield_ws/src/voxfield/voxblox_rviz_plugin/include/**",
-        "/usr/include/**"
-      ],
-      "name": "ROS",
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "gnu11",
-      "cppStandard": "c++14"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/home/kay/catkin_ws/devel/include/**",
+                "/opt/ros/noetic/include/**",
+                "/home/kay/voxfield_ws/devel/include/**",
+                "/home/kay/voxfield_ws/src/eigen_checks/include/**",
+                "/home/kay/catkin_ws/src/mav_comm/mav_msgs/include/**",
+                "/home/kay/catkin_ws/src/mav_comm/mav_planning_msgs/include/**",
+                "/home/kay/voxfield_ws/src/minkindr/minkindr/include/**",
+                "/home/kay/voxfield_ws/src/minkindr_ros/minkindr_conversions/include/**",
+                "/home/kay/catkin_ws/src/rotors_simulator/rotors_control/include/**",
+                "/home/kay/catkin_ws/src/rotors_simulator/rotors_gazebo_plugins/include/**",
+                "/home/kay/catkin_ws/src/rotors_simulator/rotors_hil_interface/include/**",
+                "/home/kay/catkin_ws/src/rotors_simulator/rotors_joy_interface/include/**",
+                "/home/kay/catkin_ws/src/mpc_test/simple_system/include/**",
+                "/home/kay/catkin_ws/src/mpc_test/simple_system_msg/include/**",
+                "/home/kay/voxfield_ws/src/voxfield/voxblox/include/**",
+                "/home/kay/voxfield_ws/src/voxfield/voxblox_ros/include/**",
+                "/home/kay/voxfield_ws/src/voxfield/voxblox_rviz_plugin/include/**",
+                "/usr/include/**",
+                "${workspaceFolder}/l1_estimator/include"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
 }
