@@ -34,7 +34,7 @@ double &f, mat31_t &Df) const
     Df = 2*vec/den;
 }
 
-void Convex_fn::print_parameter_value()
+void Convex_fn::print_parameter_value() const
 {
     cout<<"Convex function parameter"<<endl;
     cout<<"Value for scalared bound: "<< bound_scalar_<<endl;
