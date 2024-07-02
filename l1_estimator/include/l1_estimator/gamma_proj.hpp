@@ -18,6 +18,8 @@ class GammaPrj{
 
         void print_Gamma_value() const;
 
+        ~GammaPrj();
+
     private:
 
         mat33_t Gamma_;

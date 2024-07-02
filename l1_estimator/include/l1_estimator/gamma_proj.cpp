@@ -31,3 +31,8 @@ void GammaPrj::print_Gamma_value() const
     cout << "Value for Gamma:" << endl;
     cout << Gamma_ <<endl;
 }
+
+GammaPrj::~GammaPrj()
+{
+    
+}

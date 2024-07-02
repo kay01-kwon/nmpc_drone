@@ -13,9 +13,7 @@ class Lpf{
 
     Lpf() = delete;
 
-    Lpf(const double tau);
-
-    void initialize_variables();
+    Lpf(const double& tau, const double& time_now);
 
     void set_input(const mat31_t& v_in);
 

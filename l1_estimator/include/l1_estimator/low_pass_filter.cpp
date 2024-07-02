@@ -1,5 +1,40 @@
 #include "low_pass_filter.hpp"
 
-Lpf::Lpf(const double tau)
+Lpf::Lpf(const double &tau, const double &time_now)
+:tau_(tau), curr_v_(curr_v_.setZero()), 
+v_in_(v_in_.setZero()), v_out_(v_out_.setZero()),
+curr_time_(time_now), prev_time_(time_now), dt_(0)
 {
+    cout<<"Tau set: "<<tau_<<endl;
+}
+
+void Lpf::set_input(const mat31_t &v_in)
+{
+    v_in_ = v_in;
+}
+
+void Lpf::set_time(const double &t)
+{
+    curr_time_ = t;
+}
+
+void Lpf::get_filtered_vector(mat31_t &v_out)
+{
+    solve();
+    v_out = v_out_;
+}
+
+void Lpf::operator()(const mat31_t &v, mat31_t &dvdt, double t)
+{
+    dvdt = -tau_*v + tau_*v_in_;
+}
+
+void Lpf::solve()
+{
+    dt_ = curr_time_ - prev_time_;
+
+    rk4.do_step(Lpf::operator(),
+        v_out_, prev_time_, dt_
+    );
+    prev_time_ = curr_time_;
 }
