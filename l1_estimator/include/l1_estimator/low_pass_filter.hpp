@@ -11,7 +11,7 @@ class Lpf{
 
     public:
 
-    Lpf();
+    // Lpf();
 
     Lpf(const double& tau);
 
@@ -24,7 +24,7 @@ class Lpf{
     void operator()(
         const mat31_t& v,
         mat31_t& dvdt,
-        const double t);
+        double t);
 
 
     private:
