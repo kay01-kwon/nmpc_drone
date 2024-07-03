@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 
     NodeHandle nh;
 
-    RosLpf ros_lpf_obj(nh, 2.0);
+    RosLpf ros_lpf_obj(nh, 10.0);
 
     ros::Rate loop_rate(100);
 

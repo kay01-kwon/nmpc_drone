@@ -11,13 +11,11 @@ class Lpf{
 
     public:
 
-    // Lpf();
+    Lpf() = delete;
 
     Lpf(const double& tau);
 
-    void set_input(const mat31_t& v_in);
-
-    void set_time(const double& t);
+    void set_input_and_time(const mat31_t& v_in, const double& t);
 
     void get_filtered_vector(mat31_t& v_out);
 

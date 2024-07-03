@@ -1,8 +1,5 @@
 #include "low_pass_filter.hpp"
 
-// Lpf::Lpf()
-// {
-// }
 
 Lpf::Lpf(const double &tau)
     : tau_(tau), curr_v_(curr_v_.setZero()),
@@ -12,13 +9,9 @@ Lpf::Lpf(const double &tau)
     cout<<"Tau set: "<<tau_<<endl;
 }
 
-void Lpf::set_input(const mat31_t &v_in)
+void Lpf::set_input_and_time(const mat31_t &v_in, const double& t)
 {
     v_in_ = v_in;
-}
-
-void Lpf::set_time(const double &t)
-{
     curr_time_ = t;
 }
 

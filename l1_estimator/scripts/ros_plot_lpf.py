@@ -33,7 +33,7 @@ class PlotNode():
 
 
     def ros_setup(self):
-        self.lpf_input_subscriber = rospy.Subscriber('/input_lpf', Lpf_test, self.callback_data, queue_size=1)
+        self.lpf_input_subscriber = rospy.Subscriber('/input_signal', Lpf_test, self.callback_data, queue_size=1)
 
 
     def callback_data(self, msg1):
