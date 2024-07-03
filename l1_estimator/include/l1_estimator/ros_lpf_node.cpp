@@ -48,7 +48,6 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
         // Integrate and get the filtered signal
         lpf_obj.get_filtered_vector(signal_filtered_);
 
-        filtered_signal_publish();
     }
 
 }

@@ -18,13 +18,13 @@ class RosLpf{
         RosLpf(const NodeHandle& nh,
         const double& tau);
 
-        void ros_setup();
-
-        void callback(const Lpf_testConstPtr& signal_msg);
-
         void filtered_signal_publish();
 
     private:
+
+        void ros_setup();
+
+        void callback(const Lpf_testConstPtr& signal_msg);
 
         NodeHandle nh_;
         ros::Publisher lpf_publisher_;
