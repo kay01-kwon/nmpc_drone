@@ -32,24 +32,11 @@ void Lpf::operator()(const mat31_t &v,
 mat31_t &dvdt, double t)
 {
     dvdt = -tau_*v + tau_*v_in_;
-    cout<<"v_in: "<<v_in_<<endl;
 }
 
 void Lpf::solve()
 {
     dt_ = curr_time_ - prev_time_;
-
-    cout<<"Previous time: "<<prev_time_<<endl;
-
-    // rk4.do_step(std::bind(
-    //     &Lpf::operator(),
-    //     this, 
-    //     std::placeholders::_1,
-    //     std::placeholders::_2,
-    //     std::placeholders::_3
-    //     ),
-    //     v_out_, prev_time_, dt_
-    // );
 
     rk4.do_step([this] 
     (const mat31_t& v, mat31_t& dvdt, double t)

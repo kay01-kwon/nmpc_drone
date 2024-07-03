@@ -19,7 +19,7 @@ void RosNoiseGenerator::noise_publish()
 
     lpf_input_msg.stamp = ros::Time::now();
     t = ros::Time::now().toSec()
-    + ros::Time::now().toNSec()*10e-9;
+    + ros::Time::now().toNSec()*1e-9;
 
     for(size_t i = 0; i < 3; i++)
     {
