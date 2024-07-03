@@ -26,13 +26,14 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
         // Before filtering the signal,
         // get the time offset.
         time_offset = signal_msg->stamp.sec
-        + signal_msg->stamp.nsec*10e-9;
+        + (signal_msg->stamp.nsec)*1e-9;
         init_time = true;
     }
     else
     {
-        time_curr =  signal_msg->stamp.sec
-        + signal_msg->stamp.nsec*10e-9
+        time_curr =  
+        signal_msg->stamp.sec
+        + (signal_msg->stamp.nsec)*1e-9
         - time_offset;
 
         mat31_t v_in;
