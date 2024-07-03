@@ -48,10 +48,18 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
         // Integrate and get the filtered signal
         lpf_obj.get_filtered_vector(signal_filtered_);
 
+        filtered_signal_publish();
     }
 
 }
 
 void RosLpf::filtered_signal_publish()
 {
+    Lpf_test filtered_msg;
+    filtered_msg.stamp = ros::Time::now();
+    
+    for(size_t i = 0; i < 3; i++)
+        filtered_msg.v[i] = signal_filtered_(i);
+
+    lpf_publisher_.publish(filtered_msg);
 }
