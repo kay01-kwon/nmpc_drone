@@ -6,7 +6,11 @@ int main(int argc, char** argv)
 
     NodeHandle nh;
 
-    RosLpf ros_lpf_obj(nh, 20.0);
+    double tau;
+
+    nh.getParam("tau", tau);
+
+    RosLpf ros_lpf_obj(nh, tau);
 
     ros::Rate loop_rate(100);
 
