@@ -17,6 +17,8 @@ void RosNoiseGenerator::noise_publish()
     double t;
     long long seedNum = get_seedNum();
 
+
+    lpf_input_msg.header.stamp = ros::Time::now();
     lpf_input_msg.stamp = ros::Time::now();
     t = ros::Time::now().toSec()
     + ros::Time::now().toNSec()*1e-9;

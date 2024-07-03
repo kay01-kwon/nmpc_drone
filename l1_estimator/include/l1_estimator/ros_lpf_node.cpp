@@ -55,6 +55,7 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
 void RosLpf::filtered_signal_publish()
 {
     Lpf_test filtered_msg;
+    filtered_msg.header.stamp = ros::Time::now();
     filtered_msg.stamp = ros::Time::now();
     
     for(size_t i = 0; i < 3; i++)
