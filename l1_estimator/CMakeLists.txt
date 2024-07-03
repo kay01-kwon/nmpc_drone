@@ -38,6 +38,7 @@ catkin_package(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/l1_estimator_node.cpp)
+
 add_executable(noise_generator_node 
 src/noise_generator_node.cpp
 include/noise_generator/noise_generator.cpp
@@ -46,22 +47,10 @@ include/noise_generator/ros_noise_generator.cpp)
 target_link_libraries(noise_generator_node
 ${catkin_LIBRARIES})
 
+add_executable(lpf_test_node
+src/lpf_test_node.cpp
+include/l1_estimator/ros_lpf_node.cpp
+include/l1_estimator/low_pass_filter.cpp)
 
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
-
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+target_link_libraries(lpf_test_node
+${catkin_LIBRARIES})

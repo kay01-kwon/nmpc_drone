@@ -11,7 +11,7 @@ class Lpf{
 
     public:
 
-    Lpf() = delete;
+    Lpf();
 
     Lpf(const double& tau);
 
@@ -20,6 +20,12 @@ class Lpf{
     void set_time(const double& t);
 
     void get_filtered_vector(mat31_t& v_out);
+
+    void operator()(
+        const mat31_t& v,
+        mat31_t& dvdt,
+        const double t);
+
 
     private:
 
@@ -36,11 +42,6 @@ class Lpf{
      * Declare rk dopri5 class
     */
     runge_kutta4<mat31_t> rk4;
-
-    void operator()(
-        const mat31_t& v,
-        mat31_t& dvdt,
-        double t);
 
     void solve();
 };

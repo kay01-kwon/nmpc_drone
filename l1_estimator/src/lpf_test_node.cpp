@@ -12,7 +12,11 @@ int main(int argc, char** argv)
 
     while(ros::ok())
     {
-        
+        ros::spinOnce();
+        ros_lpf_obj.filtered_signal_publish();
+        loop_rate.sleep();
     }
+
+    return EXIT_SUCCESS;
 
 }

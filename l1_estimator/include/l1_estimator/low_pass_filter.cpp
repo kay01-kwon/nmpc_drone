@@ -1,9 +1,13 @@
 #include "low_pass_filter.hpp"
 
+Lpf::Lpf()
+{
+}
+
 Lpf::Lpf(const double &tau)
-:tau_(tau), curr_v_(curr_v_.setZero()), 
-v_in_(v_in_.setZero()), v_out_(v_out_.setZero()),
-curr_time_(0), prev_time_(0), dt_(0)
+    : tau_(tau), curr_v_(curr_v_.setZero()),
+      v_in_(v_in_.setZero()), v_out_(v_out_.setZero()),
+      curr_time_(0), prev_time_(0), dt_(0)
 {
     cout<<"Tau set: "<<tau_<<endl;
 }
@@ -24,7 +28,8 @@ void Lpf::get_filtered_vector(mat31_t &v_out)
     v_out = v_out_;
 }
 
-void Lpf::operator()(const mat31_t &v, mat31_t &dvdt, double t)
+void Lpf::operator()(const mat31_t &v, 
+mat31_t &dvdt, const double t)
 {
     dvdt = -tau_*v + tau_*v_in_;
 }
@@ -33,7 +38,7 @@ void Lpf::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4.do_step(Lpf::operator(),
+    rk4.do_step(Lpf(),
         v_out_, prev_time_, dt_
     );
     prev_time_ = curr_time_;
