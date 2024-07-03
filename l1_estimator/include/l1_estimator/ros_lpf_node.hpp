@@ -31,6 +31,12 @@ class RosLpf{
         ros::Subscriber signal_subscriber_;
 
         mat31_t signal_filtered_;
+
+        Lpf lpf_obj;
+
+        double time_curr, time_offset;
+
+        bool init_time;
 };
 
 

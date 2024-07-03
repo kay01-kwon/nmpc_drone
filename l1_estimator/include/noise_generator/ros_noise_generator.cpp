@@ -6,7 +6,7 @@ const mat31_t &freq,
 const double& stddev)
 :nh_(nh), mag_(mag), freq_(freq), stddev_(stddev)
 {
-    noise_publisher = nh_.advertise<Lpf_test>("/input_lpf",1);
+    noise_publisher = nh_.advertise<Lpf_test>("/input_signal",1);
 }
 
 void RosNoiseGenerator::noise_publish()
