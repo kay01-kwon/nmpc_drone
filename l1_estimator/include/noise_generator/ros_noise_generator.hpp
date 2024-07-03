@@ -22,7 +22,7 @@ class RosNoiseGenerator
 
     private:
 
-        ros::NodeHandle nh_;
+        NodeHandle nh_;
         ros::Publisher noise_publisher;
 
         mat31_t mag_;

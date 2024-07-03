@@ -10,7 +10,7 @@ int main(int argc, char** argv)
     double stddev;
 
     mag     << 5, 5, 5;
-    freq    << 10, 10, 10;
+    freq    << 1, 1, 1;
     stddev = 0.01;
 
     RosNoiseGenerator ros_noise_generator(

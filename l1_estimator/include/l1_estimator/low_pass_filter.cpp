@@ -1,9 +1,9 @@
 #include "low_pass_filter.hpp"
 
-Lpf::Lpf(const double &tau, const double &time_now)
+Lpf::Lpf(const double &tau)
 :tau_(tau), curr_v_(curr_v_.setZero()), 
 v_in_(v_in_.setZero()), v_out_(v_out_.setZero()),
-curr_time_(time_now), prev_time_(time_now), dt_(0)
+curr_time_(0), prev_time_(0), dt_(0)
 {
     cout<<"Tau set: "<<tau_<<endl;
 }

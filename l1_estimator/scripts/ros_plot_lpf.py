@@ -64,6 +64,6 @@ class PlotNode():
 if __name__ == '__main__':
     rospy.init_node('plot_node')
     plot_node = PlotNode()
-    ani = animation.FuncAnimation(plot_node.fig, plot_node.update, interval=10)
+    ani = animation.FuncAnimation(plot_node.fig, plot_node.update, interval=1)
     plt.show()
     rospy.spin()
