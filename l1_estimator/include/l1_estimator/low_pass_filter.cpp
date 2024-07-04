@@ -15,9 +15,8 @@ void Lpf::set_input_and_time(const mat31_t &v_in, const double& t)
     curr_time_ = t;
 }
 
-void Lpf::get_filtered_vector(mat31_t &v_out)
+void Lpf::get_filtered_vector(mat31_t &v_out) const
 {
-    solve();
     v_out = v_out_;
 }
 

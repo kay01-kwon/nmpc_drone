@@ -17,8 +17,9 @@ class Lpf{
 
     void set_input_and_time(const mat31_t& v_in, const double& t);
 
-    void get_filtered_vector(mat31_t& v_out);
+    void get_filtered_vector(mat31_t& v_out) const;
 
+    void solve();
 
     private:
 
@@ -40,7 +41,7 @@ class Lpf{
         mat31_t& dvdt,
         const double& t);
 
-    void solve();
+
 };
 
 

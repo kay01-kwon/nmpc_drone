@@ -45,6 +45,9 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
 
         lpf_obj.set_input_and_time(v_in, time_curr);
 
+        // Integrate.
+        lpf_obj.solve();
+
         // Integrate and get the filtered signal
         lpf_obj.get_filtered_vector(signal_filtered_);
 
