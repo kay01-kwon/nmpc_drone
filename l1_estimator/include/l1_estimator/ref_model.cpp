@@ -24,8 +24,8 @@ curr_time_(0), prev_time_(0), dt_(0)
 
     w_hat_.setZero();
 
-    grav.setZero();
-    grav(2) = -9.81;
+    grav_.setZero();
+    grav_(2) = -9.81;
 }
 
 void RefModel::set_input_state_disturbance_time(const mat31_t &u_comp, 
@@ -160,7 +160,7 @@ void RefModel::ref_dynamics(const mat31_t &s, mat31_t &dsdt, const double &t)
     }
 
     dpdt = v;
-    dvdt = (1/inertial_param_.m)*u_hat_ + grav;
+    dvdt = (1/inertial_param_.m)*u_hat_ + grav_;
 
     get_dqdt(q_unit, w, dqdt);
     dwdt = inertial_param_.J.inverse()*mu_hat_;

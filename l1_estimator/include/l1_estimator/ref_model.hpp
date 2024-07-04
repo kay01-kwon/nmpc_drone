@@ -64,7 +64,7 @@ class RefModel{
         mat31_t u_hat_, mu_hat_;
 
         // Gravity
-        mat31_t grav;
+        mat31_t grav_;
 
         // Estimated state from reference model
         // s(0) ~ s(2): px, py, pz
