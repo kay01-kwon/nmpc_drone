@@ -13,7 +13,9 @@ class RefModel{
 
         RefModel() = delete;
 
-        RefModel(const Inertial_param_t& inertial_param);
+        RefModel(const Inertial_param_t& inertial_param,
+        const double& k_p, const double& k_v,
+        const double& k_q, const double& k_w);
 
         /**
          * Set inputs
@@ -46,6 +48,30 @@ class RefModel{
     private:
 
         Inertial_param_t inertial_param_;
+
+        // Control gain for translaional dynamics of reference model
+        double k_p_, k_v_;
+
+        // Control gain for attitude dynamics of reference model
+        double k_q_, k_w_;
+
+        // Control input for reference model
+        mat31_t u_hat_, mu_hat_;
+
+        // 
+        mat31_t theta_hat_, sigma_hat_;
+
+        mat31_t grav;
+
+        mat31_t s_hat_;
+        mat31_t p_hat_, v_hat_, w_hat_, w_state_;
+        mat31_t w_tilde_;
+
+        quat_t q_hat_, q_tilde_;
+        double curr_time_, prev_time_, dt_;
+
+        //runge kutta 4 class Declaration
+        runge_kutta4<state13_t> rk4;
 
         void ref_dynamics(
             const mat31_t& s,
