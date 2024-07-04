@@ -31,4 +31,9 @@ typedef struct Inertial_param{
     mat31_t r_offset;
 } Inertial_param_t;
 
+typedef struct Aero_coeff{
+    double lift_coeff;
+    double moment_coeff;
+} Aero_coeff_t;
+
 #endif
