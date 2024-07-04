@@ -4,7 +4,7 @@ RefModel::RefModel(const Inertial_param_t &inertial_param,
 const double& k_p, const double& k_v,
 const double& k_q, const double& k_w):
 inertial_param_(inertial_param), 
-k_p_(k_p), k_v_(k_v)
+k_p_(k_p), k_v_(k_v),
 k_q_(k_q), k_w_(k_w),
 curr_time_(0), prev_time_(0), dt_(0)
 {
@@ -18,12 +18,20 @@ curr_time_(0), prev_time_(0), dt_(0)
     grav(2) = -9.81;
 }
 
-void RefModel::set_input(const mat31_t &u_comp, const mat31_t mu_comp)
+void RefModel::set_input(const mat31_t &u_comp, 
+const mat31_t& mu_comp)
 {
+
 }
 
 void RefModel::set_state(const mat31_t &p_state, const mat31_t &v_state, const quat_t &q_state, const mat31_t w_state)
 {
+    mat31_t p_tilde, v_tilde;
+
+    p_tilde = p_hat_ - p_state;
+    v_tilde = v_hat_ - v_state;
+
+    u_hat_ -= (k_p_*p_tilde + k_v_*v_tilde);
 }
 
 void RefModel::set_est_disturbance(const mat31_t &sigma_est, const mat31_t theta_est)

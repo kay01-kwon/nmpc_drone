@@ -22,7 +22,8 @@ class RefModel{
          * u_comp = u - C(s)*sigma_hat
          * mu_comp = mu - C(s)*theta_hat  
         */
-        void set_input(const mat31_t& u_comp, const mat31_t mu_comp);
+        void set_input(const mat31_t& u_comp, 
+        const mat31_t& mu_comp);
 
         void set_state(const mat31_t& p_state, const mat31_t& v_state,
         const quat_t& q_state, const mat31_t w_state);
@@ -47,6 +48,7 @@ class RefModel{
 
     private:
 
+        // Nominal inertial parameter
         Inertial_param_t inertial_param_;
 
         // Control gain for translaional dynamics of reference model
@@ -58,16 +60,25 @@ class RefModel{
         // Control input for reference model
         mat31_t u_hat_, mu_hat_;
 
-        // 
+        // Estimated disturbance
         mat31_t theta_hat_, sigma_hat_;
 
+        // Gravity
         mat31_t grav;
 
-        mat31_t s_hat_;
-        mat31_t p_hat_, v_hat_, w_hat_, w_state_;
-        mat31_t w_tilde_;
+        // Estimated state from reference model
+        // s(0) ~ s(2): px, py, pz
+        // s(3) ~ s(5): vx, vy, vz
+        // s(6) ~ s(9): qw, qx, qy ,qz
+        // s(10) ~ s(12): 
+        state13_t s_hat_;
 
-        quat_t q_hat_, q_tilde_;
+        // To get the estimated state,
+        // store data in the class object.
+        mat31_t p_hat_, v_hat_, w_hat_;
+        quat_t q_hat_;
+
+        // Time
         double curr_time_, prev_time_, dt_;
 
         //runge kutta 4 class Declaration
