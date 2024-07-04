@@ -20,20 +20,27 @@ class RefModel{
         /**
          * Set inputs
          * u_comp = u - C(s)*sigma_hat
-         * mu_comp = mu - C(s)*theta_hat  
+         * mu_comp = mu - C(s)*theta_hat
+         * 
+         * Set state
+         * s: state from sensor fusion
+         * 
+         * Set disturbance
+         * sigma_hat: translational disturbance (Noisy one)
+         * theta_hat: attitude disturbance (Noisy one)
+         * 
+         * Set time
         */
-
         void set_input_state_disturbance_time(const mat31_t& u_comp,
         const mat31_t& mu_comp, 
         const state13_t& s, 
-        const mat31_t& sigma_est, const mat31_t& theta_est,
+        const mat31_t& sigma_hat, const mat31_t& theta_hat,
         const double& t);
 
         /**
          * Get position, velocity, quaternion 
          * and angular velocity, respectively.
         */
-
        void get_state_from_ref_model(mat31_t& p_ref, mat31_t& v_ref,
         quat_t& q_ref, mat31_t& w_ref) const;
 

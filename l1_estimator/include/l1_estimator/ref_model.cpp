@@ -30,7 +30,7 @@ curr_time_(0), prev_time_(0), dt_(0)
 
 void RefModel::set_input_state_disturbance_time(const mat31_t &u_comp, 
 const mat31_t &mu_comp, const state13_t &s, 
-const mat31_t &sigma_est, const mat31_t &theta_est,
+const mat31_t &sigma_hat, const mat31_t &theta_hat,
 const double &time)
 {
     // Set time
@@ -60,7 +60,7 @@ const double &time)
     v_tilde = v_hat_ - v_state;
 
     // Control translational reference model.
-    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_est;
+    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_hat;
 
 
     mat33_t C, R, skiew_sym;
@@ -91,7 +91,7 @@ const double &time)
     convert_vec_to_skew(w_tilde, skiew_sym);
 
     mu_hat_ = C
-    *(mu_comp + R*theta_est)
+    *(mu_comp + R*theta_hat)
     - inertial_param_.J
     *skiew_sym
     *R.transpose()*w_state
