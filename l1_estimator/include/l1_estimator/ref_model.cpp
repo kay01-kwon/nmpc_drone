@@ -14,6 +14,16 @@ curr_time_(0), prev_time_(0), dt_(0)
     s_hat_.setZero();
     s_hat_(6) = 1.0;
 
+    p_hat_.setZero();
+    v_hat_.setZero();
+
+    q_hat_.w() = 1;
+    q_hat_.x() = 0;
+    q_hat_.y() = 0;
+    q_hat_.z() = 0;
+
+    w_hat_.setZero();
+
     grav.setZero();
     grav(2) = -9.81;
 }
@@ -21,10 +31,12 @@ curr_time_(0), prev_time_(0), dt_(0)
 void RefModel::set_input(const mat31_t &u_comp, 
 const mat31_t& mu_comp)
 {
+    u_hat_ = u_comp;
 
 }
 
-void RefModel::set_state(const mat31_t &p_state, const mat31_t &v_state, const quat_t &q_state, const mat31_t w_state)
+void RefModel::set_state(const mat31_t &p_state, const mat31_t &v_state, 
+const quat_t &q_state, const mat31_t& w_state)
 {
     mat31_t p_tilde, v_tilde;
 
@@ -36,18 +48,48 @@ void RefModel::set_state(const mat31_t &p_state, const mat31_t &v_state, const q
 
 void RefModel::set_est_disturbance(const mat31_t &sigma_est, const mat31_t theta_est)
 {
+    u_hat_ += sigma_est;
 }
 
 void RefModel::set_time(const double &t)
 {
+    curr_time_ = t;
 }
 
-void RefModel::get_state_from_ref_model(const mat31_t &p_ref, const mat31_t &v_ref, const quat_t &q_ref, const mat31_t &w_ref)
+void RefModel::get_state_from_ref_model(mat31_t &p_ref, mat31_t &v_ref, 
+quat_t &q_ref, mat31_t &w_ref) const
 {
+    p_ref = p_hat_;
+    v_ref = v_hat_;
+    q_ref = q_hat_;
+    w_ref = w_hat_;
 }
 
 void RefModel::solve()
 {
+    dt_ = curr_time_ - prev_time_;
+
+    rk4.do_step([this] 
+    (const mat31_t& s, mat31_t& dsdt, const double& t)
+    {
+        this->RefModel::ref_dynamics(s, dsdt, t);
+    },
+    s_hat_, prev_time_, dt_);
+
+    // Copy the state
+    for(size_t i = 0; i < 3; i++)
+    {
+        p_hat_(i) = s_hat_(i);
+        v_hat_(i) = s_hat_(i+3);
+        w_hat_(i) = s_hat_(i+10);
+    }
+
+    q_hat_.w() = s_hat_(6);
+    q_hat_.x() = s_hat_(7);
+    q_hat_.y() = s_hat_(8);
+    q_hat_.z() = s_hat_(9);
+
+    prev_time_ = curr_time_;
 }
 
 void RefModel::ref_dynamics(const mat31_t &s, mat31_t &dsdt, const double &t)

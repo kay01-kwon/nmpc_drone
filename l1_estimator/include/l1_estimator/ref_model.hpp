@@ -26,7 +26,7 @@ class RefModel{
         const mat31_t& mu_comp);
 
         void set_state(const mat31_t& p_state, const mat31_t& v_state,
-        const quat_t& q_state, const mat31_t w_state);
+        const quat_t& q_state, const mat31_t& w_state);
 
         void set_est_disturbance(const mat31_t& sigma_est, 
         const mat31_t theta_est);
@@ -38,8 +38,8 @@ class RefModel{
          * and angular velocity, respectively.
         */
 
-       void get_state_from_ref_model(const mat31_t& p_ref, const mat31_t& v_ref,
-       const quat_t& q_ref, const mat31_t& w_ref);
+       void get_state_from_ref_model(mat31_t& p_ref, mat31_t& v_ref,
+        quat_t& q_ref, mat31_t& w_ref) const;
 
         /**
          * Step integration of rungee kutta 4th order.
@@ -59,9 +59,6 @@ class RefModel{
 
         // Control input for reference model
         mat31_t u_hat_, mu_hat_;
-
-        // Estimated disturbance
-        mat31_t theta_hat_, sigma_hat_;
 
         // Gravity
         mat31_t grav;
