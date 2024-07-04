@@ -32,8 +32,7 @@ void RefModel::set_input_state_disturbance(const mat31_t &u_comp,
 const mat31_t &mu_comp, const state13_t &s, 
 const mat31_t &sigma_est, const mat31_t &theta_est)
 {
-    // Temporary store state values.
-
+    // Temporarily store state values.
     mat31_t p_state, v_state;
 
     quat_t q_state;
@@ -51,8 +50,49 @@ const mat31_t &sigma_est, const mat31_t &theta_est)
     q_state.y() = s(8);
     q_state.z() = s(9);
     
-    
+    // Get the position and velocity error, respectively.
+    mat31_t p_tilde, v_tilde;
 
+    p_tilde = p_hat_ - p_state;
+    v_tilde = v_hat_ - v_state;
+
+    // Control translational reference model.
+    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde);
+
+
+    mat33_t C, R, skiew_sym;
+    mat31_t q_vec;
+
+    // Get the current state of quaternion
+    // and then compute the quaternion error.
+    quat_t q_state_conj, q_tilde;
+
+    conjugate(q_state, q_state_conj);
+    otimes(q_state_conj, q_hat_, q_tilde);
+
+    // Get rotation matrix from q_tilde
+    get_rotm_from_quat(q_tilde, R);
+    convert_quat_to_quat_vec(q_tilde, q_vec);
+
+    q_vec = signum(q_tilde.w())*q_vec;
+
+    mat31_t w_tilde;
+
+    // Get the error of angular velocity
+    w_tilde = w_hat_ - R.transpose()*w_state;
+
+    C = inertial_param_.J 
+    * R.transpose() 
+    * inertial_param_.J.inverse();
+
+    convert_vec_to_skew(w_tilde, skiew_sym);
+
+    mu_hat_ = C
+    *(mu_comp + R*theta_est)
+    - inertial_param_.J
+    *skiew_sym
+    *R.transpose()*w_state
+    -(k_q_*q_vec + k_w_*w_tilde);
 
 }
 
