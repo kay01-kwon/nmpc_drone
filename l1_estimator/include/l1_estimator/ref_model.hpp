@@ -23,12 +23,11 @@ class RefModel{
          * mu_comp = mu - C(s)*theta_hat  
         */
 
-        void set_input_state_disturbance(const mat31_t& u_comp,
+        void set_input_state_disturbance_time(const mat31_t& u_comp,
         const mat31_t& mu_comp, 
         const state13_t& s, 
-        const mat31_t& sigma_est, const mat31_t& theta_est);
-
-        void set_time(const double& t);
+        const mat31_t& sigma_est, const mat31_t& theta_est,
+        const double& t);
 
         /**
          * Get position, velocity, quaternion 

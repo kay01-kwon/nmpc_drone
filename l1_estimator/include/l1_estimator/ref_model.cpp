@@ -28,10 +28,13 @@ curr_time_(0), prev_time_(0), dt_(0)
     grav(2) = -9.81;
 }
 
-void RefModel::set_input_state_disturbance(const mat31_t &u_comp, 
+void RefModel::set_input_state_disturbance_time(const mat31_t &u_comp, 
 const mat31_t &mu_comp, const state13_t &s, 
-const mat31_t &sigma_est, const mat31_t &theta_est)
+const mat31_t &sigma_est, const mat31_t &theta_est,
+const double &time)
 {
+    // Set time
+    curr_time_ = time;
     // Temporarily store state values.
     mat31_t p_state, v_state;
 
@@ -94,11 +97,6 @@ const mat31_t &sigma_est, const mat31_t &theta_est)
     *R.transpose()*w_state
     -(k_q_*q_vec + k_w_*w_tilde);
 
-}
-
-void RefModel::set_time(const double &t)
-{
-    curr_time_ = t;
 }
 
 void RefModel::get_state_from_ref_model(mat31_t &p_ref, mat31_t &v_ref, 
