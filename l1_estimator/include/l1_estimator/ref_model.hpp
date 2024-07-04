@@ -7,7 +7,16 @@
 
 using boost::numeric::odeint::runge_kutta4;
 
+class RefModel{
 
+    public:
+
+        RefModel() = delete;
+
+        
+
+
+};
 
 
 #endif
