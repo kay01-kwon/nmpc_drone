@@ -47,7 +47,11 @@ class RefModel{
 
         Inertial_param_t inertial_param_;
 
-
+        void ref_dynamics(
+            const mat31_t& s,
+            mat31_t& dsdt,
+            const double& t
+        );
 
 };
 
