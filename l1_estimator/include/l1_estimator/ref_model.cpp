@@ -60,7 +60,7 @@ const double &time)
     v_tilde = v_hat_ - v_state;
 
     // Control translational reference model.
-    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde);
+    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_est;
 
 
     mat33_t C, R, skiew_sym;
@@ -137,4 +137,47 @@ void RefModel::solve()
 
 void RefModel::ref_dynamics(const mat31_t &s, mat31_t &dsdt, const double &t)
 {
+    mat31_t p,v,dpdt,dvdt;
+    quat_t q, q_unit, dqdt;
+    mat31_t w, dwdt;
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        p(i) = s(i);
+        v(i) = s(i+3);
+    }
+
+    q.w() = s(6);
+    q.x() = s(7);
+    q.y() = s(8);
+    q.z() = s(9);
+    
+    convert_quat_to_unit_quat(q, q_unit);
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        w(i) = s(i+10);
+    }
+
+    dpdt = v;
+    dvdt = (1/inertial_param_.m)*u_hat_ + grav;
+
+    get_dqdt(q_unit, w, dqdt);
+    dwdt = inertial_param_.J.inverse()*mu_hat_;
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        dsdt(i) = dpdt(i);
+        dsdt(i+3) = dvdt(i);
+    }
+
+    dsdt(6) = dqdt.w();
+    dsdt(7) = dqdt.x();
+    dsdt(8) = dqdt.y();
+    dsdt(9) = dqdt.z();
+
+    for(int i = 0; i < 3; i++)
+    {
+        dsdt(i+10) = dwdt(i);
+    }
 }
