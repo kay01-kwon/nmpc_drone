@@ -36,15 +36,9 @@ class Lpf{
     */
     runge_kutta4<mat31_t> rk4;
 
-    void operator()(
-        const mat31_t& v,
-        mat31_t& dvdt,
-        double t);
-
     void system_dynamics(const mat31_t& v,
         mat31_t& dvdt,
         const double& t);
-
 
     void solve();
 };
