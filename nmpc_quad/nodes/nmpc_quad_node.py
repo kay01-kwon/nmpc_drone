@@ -25,6 +25,7 @@ class nmpc_quad_node:
         '''
         Initialize the ocp solver and store data for state, reference and so on.
         '''
+        rospy.init_node('nmpc_quad', anonymous=True)
 
         # Create ocp solver object
         self.ocp_solver_obj = ocp_solver.OcpSolver()
@@ -33,6 +34,7 @@ class nmpc_quad_node:
         self.state[6] = 1.0
 
         self.ref = np.zeros((13,))
+        self.ref[6] = 1.0
 
         self.u = np.zeros((4,))
         self.rpm_des = np.zeros((4,))
@@ -102,8 +104,11 @@ class nmpc_quad_node:
             for i in range(4):
                 self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
         else:
-            self.rpm_des[:] = 0
+            self.publish_zero_control_input()
             print('NMPC : Infeasible')
+
+        if self.position_error() > 2.0:
+            self.publish_zero_control_input()
 
         self.u_msg.header.stamp = rospy.Time.now()
         self.u_msg.header.frame_id = "nmpc_node"
@@ -134,24 +139,30 @@ class nmpc_quad_node:
         # print('Reference position: ', self.ref[:3])
 
     def position_error(self):
-        tracking_error = self.state - self.ref
+        tracking_error = self.state[:3] - self.ref[:3]
         return np.linalg.norm(tracking_error)
 
     def publish_zero_control_input(self):
+        print('Publishing zero control input')
         self.rpm_des[:] = 0
         self.u_msg.angular_velocities = self.rpm_des
         self.input_pub.publish(self.u_msg)
 
-def main():
-    rospy.init_node('nmpc_quad', anonymous=True)
-    nmpc_quad = nmpc_quad_node()
-    ros_rate = rospy.Rate(100)
-    while not rospy.is_shutdown():
-        ros_rate.sleep()
-    nmpc_quad.publish_zero_control_input()
+    def run(self):
+        rospy.spin()
+
+# def main():
+#     rospy.init_node('nmpc_quad', anonymous=True)
+#     nmpc_quad = nmpc_quad_node()
+#     ros_rate = rospy.Rate(100)
+#     while not rospy.is_shutdown():
+#         ros_rate.sleep()
+#     # nmpc_quad.publish_zero_control_input()
 
 if __name__ == '__main__':
-    main()
+    # main()
+    nmpc_quad_node = nmpc_quad_node()
+    nmpc_quad_node.run()
 
 
 

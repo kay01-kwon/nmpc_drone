@@ -16,7 +16,7 @@ X0 = np.array([
 
 
 class OcpSolver():
-    def __init__(self, u_min = 0.2, u_max = 7 ,n_nodes = 10, t_horizon = 1.0):
+    def __init__(self, u_min = 0.2, u_max = 7 ,n_nodes = 20, t_horizon = 2.0):
         '''
         Constructor for OcpSolver
         :param u_min: minimum rotor thrust (N)
@@ -75,6 +75,8 @@ class OcpSolver():
         self.u_min = u_min
         self.u_max = u_max
 
+        self.u_prev = np.zeros((4,))
+
         # Set horizon
         self.N = n_nodes
         self.ocp.dims.N = self.N
@@ -109,14 +111,14 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([1.0, 1.0, 1.0,
+        self.Q_mat = np.diag([0.5, 0.5, 0.5,
                               0.05, 0.05, 0.05,
-                              0.0, 0.01, 0.01, 0.01,
-                              0.005, 0.005, 0.005])
+                              0.0, 0.1, 0.1, 0.1,
+                              0.01, 0.01, 0.01])
 
         # cost R:
         # u1, u2, u3, u4 (RPM)
-        self.R_mat = np.diag([0.01, 0.01, 0.01, 0.01])
+        self.R_mat = 0.1*np.diag([1.0, 1.0, 1.0, 1.0])
 
         # Set cost type for OCP
         self.ocp.cost.cost_type = 'LINEAR_LS'
@@ -160,6 +162,7 @@ class OcpSolver():
         self.ocp.solver_options.qp_solver = "FULL_CONDENSING_HPIPM"
         self.ocp.solver_options.hessian_solver = "GAUSSIAN_NEWTON"
         self.ocp.solver_options.integrator_type = "ERK"
+        self.ocp.solver_options.print_level = 0
         self.ocp.solver_options.nlp_solver = "SQP_RTI"
 
         self.ocp.solver_options.tf = self.T_horizon
@@ -172,10 +175,11 @@ class OcpSolver():
         :return: u
         '''
 
-        y_ref = np.concatenate((ref, np.zeros((self.nu,))))
+        y_ref = np.concatenate((ref, self.u_prev))
         y_ref_N = ref
         # print('Reference position: ', y_ref[:3])
         # print('State position: ', state[:3])
+        # print('Reference qauternion: ', y_ref[6:10])
 
         # Fill in initial state
         self.acados_ocp_solver.set(0,"lbx", state)
@@ -188,5 +192,7 @@ class OcpSolver():
         status = self.acados_ocp_solver.solve()
 
         u = self.acados_ocp_solver.get(0,"u")
+
+        self.u_prev = u
 
         return status, u

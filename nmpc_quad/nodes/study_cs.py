@@ -71,3 +71,20 @@ from nmpc_pkg import tools
 # state[2] = 3
 #
 # print("state",state[:3])
+
+Q = np.array([0.5, 0.5, 0.5,
+            0.05, 0.05, 0.05,
+            0.1, 0.1, 0.1,
+            0.01, 0.01, 0.01])
+
+q_mask = np.array([1,1,1,1,1,1,1,1,1,1,1,1])
+
+q_diagonal = np.concatenate((Q[:3],np.mean(Q[3:6])[np.newaxis],Q[3:]))
+
+q_mask = np.concatenate((q_mask[:3],np.zeros(1), q_mask[3:]))
+
+print(q_mask)
+
+q_diagonal *= q_mask
+
+print(q_diagonal)
