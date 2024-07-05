@@ -1,5 +1,5 @@
-#ifndef DISTURBANCE_ESTIMATOR_DEFAULT_HPP_
-#define DISTURBANCE_ESTIMATOR_DEFAULT_HPP_
+#ifndef DISTURBANCE_ESTIMATOR_HPP_
+#define DISTURBANCE_ESTIMATOR_HPP_
 #include "convex_fn.hpp"
 #include "gamma_proj.hpp"
 #include "low_pass_filter.hpp"
@@ -26,9 +26,11 @@ class DisturbanceEstimator{
 
     void solve();
 
-    void get_est_raw(mat31_t& sigma_est, mat31_t& theta_est) const;
+    void get_est_raw(mat31_t& sigma_est, 
+    mat31_t& theta_est) const;
 
-    void get_est_filtered(mat31_t& sigma_est, mat31_t& theta_est) const;
+    void get_est_filtered(mat31_t& sigma_est_filtered, 
+    mat31_t& theta_est_filtered) const;
 
 
     private:

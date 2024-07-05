@@ -1,4 +1,4 @@
-#include "disturbance_estimator_default.hpp"
+#include "disturbance_estimator.hpp"
 
 DisturbanceEstimator::DisturbanceEstimator(const Inertial_param &inertial_param, 
 const mat31_t &bound_sigma, const double &epsilon_sigma, 
@@ -79,11 +79,22 @@ const double &time)
     gamma_prj_obj_[1].getProjGamma(theta_hat_, y_theta
     , f2, Df2, dtheta_hat_);
 
+
+    lpf_obj_[0].set_input_and_time(sigma_hat_, curr_time_);
+    lpf_obj_[0].solve();
+    lpf_obj_[0].get_filtered_vector(sigma_hat_lpf_);
+
+
+    lpf_obj_[1].set_input_and_time(theta_hat_, curr_time_);
+    lpf_obj_[1].solve();
+    lpf_obj_[1].get_filtered_vector(theta_hat_lpf_);
+    theta_hat_lpf_ = R*theta_hat_lpf_;
+
 }
 
 void DisturbanceEstimator::solve()
 {
-    
+
 }
 
 void DisturbanceEstimator::get_est_raw(mat31_t &sigma_est, 
@@ -91,4 +102,11 @@ mat31_t &theta_est) const
 {
     sigma_est = sigma_hat_;
     theta_est = theta_hat_;
+}
+
+void DisturbanceEstimator::get_est_filtered(mat31_t &sigma_est_filtered, 
+mat31_t &theta_est_filtered) const
+{
+    sigma_est_filtered = sigma_hat_lpf_;
+    theta_est_filtered = theta_hat_lpf_;
 }
