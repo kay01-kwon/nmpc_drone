@@ -88,13 +88,20 @@ const double &time)
     lpf_obj_[1].set_input_and_time(theta_hat_, curr_time_);
     lpf_obj_[1].solve();
     lpf_obj_[1].get_filtered_vector(theta_hat_lpf_);
-    theta_hat_lpf_ = R*theta_hat_lpf_;
 
 }
 
 void DisturbanceEstimator::solve()
 {
+    dt_ = curr_time_ - prev_time_;
 
+    rk4.do_step([this] 
+    (const state6_t& D, state6_t& dDdt, const double& t)
+    {
+        this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
+    },
+    D_, prev_time_, dt_);
+    prev_time_ = curr_time_;
 }
 
 void DisturbanceEstimator::get_est_raw(mat31_t &sigma_est, 
@@ -109,4 +116,17 @@ mat31_t &theta_est_filtered) const
 {
     sigma_est_filtered = sigma_hat_lpf_;
     theta_est_filtered = theta_hat_lpf_;
+}
+
+void DisturbanceEstimator::system_dynamics(const state6_t &D, state6_t &dDdt, const double t)
+{
+    state6_t v_in;
+    
+    for(size_t i = 0; i < 3; i++)
+    {
+        v_in(i) = dsigma_hat_(i);
+        v_in(i + 3) = dtheta_hat_(i);
+    }
+
+    dDdt = v_in;
 }
