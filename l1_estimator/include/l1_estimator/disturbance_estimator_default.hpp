@@ -21,7 +21,7 @@ class DisturbanceEstimator{
     void set_state_time(const mat31_t& p_state, const mat31_t& p_ref,
     const mat31_t& v_state, const mat31_t& v_ref,
     const quat_t& q_state, const quat_t& q_ref,
-    const mat31_t& w_state, const quat_t& w_ref,
+    const mat31_t& w_state, const mat31_t& w_ref,
     const double& time);
 
     void get_est_raw(mat31_t& sigma_est, mat31_t& theta_est) const;
@@ -33,9 +33,6 @@ class DisturbanceEstimator{
     private:
 
     Inertial_param inertial_param_;
-
-    quat_t q_tilde_;
-    mat31_t p_tilde_, v_tilde_, w_tilde_;
     mat31_t sigma_hat_, theta_hat_;
     mat31_t dsigma_hat_, dtheta_hat_;
     mat31_t sigma_hat_lpf_, theta_hat_lpf_;
