@@ -24,11 +24,12 @@ class DisturbanceEstimator{
     const mat31_t& w_state, const mat31_t& w_ref,
     const double& time);
 
+    void solve();
+
     void get_est_raw(mat31_t& sigma_est, mat31_t& theta_est) const;
 
     void get_est_filtered(mat31_t& sigma_est, mat31_t& theta_est) const;
 
-    void solve();
 
     private:
 

@@ -37,5 +37,58 @@ const double &time)
     otimes(q_conj, q_ref, q_tilde);
     get_rotm_from_quat(q_tilde,R);
     w_tilde = w_ref - R.transpose()*w_state;
+
+    mat31_t y_sigma, y_theta;
+    mat33_t R, P, P_transpose;
+    mat33_t J_inv, J_inv_transpose;
+    mat31_t q_vec;
+    double c = 1.0;
+
+    J_inv = inertial_param_.J.inverse();
+    J_inv_transpose = J_inv.transpose();
+
+    quat_t q_tilde_unit;
+
+    convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
+
+    get_rotm_from_quat(q_tilde_unit,R);
+    convert_quat_to_quat_vec(q_tilde, q_vec);
+    q_vec = signum(q_tilde.w()) * q_vec;
+
+    P = inertial_param_.J 
+    * R.transpose() 
+    * inertial_param_.J.inverse()
+    * R;
+
+    P_transpose = P.transpose();
+
+    y_sigma = - v_tilde;
+    y_theta = - P_transpose * w_tilde
+    -c*P_transpose*J_inv_transpose*q_vec;
+
+    double f1, f2;
+    mat31_t Df1, Df2;
     
+    convex_fn_obj_[0].get_fn_value(sigma_hat_, f1, Df1);
+
+    convex_fn_obj_[1].get_fn_value(theta_hat_, f2, Df2);
+
+    gamma_prj_obj_[0].getProjGamma(sigma_hat_, y_sigma
+    , f1, Df1, dsigma_hat_);
+    
+    gamma_prj_obj_[1].getProjGamma(theta_hat_, y_theta
+    , f2, Df2, dtheta_hat_);
+
+}
+
+void DisturbanceEstimator::solve()
+{
+    
+}
+
+void DisturbanceEstimator::get_est_raw(mat31_t &sigma_est, 
+mat31_t &theta_est) const
+{
+    sigma_est = sigma_hat_;
+    theta_est = theta_hat_;
 }
