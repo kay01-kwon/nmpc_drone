@@ -1,7 +1,6 @@
 #! /usr/bin/env python3.8
 import os
 import sys
-import shutil
 
 '''
 Append nmpc_pkg directory using sys module
@@ -19,7 +18,6 @@ import rospy
 from nav_msgs.msg import Odometry
 from mav_msgs.msg import Actuators
 from nmpc_quad.msg import nmpc_ref
-
 from std_srvs.srv import Empty
 
 class nmpc_quad_node:
@@ -43,6 +41,8 @@ class nmpc_quad_node:
         self.C_lift = 8.54858e-06
 
         self.ros_setup()
+
+        rospy.on_shutdown(self.publish_zero_control_input)
 
 
     def ros_setup(self):
@@ -102,18 +102,14 @@ class nmpc_quad_node:
             for i in range(4):
                 self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
         else:
-            for i in range(4):
-                self.rpm_des[i] = 0
+            self.rpm_des[:] = 0
             print('NMPC : Infeasible')
 
         self.u_msg.header.stamp = rospy.Time.now()
         self.u_msg.header.frame_id = "nmpc_node"
         self.u_msg.angular_velocities = self.rpm_des
 
-
         self.input_pub.publish(self.u_msg)
-
-
 
     def ref_callback(self, msg):
         '''
@@ -137,12 +133,22 @@ class nmpc_quad_node:
 
         # print('Reference position: ', self.ref[:3])
 
+    def position_error(self):
+        tracking_error = self.state - self.ref
+        return np.linalg.norm(tracking_error)
+
+    def publish_zero_control_input(self):
+        self.rpm_des[:] = 0
+        self.u_msg.angular_velocities = self.rpm_des
+        self.input_pub.publish(self.u_msg)
+
 def main():
     rospy.init_node('nmpc_quad', anonymous=True)
     nmpc_quad = nmpc_quad_node()
     ros_rate = rospy.Rate(100)
     while not rospy.is_shutdown():
         ros_rate.sleep()
+    nmpc_quad.publish_zero_control_input()
 
 if __name__ == '__main__':
     main()
