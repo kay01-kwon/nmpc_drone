@@ -2,8 +2,8 @@
 
 RefModel::RefModel(const Inertial_param_t &inertial_param,
 const double& k_p, const double& k_v,
-const double& k_q, const double& k_w):
-inertial_param_(inertial_param), 
+const double& k_q, const double& k_w)
+:inertial_param_(inertial_param), 
 k_p_(k_p), k_v_(k_v),
 k_q_(k_q), k_w_(k_w),
 curr_time_(0), prev_time_(0), dt_(0)
