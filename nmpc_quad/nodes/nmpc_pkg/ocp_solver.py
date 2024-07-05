@@ -62,7 +62,7 @@ class OcpSolver():
         quad_model_obj = QuadModel(m = 0.68,
                                 J =np.array([0.007, 0.007, 0.012]),
                                 l = 0.17,
-                                C_moment = 0.1,
+                                C_moment = 0.016,
                                 model_description = '+')
 
         # Get Quad model from the quad_model_obj

@@ -125,10 +125,15 @@ class nmpc_quad_node:
         for i in range(3):
             self.ref[i] = msg.p_des[i]
             self.ref[i+3] = msg.v_des[i]
-            self.ref[i+10] = msg.w_des[i]
 
-        for j in range(4):
-            self.ref[j+6] = msg.q_des[j]
+        self.ref[6] = np.cos(msg.psi_des/2.0)
+        self.ref[7] = 0
+        self.ref[8] = 0
+        self.ref[9] = np.sin(msg.psi_des/2.0)
+
+        self.ref[10] = 0
+        self.ref[11] = 0
+        self.ref[12] = msg.dpsi_des
 
         # print('Reference position: ', self.ref[:3])
 
