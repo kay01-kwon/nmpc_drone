@@ -174,9 +174,6 @@ class nmpc_quad_node:
             self.publish_zero_control_input()
             print('NMPC : Infeasible')
 
-        if self.position_error() > 2.0:
-            self.publish_zero_control_input()
-
         self.u_msg.header.stamp = rospy.Time.now()
         self.u_msg.header.frame_id = "nmpc_node"
         self.u_msg.angular_velocities = self.rpm_des
