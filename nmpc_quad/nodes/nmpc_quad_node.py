@@ -13,6 +13,7 @@ pkg_dir = dir_path + '/nmpc_pkg'
 sys.path.append(dir_path + '/nmpc_pkg')
 
 import numpy as np
+import nmpc_pkg.tools
 from nmpc_pkg import ocp_solver
 import rospy
 from nav_msgs.msg import Odometry
@@ -59,23 +60,23 @@ class nmpc_quad_node:
         self.state_sub = rospy.Subscriber('/hummingbird/ground_truth/odometry',
                                           Odometry,
                                           self.state_callback,
-                                          queue_size=10)
+                                          queue_size=1)
 
-        self.imu_sub = rospy.Subscriber('/hummingbird/ground_truth/imu',
-                                        Imu,
-                                        self.Imu_callback,
-                                        queue_size=10)
+        # self.imu_sub = rospy.Subscriber('/hummingbird/ground_truth/imu',
+        #                                 Imu,
+        #                                 self.Imu_callback,
+        #                                 queue_size=10)
 
 
         self.ref_sub = rospy.Subscriber('/nmpc_quad/ref',
                                         nmpc_ref,
                                         self.ref_callback,
-                                        queue_size=10)
+                                        queue_size=1)
 
         # Input publisher to hummingbird
         self.input_pub = rospy.Publisher('/hummingbird/command/motor_speed',
                                          Actuators,
-                                         queue_size=10)
+                                         queue_size=1)
         self.ros_rate = rospy.Rate(100)
 
     def state_callback(self, msg):
@@ -89,41 +90,55 @@ class nmpc_quad_node:
         self.state[1] = msg.pose.pose.position.y
         self.state[2] = msg.pose.pose.position.z
 
-        # Get current linear velocity
-        self.state[3] = msg.twist.twist.linear.x
-        self.state[4] = msg.twist.twist.linear.y
-        self.state[5] = msg.twist.twist.linear.z
+        # # Get current linear velocity
+        # self.state[3] = msg.twist.twist.linear.x
+        # self.state[4] = msg.twist.twist.linear.y
+        # self.state[5] = msg.twist.twist.linear.z
 
         # Get current quaternion
-        # self.state[6] = msg.pose.pose.orientation.w
-        # self.state[7] = msg.pose.pose.orientation.x
-        # self.state[8] = msg.pose.pose.orientation.y
-        # self.state[9] = msg.pose.pose.orientation.z
+        self.state[6] = msg.pose.pose.orientation.w
+        self.state[7] = msg.pose.pose.orientation.x
+        self.state[8] = msg.pose.pose.orientation.y
+        self.state[9] = msg.pose.pose.orientation.z
+
+        qw = msg.pose.pose.orientation.w
+        qx = msg.pose.pose.orientation.x
+        qy = msg.pose.pose.orientation.y
+        qz = msg.pose.pose.orientation.z
+
+        q_ChildToParent = np.array([qw, qx, qy, qz])
+
+        rotm = nmpc_pkg.tools.quaternion2rotm(q_ChildToParent)
+
+        vx_ChildFrame = msg.twist.twist.linear.x
+        vy_ChildFrame = msg.twist.twist.linear.y
+        vz_ChildFrame = msg.twist.twist.linear.z
+
+        v_ChildFrame = np.array([vx_ChildFrame, vy_ChildFrame, vz_ChildFrame])
+
+        v_ParentFrame = np.matmul(rotm, v_ChildFrame)
+
+        self.state[3] = v_ParentFrame[0]
+        self.state[4] = v_ParentFrame[1]
+        self.state[5] = v_ParentFrame[2]
 
         # Get current angular velocity
-        # self.state[10] = msg.twist.twist.angular.x
-        # self.state[11] = msg.twist.twist.angular.y
-        # self.state[12] = msg.twist.twist.angular.z
+        self.state[10] = msg.twist.twist.angular.x
+        self.state[11] = msg.twist.twist.angular.y
+        self.state[12] = msg.twist.twist.angular.z
 
         # print('position: ',self.state[0], ', ', self.state[1], ', ', self.state[2])
 
-    def Imu_callback(self, msg):
-
-        qw = msg.orientation.w
-        qx = msg.orientation.x
-        qy = msg.orientation.y
-        qz = msg.orientation.z
-
-        den = np.sqrt(qx**2 + qy**2 + qz**2 + qw**2)
-
-        self.state[6] = qw/den
-        self.state[7] = qx/den
-        self.state[8] = qy/den
-        self.state[9] = qz/den
-
-        self.state[10] = msg.angular_velocity.x
-        self.state[11] = msg.angular_velocity.y
-        self.state[12] = msg.angular_velocity.z
+    # def Imu_callback(self, msg):
+    #
+    #     # self.state[6] = msg.orientation.w
+    #     # self.state[7] = msg.orientation.x
+    #     # self.state[8] = msg.orientation.y
+    #     # self.state[9] = msg.orientation.z
+    #     #
+    #     # self.state[10] = msg.angular_velocity.x
+    #     # self.state[11] = msg.angular_velocity.y
+    #     # self.state[12] = msg.angular_velocity.z
 
     def ref_callback(self, msg):
         '''

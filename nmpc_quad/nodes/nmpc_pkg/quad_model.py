@@ -53,9 +53,15 @@ class QuadModel:
 
 
     def get_acados_model(self):
+        '''
+        Set acados model and the return acados model of the quadrotor
+        :return: model
+        '''
 
+        # Set explicit dynamics and kinematics
         self.f_expl = cs.vertcat(self.p_kinematics(), self.v_dynamics(),
                                  self.q_kinematics(), self.w_dynamics())
+
         self.f_impl = self.xdot - self.f_expl
 
         self.model.f_expl_expr = self.f_expl
@@ -79,14 +85,15 @@ class QuadModel:
         :return: dvdt (linear acceleration)
         '''
         # Get the collective thrust to compute the dynamics
-        collective_thrust = self.u[0] + self.u[1] + self.u[2] + self.u[3]
+        collective_thrust = self.u1 + self.u2 + self.u3 + self.u4
 
         # Represent it as force vector
-        force = cs.vertcat(0.0, 0.0, collective_thrust)
+        force = cs.vertcat(0, 0, collective_thrust)
 
         # Divide mass to get acceleration control input
         acc_input = force/self.m
 
+        # Gravity vector
         g_vec = cs.vertcat(0.0, 0.0, -9.81)
 
         # Get rotation matrix from quaternion
@@ -102,6 +109,8 @@ class QuadModel:
         :return: dqdt (dqdt = 0.5 * w otimes q)
         '''
         w_quat_form = cs.vertcat(0, self.w)       # [0 w]
+
+        # dqdt = 1/2 * q otimes [0 w]
         dqdt = 0.5*tools.otimes(self.q, w_quat_form)
         return dqdt
 
@@ -111,13 +120,15 @@ class QuadModel:
         :return: dwdt
         '''
 
-        # Moment of inertia
+        # Get moment of inertia
         Jxx = self.J[0]
         Jyy = self.J[1]
         Jzz = self.J[2]
 
         # Convert Four rotor thrusts to moment
         M_x, M_y, M_z = tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
+
+        # Get angular acceleration due to the moment
         m_vec = cs.vertcat(M_x/Jxx , M_y/Jyy, M_z/Jzz)
 
         # Get angular velocity
@@ -126,12 +137,13 @@ class QuadModel:
         w_z = self.w[2]
 
         # inertial effect = w x (J*w)
-        inertial_effect = cs.vertcat((Jzz-Jyy)*w_y*w_z/Jxx,
-                                     (Jxx-Jzz)*w_x*w_z/Jyy,
-                                     (Jyy-Jxx)*w_x*w_y/Jzz)
+        inertial_effect = cs.vertcat((Jzz-Jyy)/Jxx*w_y*w_z,
+                                     (Jxx-Jzz)/Jyy*w_x*w_z,
+                                     (Jyy-Jxx)/Jzz*w_x*w_y)
 
+        # attitude dynamics
+        # dwdt = [M_x/Jxx, M_y/Jyy, M_z/Jzz]^T - w x (J*w)
         dwdt = m_vec - inertial_effect
-
         return dwdt
 
 

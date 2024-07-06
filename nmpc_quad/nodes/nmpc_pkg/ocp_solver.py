@@ -80,7 +80,6 @@ class OcpSolver():
         # Set horizon
         self.N = n_nodes
         self.ocp.dims.N = self.N
-
         self.T_horizon = t_horizon
 
         # Get the dimension of state, input, y and y_e (terminal)
@@ -112,7 +111,7 @@ class OcpSolver():
         # qw qx qy qz
         # wx wy wz
         self.Q_mat = np.diag([1, 1, 1,
-                              0.05, 0.05, 0.05,
+                              0.5, 0.5, 0.5,
                               0, 0.1, 0.1, 0.1,
                               0.05, 0.05, 0.05])
 
@@ -162,8 +161,8 @@ class OcpSolver():
         self.ocp.solver_options.qp_solver = "FULL_CONDENSING_HPIPM"
         self.ocp.solver_options.hessian_solver = "GAUSSIAN_NEWTON"
         self.ocp.solver_options.integrator_type = "ERK"
-        self.ocp.solver_options.print_level = 0
-        self.ocp.solver_options.nlp_solver = "SQP"
+        self.ocp.solver_options.print_level = 0     # Do not print out
+        self.ocp.solver_options.nlp_solver = "SQP_RTI"
 
         self.ocp.solver_options.tf = self.T_horizon
 
@@ -177,11 +176,8 @@ class OcpSolver():
 
         y_ref = np.concatenate((ref, np.zeros((self.nu,))))
         y_ref_N = ref
-        # print('Reference position: ', y_ref[:3])
-        # print('State position: ', state[:3])
-        # print('Reference qauternion: ', y_ref[6:10])
 
-        # Fill in initial state
+        # Fill initial state
         self.acados_ocp_solver.set(0,"lbx", state)
         self.acados_ocp_solver.set(0, "ubx", state)
 
@@ -192,10 +188,6 @@ class OcpSolver():
         status = self.acados_ocp_solver.solve()
 
         u = self.acados_ocp_solver.get(0,"u")
-
-        s = self.acados_ocp_solver.get(0,"x")
-
-        print('Quaternion state from NMPC: ', s[6:10])
 
         self.u_prev = u
 
