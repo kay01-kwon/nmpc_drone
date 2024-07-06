@@ -110,6 +110,7 @@ class QuadModel:
         w_dynamics
         :return: dwdt
         '''
+
         # Moment of inertia
         Jxx = self.J[0]
         Jyy = self.J[1]

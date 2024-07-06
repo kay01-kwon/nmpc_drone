@@ -111,14 +111,14 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([0.1, 0.1, 0.1,
+        self.Q_mat = np.diag([1, 1, 1,
                               0.05, 0.05, 0.05,
-                              0.0, 0.1, 0.1, 0.1,
-                              0.01, 0.01, 0.01])
+                              0, 0.1, 0.1, 0.1,
+                              0.05, 0.05, 0.05])
 
         # cost R:
         # u1, u2, u3, u4 (RPM)
-        self.R_mat = 0.001*np.diag([1.0, 1.0, 1.0, 1.0])
+        self.R_mat = 0.01*np.diag([1.0, 1.0, 1.0, 1.0])
 
         # Set cost type for OCP
         self.ocp.cost.cost_type = 'LINEAR_LS'
@@ -163,7 +163,7 @@ class OcpSolver():
         self.ocp.solver_options.hessian_solver = "GAUSSIAN_NEWTON"
         self.ocp.solver_options.integrator_type = "ERK"
         self.ocp.solver_options.print_level = 0
-        self.ocp.solver_options.nlp_solver = "SQP_RTI"
+        self.ocp.solver_options.nlp_solver = "SQP"
 
         self.ocp.solver_options.tf = self.T_horizon
 
