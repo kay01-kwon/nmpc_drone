@@ -48,8 +48,12 @@ class nmpc_quad_node:
     def ros_setup(self):
         '''
         Publisher and subscriber setup
-        :return:
+        :return: None
         '''
+
+        # To do list
+        # Construct message filter to subscribe
+        # odometry, imu (quaternion and angular velocity), and reference
 
         self.state_sub = rospy.Subscriber('/hummingbird/ground_truth/odometry',
                                           Odometry,

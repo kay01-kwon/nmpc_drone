@@ -101,7 +101,7 @@ class QuadModel:
         q kinematics
         :return: dqdt (dqdt = 0.5 * w otimes q)
         '''
-        w_quat_form = cs.vertcat(0.0, self.w)       # [0 w]
+        w_quat_form = cs.vertcat(0, self.w)       # [0 w]
         dqdt = 0.5*tools.otimes(self.q, w_quat_form)
         return dqdt
 

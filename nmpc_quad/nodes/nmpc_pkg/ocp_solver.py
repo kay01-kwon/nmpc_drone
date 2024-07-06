@@ -111,14 +111,14 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([1., 1., 1.,
+        self.Q_mat = np.diag([0.1, 0.1, 0.1,
                               0.05, 0.05, 0.05,
                               0.0, 0.1, 0.1, 0.1,
                               0.01, 0.01, 0.01])
 
         # cost R:
         # u1, u2, u3, u4 (RPM)
-        self.R_mat = 0.1*np.diag([1.0, 1.0, 1.0, 1.0])
+        self.R_mat = 0.001*np.diag([1.0, 1.0, 1.0, 1.0])
 
         # Set cost type for OCP
         self.ocp.cost.cost_type = 'LINEAR_LS'
