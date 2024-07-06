@@ -7,11 +7,9 @@ def quaternion2rotm(q):
     :param q: quaternion
     :return: rotation matrix
     '''
-    q_vec = quat2quat_vec(q)
-
-
     # Not casadi --> represent the return value as np.array
     if isinstance(q, np.ndarray):
+        q_vec = quat2quat_vec(q)
         outer_product = np.array([
             [q_vec[0]*q_vec[0], q_vec[0]*q_vec[1], q_vec[0]*q_vec[2]],
             [q_vec[1]*q_vec[1], q_vec[1]*q_vec[1], q_vec[1]*q_vec[2]],
@@ -20,9 +18,9 @@ def quaternion2rotm(q):
         rotm = (q[3]*q[3] - np.dot(q_vec, q_vec))*np.eye(3)
         + 2 * outer_product
         + 2 * q[3] * vec2skew_symm(q_vec)
-
         return rotm
 
+    # Casadi format
     qw = q[0]
     qx = q[1]
     qy = q[2]
@@ -96,6 +94,9 @@ def otimes(q1,q2):
             [q1[2], -q1[1], q1[0], q1[3]]
         ])
         return np.matmul(q1_L, q2)
+
+    den1 = cs.sqrt(q1[0]**2 + q1[1]**2 + q1[2]**2 + q1[3]**2)
+    den2 = cs.sqrt(q2[0]**2 + q2[1]**2 + q2[2]**2 + q2[3]**2)
 
     q1_w = q1[0]
     q1_x = q1[1]

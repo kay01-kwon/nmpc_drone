@@ -45,11 +45,11 @@ class QuadModel:
         self.u_dim = 4
 
         # Casadi: Assign xdot (The differentiation of the state)
-        self.dpdt = cs.MX.sym('dpdt',3)
-        self.dvdt = cs.MX.sym('dvdt',3)
-        self.dqdt = cs.MX.sym('dqdt',4)
-        self.dwdt = cs.MX.sym('dwdt',3)
-        self.xdot = cs.vertcat(self.dpdt, self.dvdt, self.dwdt, self.dqdt)
+        self.dpdt = cs.MX.sym('dpdt',3)     # dp_x/dt dp_y/dt dp_z/dt
+        self.dvdt = cs.MX.sym('dvdt',3)     # dv_x/dt dv_y/dt dv_z/dt
+        self.dqdt = cs.MX.sym('dqdt',4)     # dq_w/dt dq_x/dt dq_y/dt dq_z/dt
+        self.dwdt = cs.MX.sym('dwdt',3)     # dw_x/dt dw_y/dt dw_z/dt
+        self.xdot = cs.vertcat(self.dpdt, self.dvdt, self.dqdt, self.dwdt)      # dpdt dvdt dqdt dwdt
 
 
     def get_acados_model(self):
@@ -110,22 +110,26 @@ class QuadModel:
         w_dynamics
         :return: dwdt
         '''
+        # Moment of inertia
+        Jxx = self.J[0]
+        Jyy = self.J[1]
+        Jzz = self.J[2]
+
         # Convert Four rotor thrusts to moment
-        m_x, m_y, m_z = tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
-        M_vec = cs.vertcat(m_x , m_y, m_z)
+        M_x, M_y, M_z = tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
+        m_vec = cs.vertcat(M_x/Jxx , M_y/Jyy, M_z/Jzz)
 
-        # J*w
-        J_w = cs.vertcat(self.J[0]*self.w[0],
-                         self.J[1]*self.w[1],
-                         self.J[2]*self.w[2])
+        # Get angular velocity
+        w_x = self.w[0]
+        w_y = self.w[1]
+        w_z = self.w[2]
 
-        # J*dwdt = M - w x (J*w)
-        J_dwdt = M_vec - cs.mtimes(tools.vec2skew_symm(self.w), J_w)
+        # inertial effect = w x (J*w)
+        inertial_effect = cs.vertcat((Jzz-Jyy)*w_y*w_z/Jxx,
+                                     (Jxx-Jzz)*w_x*w_z/Jyy,
+                                     (Jyy-Jxx)*w_x*w_y/Jzz)
 
-        # dwdt = J^{-1}*(M - w x (Jw))
-        dwdt = cs.vertcat(1/self.J[0]*J_dwdt[0],
-                          1/self.J[1]*J_dwdt[1],
-                          1/self.J[2]*J_dwdt[2])
+        dwdt = m_vec - inertial_effect
 
         return dwdt
 

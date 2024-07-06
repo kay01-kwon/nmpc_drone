@@ -10,13 +10,13 @@ import numpy as np
 X0 = np.array([
     0.0, 0.0, 0.0,          # position
     0.0, 0.0, 0.0,          # velocity
-    1.0, 0.0, 0.0, 0.0,     # quaternion
+    1, 0.0, 0.0, 0.0,     # quaternion
     0.0, 0.0, 0.0           # angular velocity
 ])
 
 
 class OcpSolver():
-    def __init__(self, u_min = 0.2, u_max = 7 ,n_nodes = 20, t_horizon = 2.0):
+    def __init__(self, u_min = 0., u_max = 5, n_nodes = 10, t_horizon = 1.0):
         '''
         Constructor for OcpSolver
         :param u_min: minimum rotor thrust (N)
@@ -59,10 +59,10 @@ class OcpSolver():
         self.ocp = AcadosOcp()
 
         # Object generation
-        quad_model_obj = QuadModel(m = 0.68,
+        quad_model_obj = QuadModel(m = 0.716,
                                 J =np.array([0.007, 0.007, 0.012]),
                                 l = 0.17,
-                                C_moment = 0.016,
+                                C_moment = 0.05,
                                 model_description = '+')
 
         # Get Quad model from the quad_model_obj
@@ -111,7 +111,7 @@ class OcpSolver():
         # vx vy vz
         # qw qx qy qz
         # wx wy wz
-        self.Q_mat = np.diag([0.5, 0.5, 0.5,
+        self.Q_mat = np.diag([1., 1., 1.,
                               0.05, 0.05, 0.05,
                               0.0, 0.1, 0.1, 0.1,
                               0.01, 0.01, 0.01])
@@ -170,12 +170,12 @@ class OcpSolver():
     def ocp_solve(self, state, ref):
         '''
         Set ocp solver (State and reference)
-        :param state: Initial state of p_xyz, q_wxyz, v_xyz, w_xyz
-        :param ref: p_xyz_ref, v_xyz_ref, q_xyzw, w_xyz
+        :param state: Initial state of p_xyz, v_xyz, q_wxyz, w_xyz
+        :param ref: p_xyz_ref, v_xyz_ref, q_wxyz, w_xyz
         :return: u
         '''
 
-        y_ref = np.concatenate((ref, self.u_prev))
+        y_ref = np.concatenate((ref, np.zeros((self.nu,))))
         y_ref_N = ref
         # print('Reference position: ', y_ref[:3])
         # print('State position: ', state[:3])
@@ -192,6 +192,10 @@ class OcpSolver():
         status = self.acados_ocp_solver.solve()
 
         u = self.acados_ocp_solver.get(0,"u")
+
+        s = self.acados_ocp_solver.get(0,"x")
+
+        print('Quaternion state from NMPC: ', s[6:10])
 
         self.u_prev = u
 

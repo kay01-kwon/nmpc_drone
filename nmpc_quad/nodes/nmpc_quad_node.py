@@ -26,7 +26,6 @@ class nmpc_quad_node:
         Initialize the ocp solver and store data for state, reference and so on.
         '''
         rospy.init_node('nmpc_quad', anonymous=True)
-
         # Create ocp solver object
         self.ocp_solver_obj = ocp_solver.OcpSolver()
 
@@ -46,12 +45,12 @@ class nmpc_quad_node:
 
         rospy.on_shutdown(self.publish_zero_control_input)
 
-
     def ros_setup(self):
         '''
         Publisher and subscriber setup
         :return:
         '''
+
         self.state_sub = rospy.Subscriber('/hummingbird/ground_truth/odometry',
                                           Odometry,
                                           self.state_callback,
@@ -66,6 +65,7 @@ class nmpc_quad_node:
         self.input_pub = rospy.Publisher('/hummingbird/command/motor_speed',
                                          Actuators,
                                          queue_size=1)
+        self.ros_rate = rospy.Rate(50)
 
     def state_callback(self, msg):
         '''
@@ -96,26 +96,6 @@ class nmpc_quad_node:
 
         # print('position: ',self.state[0], ', ', self.state[1], ', ', self.state[2])
 
-        status, self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
-
-        # u[i] = C_lift * rpm[i]^2
-        # rpm[i] = sqrt(u[i]/C_lift)
-        if status == 0:
-            for i in range(4):
-                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
-        else:
-            self.publish_zero_control_input()
-            print('NMPC : Infeasible')
-
-        if self.position_error() > 2.0:
-            self.publish_zero_control_input()
-
-        self.u_msg.header.stamp = rospy.Time.now()
-        self.u_msg.header.frame_id = "nmpc_node"
-        self.u_msg.angular_velocities = self.rpm_des
-
-        self.input_pub.publish(self.u_msg)
-
     def ref_callback(self, msg):
         '''
         Callback function for reference
@@ -138,6 +118,27 @@ class nmpc_quad_node:
 
         # print('Reference position: ', self.ref[:3])
 
+    def publish_control_input(self):
+        status, self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
+
+        # u[i] = C_lift * rpm[i]^2
+        # rpm[i] = sqrt(u[i]/C_lift)
+        if status == 0:
+            for i in range(4):
+                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
+        else:
+            self.publish_zero_control_input()
+            print('NMPC : Infeasible')
+
+        if self.position_error() > 2.0:
+            self.publish_zero_control_input()
+
+        self.u_msg.header.stamp = rospy.Time.now()
+        self.u_msg.header.frame_id = "nmpc_node"
+        self.u_msg.angular_velocities = self.rpm_des
+
+        self.input_pub.publish(self.u_msg)
+
     def position_error(self):
         tracking_error = self.state[:3] - self.ref[:3]
         return np.linalg.norm(tracking_error)
@@ -149,7 +150,10 @@ class nmpc_quad_node:
         self.input_pub.publish(self.u_msg)
 
     def run(self):
-        rospy.spin()
+        # rospy.spin()
+        while not rospy.is_shutdown():
+            self.publish_control_input()
+            self.ros_rate.sleep()
 
 # def main():
 #     rospy.init_node('nmpc_quad', anonymous=True)
