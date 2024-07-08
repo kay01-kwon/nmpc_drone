@@ -106,21 +106,49 @@ double signum(double num)
     return num > 0 ? 1.0:-1.0;
 }
 
-void convert_rpm_to_wrench(const QuadModel& quad_model, 
+void convert_rpm_to_wrench(const QuadModel &quad_model, 
 const double &arm_length, 
 const mat31_t &COM, 
 const mat41_t &rpm, 
 mat31_t &force, 
 mat31_t &moment)
 {
+    /**
+     * QuadModel::model1
+     * 
+     *               2 (CCW)
+     *               |
+     *               |
+     *               |
+     * 3 (CW) --------------- 1 (CW)
+     *               |
+     *               |
+     *               |
+     *               4 (CCW)
+     * 
+     * 
+     * QuadModel::model2
+     * 
+     *    3 (CW)          2 (CCW)
+     *      x           x
+     *        x       x
+     *          x   x
+     *            x
+     *          x   x
+     *        x       x
+     *      x           x
+     *    4 (CCW)         1 (CW)
+    */
     if(quad_model == QuadModel::model1)
     {
+        cout<<"Quad model ('+') is selected"<<endl;
 
     }
     else
     {
+        cout<<"Quad model ('x') is selected"<<endl;
 
     }
 
-    assert((quad_model == QuadModel::model1)&&(quad_model == QuadModel::model2));
+    assert((quad_model == QuadModel::model1)||(quad_model == QuadModel::model2));
 }
