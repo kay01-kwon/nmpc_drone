@@ -25,6 +25,8 @@ class SimulationModel{
         void set_disturbance(const mat31_t& sigma_ext,
         const mat31_t& theta_ext);
 
+        void set_time(const double& time);
+
         void get_state(mat31_t& p, 
         mat31_t& v,
         quat_t& q,
@@ -39,14 +41,20 @@ class SimulationModel{
         runge_kutta4<state13_t> rk4_;
 
         QuadModel quad_model_;
-        inertial_param_t inertial_param_;
-        aero_coeff_t aero_coeff_;
+        double lift_coeff_, moment_coeff_;
         double l_;
+
         double curr_time_, prev_time_;
         double dt_;
 
         mat31_t force_, sigma_ext_;
-        mat31_t moment_, theta_est_;
+        mat31_t moment_, theta_ext_;
+
+        double m_;
+        mat31_t J_;
+        mat31_t B_p_CG_COM_;
+
+        mat31_t gravity_;
 
         state13_t s_;
 

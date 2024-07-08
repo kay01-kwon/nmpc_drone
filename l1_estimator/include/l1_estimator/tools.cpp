@@ -180,7 +180,7 @@ mat31_t &moment)
         CG_p_CG_rotors[3] << -l*sqrt(2)/2.0, -l*sqrt(2)/2.0, 0;
     }
 
-    for(int i = 0; i < 4; i++)
+    for(size_t i = 0; i < 4; i++)
     {
         thrust_xyz[i] << 0, 0, thrust(i);
         CG_p_COM_rotors[i] = CG_p_CG_rotors[i] - B_p_CG_COM;
