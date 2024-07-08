@@ -14,7 +14,7 @@ class SimulationModel{
 
         SimulationModel() = delete;
 
-        SimulationModel(const QuadModel_t& quad_model,
+        SimulationModel(const QuadModel& quad_model,
         const aero_coeff_t& aero_coeff,
         const inertial_param_t& inertial_param,
         const double& arm_length,
@@ -30,13 +30,18 @@ class SimulationModel{
         mat31_t& v,
         quat_t& q,
         mat31_t& w) const;
+
+        void solve();
         
     private:
 
         runge_kutta4<state13_t> rk4_;
 
+        QuadModel quad_model_;
         inertial_param_t inertial_param_;
         aero_coeff_t aero_coeff_;
+        double l_;
+        double dt_;
 
         void quadrotor_dynamics(const state13_t& dsdt,
         state13_t& s,

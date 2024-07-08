@@ -25,5 +25,12 @@ quat_t& unit_q);
 
 double signum(double num);
 
+void convert_rpm_to_wrench(const QuadModel& quad_model,
+const double &arm_length, 
+const mat31_t &COM,
+const mat41_t &rpm,
+mat31_t &force,
+mat31_t &moment);
+
 
 #endif

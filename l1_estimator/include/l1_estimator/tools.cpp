@@ -105,3 +105,22 @@ double signum(double num)
 {
     return num > 0 ? 1.0:-1.0;
 }
+
+void convert_rpm_to_wrench(const QuadModel& quad_model, 
+const double &arm_length, 
+const mat31_t &COM, 
+const mat41_t &rpm, 
+mat31_t &force, 
+mat31_t &moment)
+{
+    if(quad_model == QuadModel::model1)
+    {
+
+    }
+    else
+    {
+
+    }
+
+    assert((quad_model == QuadModel::model1)&&(quad_model == QuadModel::model2));
+}

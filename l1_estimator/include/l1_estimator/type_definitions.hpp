@@ -24,7 +24,7 @@ typedef Matrix<double,7,1> state7_t;
 typedef Matrix<double,13,1> state13_t;
 typedef Quaternion<double> quat_t;
 
-enum QuadModel_t{model1, model2};
+enum class QuadModel{model1, model2};
 
 typedef struct __Inertial_param{
     double m;

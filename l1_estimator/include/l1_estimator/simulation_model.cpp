@@ -1,10 +1,15 @@
 #include "simulation_model.hpp"
 
-SimulationModel::SimulationModel(const QuadModel_t &quad_model, 
+SimulationModel::SimulationModel(const QuadModel &quad_model, 
 const aero_coeff_t &aero_coeff, 
 const inertial_param_t &inertial_param,
-const double& arm_length,
-const double& time_step)
+const double &arm_length,
+const double &time_step)
+:quad_model_(quad_model),
+aero_coeff_(aero_coeff),
+inertial_param_(inertial_param),
+l_(arm_length),
+dt_(time_step)
 {
 }
 
