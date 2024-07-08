@@ -13,7 +13,7 @@ class RefModel{
 
         RefModel() = delete;
 
-        RefModel(const Inertial_param_t& inertial_param,
+        RefModel(const inertial_param_t& inertial_param,
         const double& k_p, const double& k_v,
         const double& k_q, const double& k_w);
 
@@ -52,7 +52,7 @@ class RefModel{
     private:
 
         // Nominal inertial parameter
-        Inertial_param_t inertial_param_;
+        inertial_param_t inertial_param_;
 
         // Control gain for translaional dynamics of reference model
         double k_p_, k_v_;

@@ -1,6 +1,6 @@
 #include "ref_model.hpp"
 
-RefModel::RefModel(const Inertial_param_t &inertial_param,
+RefModel::RefModel(const inertial_param_t &inertial_param,
 const double& k_p, const double& k_v,
 const double& k_q, const double& k_w)
 :inertial_param_(inertial_param), 

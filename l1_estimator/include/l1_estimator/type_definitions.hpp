@@ -24,15 +24,17 @@ typedef Matrix<double,7,1> state7_t;
 typedef Matrix<double,13,1> state13_t;
 typedef Quaternion<double> quat_t;
 
-typedef struct Inertial_param{
+enum QuadModel_t{model1, model2};
+
+typedef struct __Inertial_param{
     double m;
     mat33_t J;
     mat31_t r_offset;
-} Inertial_param_t;
+} inertial_param_t;
 
-typedef struct Aero_coeff{
+typedef struct __Aero_coeff{
     double lift_coeff;
     double moment_coeff;
-} Aero_coeff_t;
+} aero_coeff_t;
 
 #endif
