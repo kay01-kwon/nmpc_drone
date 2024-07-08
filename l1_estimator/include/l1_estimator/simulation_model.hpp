@@ -17,8 +17,7 @@ class SimulationModel{
         SimulationModel(const QuadModel& quad_model,
         const aero_coeff_t& aero_coeff,
         const inertial_param_t& inertial_param,
-        const double& arm_length,
-        const double& time_step
+        const double& arm_length
         );
 
         void set_control_input(const mat41_t& rpm);
@@ -31,6 +30,8 @@ class SimulationModel{
         quat_t& q,
         mat31_t& w) const;
 
+        void get_time(double& time) const;
+
         void solve();
         
     private:
@@ -41,7 +42,13 @@ class SimulationModel{
         inertial_param_t inertial_param_;
         aero_coeff_t aero_coeff_;
         double l_;
+        double curr_time_, prev_time_;
         double dt_;
+
+        mat31_t force_, sigma_ext_;
+        mat31_t moment_, theta_est_;
+
+        state13_t s_;
 
         void quadrotor_dynamics(const state13_t& dsdt,
         state13_t& s,
