@@ -106,49 +106,90 @@ double signum(double num)
     return num > 0 ? 1.0:-1.0;
 }
 
-void convert_rpm_to_wrench(const QuadModel &quad_model, 
+void convert_thrust_to_wrench(const QuadModel &quad_model, 
 const double &arm_length, 
-const mat31_t &COM, 
-const mat41_t &rpm, 
+const mat31_t &B_p_CG_COM, 
+const mat41_t &thrust,
+const double &moment_coeff,
 mat31_t &force, 
 mat31_t &moment)
 {
+    moment.setZero();
     /**
      * QuadModel::model1
      * 
-     *               2 (CCW)
+     *               y
+     *               ^
+     *               |
+     *               
+     *               1 (CCW)
      *               |
      *               |
      *               |
-     * 3 (CW) --------------- 1 (CW)
+     * 2 (CW) --------------- 0 (CW)    ----------> x
      *               |
      *               |
      *               |
-     *               4 (CCW)
+     *               3 (CCW)
      * 
      * 
      * QuadModel::model2
      * 
-     *    3 (CW)          2 (CCW)
+     *            y
+     *            ^
+     *            |
+     *            |
+     *    2 (CW)          1 (CCW)
      *      x           x
      *        x       x
      *          x   x
-     *            x
+     *            x                    ----------> x
      *          x   x
      *        x       x
      *      x           x
-     *    4 (CCW)         1 (CW)
+     *    3 (CCW)         0 (CW)
     */
+
+    double collective_thrust;
+    double l(arm_length);
+
+    collective_thrust = thrust(0) + thrust(1) + thrust(2) + thrust(3);
+    
+    force <<    0, 
+                0,
+                collective_thrust;
+
+    mat31_t CG_p_CG_rotors[4];
+    mat31_t CG_p_COM_rotors[4];
+    mat31_t thrust_xyz[4];
+    mat33_t skew_symm;
+    
     if(quad_model == QuadModel::model1)
     {
-        cout<<"Quad model ('+') is selected"<<endl;
+        CG_p_CG_rotors[0] << l, 0, 0;
+        CG_p_CG_rotors[1] << 0, l, 0;
+        CG_p_CG_rotors[2] << -l, 0, 0;
+        CG_p_CG_rotors[3] << 0, -l, 0;
 
     }
     else
     {
-        cout<<"Quad model ('x') is selected"<<endl;
-
+        CG_p_CG_rotors[0] << -l*sqrt(2)/2.0, -l*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[1] << l*sqrt(2)/2.0, l*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[2] << -l*sqrt(2)/2.0, l*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[3] << -l*sqrt(2)/2.0, -l*sqrt(2)/2.0, 0;
     }
 
+    for(int i = 0; i < 4; i++)
+    {
+        thrust_xyz[i] << 0, 0, thrust(i);
+        CG_p_COM_rotors[i] = CG_p_CG_rotors[i] - B_p_CG_COM;
+        convert_vec_to_skew(CG_p_CG_rotors[i], skew_symm);
+        moment += skew_symm*thrust_xyz[i];
+    }
+
+    moment(2) = moment_coeff*(thrust(0) - thrust(1) + thrust(2) - thrust(3));
+
     assert((quad_model == QuadModel::model1)||(quad_model == QuadModel::model2));
+    assert(B_p_CG_COM(2) == 0);
 }
