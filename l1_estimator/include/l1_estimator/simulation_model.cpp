@@ -17,6 +17,8 @@ moment_(moment_.setZero())
 {
     s_.setZero();
     s_(6) = 1;
+    gravity_ << 0, 0, -9.81;
+    
     assert(dt_ <= 0);
 }
 
@@ -83,6 +85,13 @@ void SimulationModel::solve()
 
 }
 
+/**
+ * @brief quadrotor dynamics
+ * 
+ * @param dsdt: dpdt, dvdt, dqdt, dwdt 
+ * @param s : p, v, q, w
+ * @param t : time
+ */
 void SimulationModel::quadrotor_dynamics(const state13_t &dsdt, 
 state13_t &s, 
 const double &t)
@@ -90,7 +99,7 @@ const double &t)
     mat31_t p,v,dpdt,dvdt;
     quat_t q, q_unit, dqdt;
     mat31_t w, dwdt;
-    mat33_t R, w_skiew;
+    mat33_t R, w_skew;
 
     for(int i = 0; i < 3; i++)
     {
@@ -109,6 +118,13 @@ const double &t)
     }
 
     convert_quat_to_unit_quat(q, q_unit);
+    get_rotm_from_quat(q_unit, R);
+
+    dpdt = v;
+    dvdt = R*force_ + m_*gravity_;
+
+    convert_vec_to_skew(w, w_skew);
+
 
 
 }
