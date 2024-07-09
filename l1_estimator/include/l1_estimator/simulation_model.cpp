@@ -18,7 +18,7 @@ moment_(moment_.setZero())
     s_.setZero();
     s_(6) = 1;
     gravity_ << 0, 0, -9.81;
-    
+
     assert(dt_ <= 0);
 }
 
@@ -120,10 +120,20 @@ const double &t)
     convert_quat_to_unit_quat(q, q_unit);
     get_rotm_from_quat(q_unit, R);
 
+    // Translational kinematics
     dpdt = v;
-    dvdt = R*force_ + m_*gravity_;
 
+    // Translational dynamics
+    dvdt = R*force_/m_ + gravity_;
+
+    // Attitude kinematics
+    get_dqdt(q_unit, w, dqdt);
+
+    // Attitude dynamics
     convert_vec_to_skew(w, w_skew);
+    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w));
+
+
 
 
 
