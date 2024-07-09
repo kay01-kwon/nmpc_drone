@@ -100,9 +100,9 @@ const double &time)
 
 
     // Get the time derivative of translational and orientational disturbance, respectively.
-    gamma_prj_obj_[0].getProjGamma(sigma_hat_, y_sigma
+    gamma_prj_obj_[0].getProjGamma(y_sigma
     , f1, Df1, dsigma_hat_);
-    gamma_prj_obj_[1].getProjGamma(theta_hat_, y_theta
+    gamma_prj_obj_[1].getProjGamma(y_theta
     , f2, Df2, dtheta_hat_);
 
 
