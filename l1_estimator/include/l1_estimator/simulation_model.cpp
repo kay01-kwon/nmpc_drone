@@ -1,5 +1,13 @@
 #include "simulation_model.hpp"
 
+/**
+ * @brief Construct a new Simulation Model:: Simulation Model object
+ * 
+ * @param quad_model 
+ * @param aero_coeff 
+ * @param inertial_param 
+ * @param arm_length 
+ */
 SimulationModel::SimulationModel(const QuadModel &quad_model, 
 const aero_coeff_t &aero_coeff, 
 const inertial_param_t &inertial_param,
@@ -22,6 +30,11 @@ moment_(moment_.setZero())
     assert(dt_ <= 0);
 }
 
+/**
+ * @brief Set four rpm to control quadrotor
+ * 
+ * @param rpm 
+ */
 void SimulationModel::set_control_input(const mat41_t &rpm)
 {
     mat41_t thrust;
@@ -43,6 +56,12 @@ void SimulationModel::set_control_input(const mat41_t &rpm)
 
 }
 
+/**
+ * @brief Set translational and rotational disturbance 
+ * to the quadrotor in order.
+ * @param sigma_ext : translational disturbance
+ * @param theta_ext : rotational disturbance
+ */
 void SimulationModel::set_disturbance(const mat31_t &sigma_ext, 
 const mat31_t &theta_ext)
 {
@@ -50,11 +69,24 @@ const mat31_t &theta_ext)
     theta_ext_ = theta_ext;
 }
 
+/**
+ * @brief Set the simulation time
+ * 
+ * @param time 
+ */
 void SimulationModel::set_time(const double &time)
 {
     curr_time_ = time;
 }
 
+/**
+ * @brief Get the state of the simulation
+ * 
+ * @param p : position
+ * @param v : velocity
+ * @param q : quaternion
+ * @param w : angular velocity
+ */
 void SimulationModel::get_state(mat31_t &p, 
 mat31_t &v, 
 quat_t &q, 
@@ -74,14 +106,34 @@ mat31_t &w) const
 
 }
 
+/**
+ * @brief Get the current time of the simulation
+ * 
+ * @param time 
+ */
 void SimulationModel::get_time(double &time) const
 {
     time = curr_time_;
 }
 
+/**
+ * @brief solve the simulation model
+ * 
+ */
 void SimulationModel::solve()
 {
+    dt_ = curr_time_ - prev_time_;
 
+    rk4_.do_step(
+        [this]
+        (const state13_t& s, state13_t& dsdt, const double& t)
+        {
+            this->SimulationModel::quadrotor_dynamics(s, dsdt, t);
+        }
+        ,s_, prev_time_, dt_
+    );
+
+    prev_time_ = curr_time_;
 
 }
 
@@ -140,20 +192,23 @@ const double &t)
     // Put the rate of state
     for(int i = 0; i < 3; i++)
     {
+        // Put the rate of position
         dsdt(i) = dpdt(i);
+
+        // Put the rate of velocity
         dsdt(i+3) = dvdt(i);
     }
 
+    // Put the rate of quaternion
     dsdt(6) = dqdt.w();
     dsdt(7) = dqdt.x();
     dsdt(8) = dqdt.y();
     dsdt(9) = dqdt.z();
 
+    // Put the rate of angular velocity
     for(int i = 0; i < 3; i++)
     {
         dsdt(i+10) = dwdt(i);
     }
-
-
 
 }
