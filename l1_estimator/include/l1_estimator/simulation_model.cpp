@@ -11,8 +11,12 @@ m_(inertial_param.m),
 J_(inertial_param.J),
 B_p_CG_COM_(inertial_param.r_offset),
 l_(arm_length),
-dt_(0)
+dt_(0),
+force_(force_.setZero()),
+moment_(moment_.setZero())
 {
+    s_.setZero();
+    s_(6) = 1;
     assert(dt_ <= 0);
 }
 
@@ -75,10 +79,36 @@ void SimulationModel::get_time(double &time) const
 
 void SimulationModel::solve()
 {
+
+
 }
 
 void SimulationModel::quadrotor_dynamics(const state13_t &dsdt, 
 state13_t &s, 
 const double &t)
 {
+    mat31_t p,v,dpdt,dvdt;
+    quat_t q, q_unit, dqdt;
+    mat31_t w, dwdt;
+    mat33_t R, w_skiew;
+
+    for(int i = 0; i < 3; i++)
+    {
+        p(i) = s(i);
+        v(i) = s(i+3);
+    }
+
+    q.w() = s(6);
+    q.x() = s(7);
+    q.y() = s(8);
+    q.z() = s(9);
+
+    for(int i = 0; i < 3; i++)
+    {
+        w(i) = s(i+10);
+    }
+
+    convert_quat_to_unit_quat(q, q_unit);
+
+
 }
