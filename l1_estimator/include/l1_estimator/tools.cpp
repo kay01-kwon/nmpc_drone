@@ -1,6 +1,14 @@
 #include "tools.h"
 #include "tools.hpp"
 
+/**
+ * @brief Get the rate of quaternion from current 
+ * quaternion and angular velocity 
+ * 
+ * @param q current quaternion
+ * @param w angualr velocity
+ * @param dqdt the rate of quaternion
+ */
 void get_dqdt(const quat_t &q, const mat31_t &w, quat_t &dqdt)
 {
     quat_t w_quat;
@@ -20,6 +28,13 @@ void get_dqdt(const quat_t &q, const mat31_t &w, quat_t &dqdt)
 
 }
 
+/**
+ * @brief Multiplication of two different quaternion
+ * 
+ * @param q1 left quaternion
+ * @param q2 right quaternion
+ * @param q_res the result of multiplication
+ */
 void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
 {
     double real;
@@ -45,6 +60,12 @@ void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
     q_res.z() = q_res_vec(2);
 }
 
+/**
+ * @brief Get the rotm from quaternion
+ * 
+ * @param q quaternion to convert into rotation matrix
+ * @param rotm The resultant rotation matrix
+ */
 void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
 {
     mat33_t eye_m;
@@ -62,6 +83,12 @@ void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
 
 }
 
+/**
+ * @brief Conjegatue the given quaternion
+ * 
+ * @param q the quaternion to conjugate
+ * @param q_conj conjucated quaternion
+ */
 void conjugate(const quat_t &q, quat_t &q_conj)
 {
     q_conj.w() = q.w();
@@ -70,6 +97,12 @@ void conjugate(const quat_t &q, quat_t &q_conj)
     q_conj.z() = -q.z();
 }
 
+/**
+ * @brief Convert 3 dimensional vector into skew symmetric matrix
+ * 
+ * @param vec 3 dimensional vector
+ * @param skew_sym_mat 3 by 3 skew symmetric matrix from vec
+ */
 void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
 {
     skew_sym_mat << 0, -vec(2), vec(1),
@@ -77,12 +110,25 @@ void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
                     -vec(1), vec(0), 0;
 }
 
+/**
+ * @brief Extract the only imaginary part of the given quaternion.
+ * Remove real part of it.
+ * 
+ * @param q quaternion to extract pure quaternion
+ * @param q_vec pure quaternion
+ */
 void convert_quat_to_quat_vec(const quat_t& q, 
 mat31_t &q_vec)
 {
     q_vec << q.x(), q.y(), q.z();
 }
 
+/**
+ * @brief Normalize the given quaternion
+ * 
+ * @param q quaternion to normalize
+ * @param unit_q normalized quaternion
+ */
 void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
 {
     double den;
@@ -101,11 +147,31 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
     
 }
 
+/**
+ * @brief In the reference model, check the real part of the quaternion
+ * and then stabilize the error of the attitude.
+ * Its purpose is to avoid the unwinding pheonomenon.
+ * 
+ * @param num the real number to check its sign
+ * @return signum
+ */
 double signum(double num)
 {
     return num > 0 ? 1.0:-1.0;
 }
 
+/**
+ * @brief Convert from four rotor thrusts to force and moment.
+ * It considers the change of Center of mass.
+ * 
+ * @param quad_model QuadModel::model1 -'+', QuadMode::model2 - 'x'
+ * @param arm_length the length from the center of geometry to that of rotor
+ * @param B_p_CG_COM the location of center of mass from center of geometry expressed in body frame
+ * @param thrust four rotor thrust obtained from the formula lift coeff*rpm^2
+ * @param moment_coeff moment_coeff*thrust generates moment along z axis represented by body
+ * @param force output force from the above parameters
+ * @param moment output moment from the above parameters
+ */
 void convert_thrust_to_wrench(const QuadModel &quad_model, 
 const double &arm_length, 
 const mat31_t &B_p_CG_COM, 
