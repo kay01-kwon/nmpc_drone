@@ -3,11 +3,11 @@
 /**
  * @brief Construct a new Ref Model:: Ref Model object
  * 
- * @param inertial_param 
- * @param k_p 
- * @param k_v 
- * @param k_q 
- * @param k_w 
+ * @param inertial_param : mass, moment of inertia, and B_p_CG_COM
+ * @param k_p  P gain of translational reference model
+ * @param k_v  D gain of translational reference model
+ * @param k_q  P gain of orientational reference model
+ * @param k_w  D gain of orientational reference model
  */
 RefModel::RefModel(const inertial_param_t &inertial_param,
 const double& k_p, const double& k_v,
@@ -39,12 +39,12 @@ mu_hat_(mu_hat_.setZero())
 
 /**
  * @brief set input, state and disturbance in order.
- * @param u_comp : force rejected translational disturbance from rotor thrust
- * @param mu_comp : moment compensated orientational disturbance from rotor thrust
- * @param s : estimated state
- * @param sigma_hat : noisy translational disturbance
- * @param theta_hat : noisy orientational disturbance
- * @param time : Current time
+ * @param u_comp force rejected translational disturbance from rotor thrust
+ * @param mu_comp moment compensated orientational disturbance from rotor thrust
+ * @param s estimated state
+ * @param sigma_hat noisy translational disturbance
+ * @param theta_hat noisy orientational disturbance
+ * @param time Current time
  */
 void RefModel::set_input_state_disturbance_time(const mat31_t &u_comp, 
 const mat31_t &mu_comp, const state13_t &s, 
@@ -120,10 +120,10 @@ const double &time)
 /**
  * @brief User can get estimated state from the reference model.
  * 
- * @param p_ref : position of reference model
- * @param v_ref : velocity of reference model
- * @param q_ref : quaternion of reference model
- * @param w_ref : angular velocity of reference model
+ * @param p_ref position of reference model
+ * @param v_ref velocity of reference model
+ * @param q_ref quaternion of reference model
+ * @param w_ref angular velocity of reference model
  */
 void RefModel::get_state_from_ref_model(mat31_t &p_ref, mat31_t &v_ref, 
 quat_t &q_ref, mat31_t &w_ref) const
@@ -169,9 +169,9 @@ void RefModel::solve()
 /**
  * @brief This implements reference dynamics model.
  * 
- * @param s : p_ref, v_ref, q_ref, w_ref
- * @param dsdt : dp_ref_dt, dv_ref_dt, dq_ref_dt, dw_ref_dt
- * @param t : time
+ * @param s p_ref, v_ref, q_ref, w_ref
+ * @param dsdt dp_ref_dt, dv_ref_dt, dq_ref_dt, dw_ref_dt
+ * @param t time
  */
 void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t)
 {

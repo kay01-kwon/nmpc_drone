@@ -59,8 +59,8 @@ void SimulationModel::set_control_input(const mat41_t &rpm)
 /**
  * @brief Set translational and rotational disturbance 
  * to the quadrotor in order.
- * @param sigma_ext : translational disturbance
- * @param theta_ext : rotational disturbance
+ * @param sigma_ext translational disturbance
+ * @param theta_ext rotational disturbance
  */
 void SimulationModel::set_disturbance(const mat31_t &sigma_ext, 
 const mat31_t &theta_ext)
@@ -82,10 +82,10 @@ void SimulationModel::set_time(const double &time)
 /**
  * @brief Get the state of the simulation
  * 
- * @param p : position
- * @param v : velocity
- * @param q : quaternion
- * @param w : angular velocity
+ * @param p position
+ * @param v velocity
+ * @param q quaternion
+ * @param w angular velocity
  */
 void SimulationModel::get_state(mat31_t &p, 
 mat31_t &v, 
@@ -140,9 +140,9 @@ void SimulationModel::solve()
 /**
  * @brief quadrotor dynamics
  * 
- * @param s : p, v, q, w
- * @param dsdt: dpdt, dvdt, dqdt, dwdt
- * @param t : time
+ * @param s p, v, q, w
+ * @param dsdt dpdt, dvdt, dqdt, dwdt
+ * @param t time
  */
 void SimulationModel::quadrotor_dynamics(const state13_t &s, 
 state13_t &dsdt, 
