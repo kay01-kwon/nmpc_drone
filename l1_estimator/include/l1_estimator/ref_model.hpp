@@ -85,8 +85,8 @@ class RefModel{
         runge_kutta4<state13_t> rk4;
 
         void ref_dynamics(
-            const mat31_t& s,
-            mat31_t& dsdt,
+            const state13_t& s,
+            state13_t& dsdt,
             const double& t
         );
 

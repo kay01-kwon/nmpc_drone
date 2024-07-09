@@ -113,7 +113,7 @@ void RefModel::solve()
     dt_ = curr_time_ - prev_time_;
 
     rk4.do_step([this] 
-    (const mat31_t& s, mat31_t& dsdt, const double& t)
+    (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);
     },
@@ -135,7 +135,7 @@ void RefModel::solve()
     prev_time_ = curr_time_;
 }
 
-void RefModel::ref_dynamics(const mat31_t &s, mat31_t &dsdt, const double &t)
+void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t)
 {
     mat31_t p,v,dpdt,dvdt;
     quat_t q, q_unit, dqdt;
