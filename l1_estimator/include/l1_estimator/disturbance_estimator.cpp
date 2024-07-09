@@ -117,6 +117,10 @@ const double &time)
 
 }
 
+/**
+ * @brief Integrate the rate of disturbance, so you can get the noisy disturbance.
+ * 
+ */
 void DisturbanceEstimator::solve()
 {
     dt_ = curr_time_ - prev_time_;
@@ -163,7 +167,7 @@ mat31_t &theta_est_filtered) const
 }
 
 /**
- * @brief the time derivative of disturbance.
+ * @brief the time derivative of disturbance should be matched to the vector obtained from gamma projection.
  * When you set the disturbance, gamma projection automatically computes the rate of it.
  * 
  * @param D resultant disturbance (noisy one)
