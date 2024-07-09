@@ -88,12 +88,12 @@ void SimulationModel::solve()
 /**
  * @brief quadrotor dynamics
  * 
- * @param dsdt: dpdt, dvdt, dqdt, dwdt 
  * @param s : p, v, q, w
+ * @param dsdt: dpdt, dvdt, dqdt, dwdt
  * @param t : time
  */
-void SimulationModel::quadrotor_dynamics(const state13_t &dsdt, 
-state13_t &s, 
+void SimulationModel::quadrotor_dynamics(const state13_t &s, 
+state13_t &dsdt, 
 const double &t)
 {
     mat31_t p,v,dpdt,dvdt;
@@ -101,22 +101,26 @@ const double &t)
     mat31_t w, dwdt;
     mat33_t R, w_skew;
 
+    // Get current position and velocity
     for(int i = 0; i < 3; i++)
     {
         p(i) = s(i);
         v(i) = s(i+3);
     }
 
+    // Get current quaternion
     q.w() = s(6);
     q.x() = s(7);
     q.y() = s(8);
     q.z() = s(9);
 
+    // Get current angular velocity
     for(int i = 0; i < 3; i++)
     {
         w(i) = s(i+10);
     }
 
+    // Get unit quaternion and then convert it to rotation matrix 
     convert_quat_to_unit_quat(q, q_unit);
     get_rotm_from_quat(q_unit, R);
 
@@ -133,7 +137,22 @@ const double &t)
     convert_vec_to_skew(w, w_skew);
     dwdt = J_.inverse()*(moment_ - w_skew*(J_*w));
 
+    // Put the rate of state
+    for(int i = 0; i < 3; i++)
+    {
+        dsdt(i) = dpdt(i);
+        dsdt(i+3) = dvdt(i);
+    }
 
+    dsdt(6) = dqdt.w();
+    dsdt(7) = dqdt.x();
+    dsdt(8) = dqdt.y();
+    dsdt(9) = dqdt.z();
+
+    for(int i = 0; i < 3; i++)
+    {
+        dsdt(i+10) = dwdt(i);
+    }
 
 
 

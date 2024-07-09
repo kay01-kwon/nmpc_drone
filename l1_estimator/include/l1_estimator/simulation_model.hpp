@@ -58,8 +58,8 @@ class SimulationModel{
 
         state13_t s_;
 
-        void quadrotor_dynamics(const state13_t& dsdt,
-        state13_t& s,
+        void quadrotor_dynamics(const state13_t& s,
+        state13_t& dsdt,
         const double& t);
 
 
