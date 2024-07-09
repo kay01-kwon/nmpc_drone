@@ -14,6 +14,13 @@ bound_scalar_(sqrt(bound.transpose()*bound))
     print_parameter_value();
 }
 
+/**
+ * @brief Compute convex function and that of gradient from given vector.
+ * 
+ * @param vec 
+ * @param f function value
+ * @param Df graident of the function
+ */
 void Convex_fn::get_fn_value(const mat31_t &vec, 
 double &f, mat31_t &Df) const
 {
@@ -30,6 +37,10 @@ double &f, mat31_t &Df) const
     Df = 2*vec/den;
 }
 
+/**
+ * @brief Print out the scalared bound and epsilon
+ * 
+ */
 void Convex_fn::print_parameter_value() const
 {
     cout<<"Convex function parameter"<<endl;

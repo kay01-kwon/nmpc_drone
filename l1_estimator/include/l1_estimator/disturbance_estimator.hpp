@@ -10,7 +10,7 @@ class DisturbanceEstimator{
 
     DisturbanceEstimator() = delete;
 
-    DisturbanceEstimator(const Inertial_param& Inertial_param,
+    DisturbanceEstimator(const inertial_param_t& Inertial_param,
     const mat31_t& bound_sigma, const double& epsilon_sigma,
     const mat31_t& bound_theta, const double& epsilon_theta,
     const mat31_t& gamma_sigma, 
@@ -35,7 +35,7 @@ class DisturbanceEstimator{
 
     private:
 
-    Inertial_param inertial_param_;
+    inertial_param_t inertial_param_;
     mat31_t sigma_hat_, theta_hat_;
     mat31_t dsigma_hat_, dtheta_hat_;
     mat31_t sigma_hat_lpf_, theta_hat_lpf_;
