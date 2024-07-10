@@ -29,6 +29,35 @@ void get_dqdt(const quat_t &q, const mat31_t &w, quat_t &dqdt)
 }
 
 /**
+ * @brief Return the reference of the rate of quaternion
+ * 
+ * @param q left quaternion
+ * @param w right angular velocity
+ * @return quat_t& the rate of quaternion
+ */
+quat_t& return_dqdt(const quat_t &q, 
+const mat31_t& w)
+{
+    quat_t w_quat;
+    quat_t q_otimes_w;
+    quat_t dqdt;
+
+    w_quat.w() = 0;
+    w_quat.x() = w(0);
+    w_quat.y() = w(1);
+    w_quat.z() = w(2);
+
+    otimes(q, w_quat, q_otimes_w);
+    
+    dqdt.w() = 0.5*q_otimes_w.w();
+    dqdt.x() = 0.5*q_otimes_w.x();
+    dqdt.y() = 0.5*q_otimes_w.y();
+    dqdt.z() = 0.5*q_otimes_w.z();
+
+    return dqdt;
+}
+
+/**
  * @brief Multiplication of two different quaternion
  * 
  * @param q1 left quaternion
@@ -61,6 +90,41 @@ void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
 }
 
 /**
+ * @brief return the multiplication of two quaternions
+ * 
+ * @param q1 left quaternion
+ * @param q2 right quaternion
+ * @return quat_t& the result of multiplication
+ */
+quat_t& return_otimes(const quat_t& q1, const quat_t &q2)
+{
+    double real;
+    mat31_t q1_vec, q2_vec;
+    mat33_t q1_skew_sym_mat;
+    mat31_t q_res_vec;
+    quat_t q_res;
+
+    convert_quat_to_quat_vec(q1, q1_vec);
+    convert_quat_to_quat_vec(q2, q2_vec);
+    
+    real = q1.w()*q2.w()
+    -q1_vec.transpose()*q2_vec;
+
+    convert_vec_to_skew(q1_vec, q1_skew_sym_mat);
+
+    q_res_vec = q1.w()*q2_vec
+    + q2.w()*q1_vec
+    + q1_skew_sym_mat*q2_vec;
+
+    q_res.w() = real;
+    q_res.x() = q_res_vec(0);
+    q_res.y() = q_res_vec(1);
+    q_res.z() = q_res_vec(2);
+
+    return q_res;
+}
+
+/**
  * @brief Get the rotm from quaternion
  * 
  * @param q quaternion to convert into rotation matrix
@@ -80,7 +144,31 @@ void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
     rotm = (q.w()*q.w() - q_vec.transpose()*q_vec)*eye_m
     + 2 * q_vec * q_vec.transpose()
     + 2 * q.w() * skew_sym;
+}
 
+/**
+ * @brief It returns the rotation matrix (3x3) from quaternion
+ * 
+ * @param q quaternion to convert into rotation matrix
+ * @return mat33_t& rotation matrix
+ */
+mat33_t& return_rotm_from_quaternion(const quat_t &q)
+{
+    mat33_t eye_m;
+    mat31_t q_vec;
+    mat33_t skew_sym;
+    mat33_t rotm;
+
+    eye_m.setIdentity();
+
+    convert_quat_to_quat_vec(q, q_vec);
+    convert_vec_to_skew(q_vec,skew_sym);
+
+    rotm = (q.w()*q.w() - q_vec.transpose()*q_vec)*eye_m
+    + 2 * q_vec * q_vec.transpose()
+    + 2 * q.w() * skew_sym;
+
+    return rotm;
 }
 
 /**
@@ -100,6 +188,22 @@ void conjugate(const quat_t &q, quat_t &q_conj)
     assert(q_conj.x() + q.x() == 0 
     && q_conj.y() + q.y() == 0
     && q_conj.z() + q.z() == 0);
+}
+
+quat_t& return_conjugate(const quat_t& q)
+{
+    quat_t q_conj;
+    q_conj.w() = q.w();
+    q_conj.x() = -q.x();
+    q_conj.y() = -q.y();
+    q_conj.z() = -q.z();
+
+    assert(q_conj.w() - q.w() == 0);
+    assert(q_conj.x() + q.x() == 0 
+    && q_conj.y() + q.y() == 0
+    && q_conj.z() + q.z() == 0);
+
+    return q_conj;
 }
 
 /**
