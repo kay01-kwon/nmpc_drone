@@ -18,7 +18,8 @@ const mat31_t &bound_sigma, const double &epsilon_sigma,
 const mat31_t &bound_theta, const double &epsilon_theta, 
 const mat31_t &gamma_sigma, const mat33_t &gamma_theta, 
 const double &tau_sigma, const double &tau_theta)
-:inertial_param_(inertial_param),
+:m_(inertial_param.m),
+J_(inertial_param.J),
 convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),
 Convex_fn(bound_theta, epsilon_theta)},
 gamma_prj_obj_{GammaPrj(gamma_sigma), 
@@ -26,6 +27,8 @@ GammaPrj(gamma_theta)},
 lpf_obj_{Lpf(tau_sigma), 
 Lpf(tau_theta)}
 {
+    assert(tau_sigma > 0);
+    assert(tau_theta > 0);
 }
 
 /**
@@ -70,7 +73,7 @@ const double &time)
     mat31_t q_vec;
     double c = 1.0;
 
-    J_inv = inertial_param_.J.inverse();
+    J_inv = J_.inverse();
     J_inv_transpose = J_inv.transpose();
 
     quat_t q_tilde_unit;
@@ -81,9 +84,9 @@ const double &time)
     convert_quat_to_quat_vec(q_tilde, q_vec);
     q_vec = signum(q_tilde.w()) * q_vec;
 
-    P = inertial_param_.J 
+    P = J_ 
     * R.transpose() 
-    * inertial_param_.J.inverse()
+    * J_.inverse()
     * R;
 
     P_transpose = P.transpose();

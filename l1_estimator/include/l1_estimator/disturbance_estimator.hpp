@@ -35,7 +35,9 @@ class DisturbanceEstimator{
 
     private:
 
-    inertial_param_t inertial_param_;
+    double m_;
+    mat33_t J_;
+
     mat31_t sigma_hat_, theta_hat_;
     mat31_t dsigma_hat_, dtheta_hat_;
     mat31_t sigma_hat_lpf_, theta_hat_lpf_;
