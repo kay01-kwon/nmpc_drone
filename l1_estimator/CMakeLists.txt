@@ -26,6 +26,7 @@ generate_messages(
 include_directories(
 include
   ${catkin_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIRS}
 )
 
 catkin_package(
@@ -54,3 +55,18 @@ include/l1_estimator/low_pass_filter.cpp)
 
 target_link_libraries(lpf_test_node
 ${catkin_LIBRARIES})
+
+add_executable(test_estimator
+src/test.cpp
+include/l1_estimator/convex_fn.cpp
+include/l1_estimator/gamma_proj.cpp
+include/l1_estimator/low_pass_filter.cpp
+include/l1_estimator/ref_model.cpp
+include/l1_estimator/tools.cpp
+include/l1_estimator/disturbance_estimator.cpp
+)
+
+target_link_libraries(test_estimator
+${YAML_CPP_LIBRARIES}
+${catkin_LIBRARIES}
+)

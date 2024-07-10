@@ -7,27 +7,17 @@
 void get_dqdt(const quat_t& q, 
 const mat31_t& w, quat_t& dqdt);
 
-quat_t& return_dqdt(const quat_t &q, 
-const mat31_t& w);
-
 // 2. The multiplication of two quaternions
 void otimes(const quat_t& q1, 
 const quat_t& q2, quat_t& q_res);
-
-quat_t& return_otimes(const quat_t& q1, 
-const quat_t &q2);
 
 // 3. Get rotation matrix from quaternion
 void get_rotm_from_quat(const quat_t& q,
 mat33_t& rotm);
 
-mat33_t& return_rotm_from_quaternion(const quat_t &q);
-
 // 4. Conjugate the quaternion
 void conjugate(const quat_t& q,
 quat_t& q_conj);
-
-mat33_t& return_rotm_from_quaternion(const quat_t &q);
 
 // 5. Convert from vector (3D) to skew symmetric matrix (3x3)
 void convert_vec_to_skew(const mat31_t& vec, 

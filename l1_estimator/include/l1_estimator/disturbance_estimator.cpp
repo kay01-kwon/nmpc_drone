@@ -16,17 +16,23 @@
 DisturbanceEstimator::DisturbanceEstimator(const inertial_param_t &inertial_param, 
 const mat31_t &bound_sigma, const double &epsilon_sigma, 
 const mat31_t &bound_theta, const double &epsilon_theta, 
-const mat31_t &gamma_sigma, const mat33_t &gamma_theta, 
+const mat33_t &gamma_sigma, const mat33_t &gamma_theta, 
 const double &tau_sigma, const double &tau_theta)
 :m_(inertial_param.m),
 J_(inertial_param.J),
-convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),
-Convex_fn(bound_theta, epsilon_theta)},
-gamma_prj_obj_{GammaPrj(gamma_sigma), 
-GammaPrj(gamma_theta)},
-lpf_obj_{Lpf(tau_sigma), 
-Lpf(tau_theta)}
+convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),Convex_fn(bound_theta, epsilon_theta)},
+gamma_prj_obj_{GammaPrj(gamma_sigma), GammaPrj(gamma_theta)},
+lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)}
 {
+    // convex_fn_obj_[0] = Convex_fn(bound_sigma, epsilon_sigma);
+    // convex_fn_obj_[1] = Convex_fn(bound_theta, epsilon_theta);
+    
+    // gamma_prj_obj_[0] = GammaPrj(gamma_sigma);
+    // gamma_prj_obj_[1] = GammaPrj(gamma_theta);
+
+    // lpf_obj_[0] = Lpf(tau_sigma);
+    // lpf_obj_[1] = Lpf(tau_theta);
+    
     assert(tau_sigma > 0);
     assert(tau_theta > 0);
 }
@@ -58,17 +64,18 @@ const double &time)
 
     curr_time_ = time;
 
-    quat_t q_conj, q_tilde;
+    quat_t q_conj, q_tilde, q_tilde_unit;
     mat33_t R;
     mat31_t w_tilde;
 
     conjugate(q_state, q_conj);
     otimes(q_conj, q_ref, q_tilde);
-    get_rotm_from_quat(q_tilde,R);
+    convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
+    get_rotm_from_quat(q_tilde_unit,R);
     w_tilde = w_ref - R.transpose()*w_state;
 
     mat31_t y_sigma, y_theta;
-    mat33_t R, P, P_transpose;
+    mat33_t P, P_transpose;
     mat33_t J_inv, J_inv_transpose;
     mat31_t q_vec;
     double c = 1.0;
@@ -76,12 +83,6 @@ const double &time)
     J_inv = J_.inverse();
     J_inv_transpose = J_inv.transpose();
 
-    quat_t q_tilde_unit;
-
-    convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
-
-    get_rotm_from_quat(q_tilde_unit,R);
-    convert_quat_to_quat_vec(q_tilde, q_vec);
     q_vec = signum(q_tilde.w()) * q_vec;
 
     P = J_ 

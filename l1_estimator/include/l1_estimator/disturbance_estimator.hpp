@@ -13,7 +13,7 @@ class DisturbanceEstimator{
     DisturbanceEstimator(const inertial_param_t& Inertial_param,
     const mat31_t& bound_sigma, const double& epsilon_sigma,
     const mat31_t& bound_theta, const double& epsilon_theta,
-    const mat31_t& gamma_sigma, 
+    const mat33_t& gamma_sigma, 
     const mat33_t& gamma_theta, 
     const double& tau_sigma,
     const double& tau_theta);
