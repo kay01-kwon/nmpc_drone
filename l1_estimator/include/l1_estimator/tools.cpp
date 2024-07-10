@@ -168,6 +168,19 @@ mat33_t& return_rotm_from_quaternion(const quat_t &q)
     + 2 * q_vec * q_vec.transpose()
     + 2 * q.w() * skew_sym;
 
+    mat33_t test_mat;
+    test_mat = rotm.transpose()*rotm;
+    
+    assert( (fabs(test_mat(0,0) - 1.0) < 1e-6)
+    && (fabs(test_mat(1,1) - 1.0) < 1e-6)
+    && (fabs(test_mat(2,2) - 1.0) < 1e-6)
+    && (fabs(test_mat(0,1)) < 1e-6)
+    && (fabs(test_mat(0,2)) < 1e-6)
+    && (fabs(test_mat(1,0)) < 1e-6)
+    && (fabs(test_mat(1,2)) < 1e-6)
+    && (fabs(test_mat(2,0)) < 1e-6)
+    && (fabs(test_mat(2,1)) < 1e-6) );
+
     return rotm;
 }
 
@@ -199,9 +212,10 @@ quat_t& return_conjugate(const quat_t& q)
     q_conj.z() = -q.z();
 
     assert(q_conj.w() - q.w() == 0);
-    assert(q_conj.x() + q.x() == 0 
-    && q_conj.y() + q.y() == 0
-    && q_conj.z() + q.z() == 0);
+    assert(
+        (q_conj.x() + q.x() == 0) 
+        && (q_conj.y() + q.y() == 0)
+        && (q_conj.z() + q.z() == 0));
 
     return q_conj;
 }
