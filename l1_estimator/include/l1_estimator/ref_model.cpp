@@ -12,7 +12,8 @@
 RefModel::RefModel(const inertial_param_t &inertial_param,
 const double& k_p, const double& k_v,
 const double& k_q, const double& k_w)
-:inertial_param_(inertial_param), 
+:m_(inertial_param.m),
+J_(inertial_param.J),
 k_p_(k_p), k_v_(k_v),
 k_q_(k_q), k_w_(k_w),
 curr_time_(0), prev_time_(0), dt_(0),
@@ -102,15 +103,15 @@ const double &time)
     // Get the error of angular velocity
     w_tilde = w_hat_ - R.transpose()*w_state;
 
-    C = inertial_param_.J 
+    C = J_
     * R.transpose() 
-    * inertial_param_.J.inverse();
+    * J_.inverse();
 
     convert_vec_to_skew(w_tilde, skiew_sym);
 
     mu_hat_ = C
     *(mu_comp + R*theta_hat)
-    - inertial_param_.J
+    - J_
     *skiew_sym
     *R.transpose()*w_state
     -(k_q_*q_vec + k_w_*w_tilde);
@@ -198,10 +199,10 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     }
 
     dpdt = v;
-    dvdt = (1/inertial_param_.m)*u_hat_ + grav_;
+    dvdt = (1/m_)*u_hat_ + grav_;
 
     get_dqdt(q_unit, w, dqdt);
-    dwdt = inertial_param_.J.inverse()*mu_hat_;
+    dwdt = J_.inverse()*mu_hat_;
 
     for(size_t i = 0; i < 3; i++)
     {

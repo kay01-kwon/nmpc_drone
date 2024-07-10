@@ -27,7 +27,7 @@ moment_(moment_.setZero())
     s_(6) = 1;
     gravity_ << 0, 0, -9.81;
 
-    assert(dt_ <= 0);
+    assert(dt_ < 0);
 }
 
 /**

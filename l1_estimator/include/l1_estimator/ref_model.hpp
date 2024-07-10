@@ -51,8 +51,9 @@ class RefModel{
 
     private:
 
-        // Nominal inertial parameter
-        inertial_param_t inertial_param_;
+        // Nominal inertial parameter (mass and moment of inertia)
+        double m_;
+        mat33_t J_;
 
         // Control gain for translaional dynamics of reference model
         double k_p_, k_v_;
@@ -91,6 +92,5 @@ class RefModel{
         );
 
 };
-
 
 #endif

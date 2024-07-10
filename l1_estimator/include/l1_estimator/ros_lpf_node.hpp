@@ -39,6 +39,4 @@ class RosLpf{
         bool init_time;
 };
 
-
-
 #endif

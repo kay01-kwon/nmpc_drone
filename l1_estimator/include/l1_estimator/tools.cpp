@@ -95,6 +95,11 @@ void conjugate(const quat_t &q, quat_t &q_conj)
     q_conj.x() = -q.x();
     q_conj.y() = -q.y();
     q_conj.z() = -q.z();
+
+    assert(q_conj.w() - q.w() == 0);
+    assert(q_conj.x() + q.x() == 0 
+    && q_conj.y() + q.y() == 0
+    && q_conj.z() + q.z() == 0);
 }
 
 /**
@@ -121,6 +126,8 @@ void convert_quat_to_quat_vec(const quat_t& q,
 mat31_t &q_vec)
 {
     q_vec << q.x(), q.y(), q.z();
+
+    assert(q_vec.size() == 3);
 }
 
 /**
@@ -145,6 +152,12 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
     unit_q.z() = q.z()/den;
     unit_q.w() = q.w()/den;
     
+    assert(fabs(
+        unit_q.x()*unit_q.x()
+        +unit_q.y()*unit_q.y()
+        +unit_q.z()*unit_q.z()
+        +unit_q.w()*unit_q.w()-1
+        )<1e-6);
 }
 
 /**
@@ -157,6 +170,7 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
  */
 double signum(double num)
 {
+    assert(typeid(num)==typeid(double));
     return num > 0 ? 1.0:-1.0;
 }
 
