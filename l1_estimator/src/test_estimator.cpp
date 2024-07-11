@@ -21,6 +21,9 @@ int main(int argc, char**argv)
     else
         quad_model = QuadModel::model2;
 
+    nh.getParam("simulation_final_time", Tf);
+    nh.getParam("discrete_time", dt);
+
     nh.getParam("kp", kp);
     nh.getParam("kv", kv);
     nh.getParam("kq", kq);
@@ -54,12 +57,20 @@ int main(int argc, char**argv)
     RefModel(nominal_inertial_param,
     kp, kv, kq, kw);
 
-
-    Tf = 10;
     dt = 0.01;
     N = Tf/dt;
 
-    cout<<"Simulation step: "<<N<<endl;
+    cout<<"Final Time: "<< Tf <<endl;
+
+    cout<<"Discrete time: "<< dt <<endl;
+
+    cout<<"Simulation step: "<< N <<endl;
+
+    // Capacity allocation
+    simulation_time.reserve(N);
+
+
+
 
     return EXIT_SUCCESS;
 }

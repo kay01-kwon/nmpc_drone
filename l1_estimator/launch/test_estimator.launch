@@ -3,6 +3,11 @@
     <node pkg = "l1_estimator" type = "test_estimator" name = "test_estimator" output="screen"/>
         <param name="simulation_param_dir" value="$(find l1_estimator)/config/simulation_model.yaml"/>
         <param name="nominal_param_dir" value="$(find l1_estimator)/config/nominal_model.yaml"/>
+        
+        <param name="quad_model" type="int" value="1"/>
+        <param name="simulation_final_time" type="double" value="10"/>
+        <param name="discrete_time" type="double" value="10"/>
+        
         <param name="kp" type="double" value="5.0"/>
         <param name="kv" type="double" value="3.0"/>
         <param name="kq" type="double" value="5.0"/>

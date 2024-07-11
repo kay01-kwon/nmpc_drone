@@ -5,6 +5,8 @@
 #include "yaml_converter/read_config.hpp"
 #include "simulation_model/simulation_model.hpp"
 
+using std::vector;
+
 // Declare inertial parameters for simulation
 // and nominal model.
 inertial_param_t simulation_inertial_param;
@@ -47,5 +49,7 @@ double Tf;
 
 // Step
 int N;
+
+vector<double> simulation_time;
 
 #endif
