@@ -2,8 +2,12 @@
 
 int main(int argc, char**argv)
 {
+    
     ros::init(argc, argv, "Test node");
-
+    
+    // Declare ROS NodeHandle to get yaml directory.
+    ros::NodeHandle nh;
+    
     int quad_model_;
 
     // Get parameter configuration directory
@@ -54,8 +58,7 @@ int main(int argc, char**argv)
     dt = 0.01;
     N = Tf/dt;
 
-    cout<<"Simulation step: "<<endl;
-    cout<<N<<endl;
+    cout<<"Simulation step: "<<N<<endl;
 
     return EXIT_SUCCESS;
 }

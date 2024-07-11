@@ -5,9 +5,6 @@
 #include "yaml_converter/read_config.hpp"
 #include "simulation_model/simulation_model.hpp"
 
-// Declare ROS NodeHandle to get yaml directory.
-ros::NodeHandle nh;
-
 // Declare inertial parameters for simulation
 // and nominal model.
 inertial_param_t simulation_inertial_param;

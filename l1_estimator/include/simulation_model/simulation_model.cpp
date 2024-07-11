@@ -27,7 +27,13 @@ moment_(moment_.setZero())
     s_(6) = 1;
     gravity_ << 0, 0, -9.81;
 
-    assert(dt_ < 0);
+    assert(dt_ >= 0);
+    
+    assert((quad_model == QuadModel::model1) 
+    || (quad_model == QuadModel::model2));
+
+    assert(inertial_param.J.size() == 9);
+
 }
 
 /**
@@ -44,7 +50,9 @@ void SimulationModel::set_control_input(const mat41_t &rpm)
     pow(rpm(2), 2.0),
     pow(rpm(3), 2.0);
 
-    thrust *= lift_coeff_*thrust;
+    thrust = lift_coeff_*thrust;
+
+    assert( thrust.size() == 4);
 
     convert_thrust_to_wrench(quad_model_,
     l_,
@@ -67,6 +75,9 @@ const mat31_t &theta_ext)
 {
     sigma_ext_ = sigma_ext;
     theta_ext_ = theta_ext;
+
+    assert(sigma_ext.size() == 3);
+    assert(theta_ext.size() == 3);
 }
 
 /**
