@@ -1,13 +1,13 @@
-#include "config_read.hpp"
+#include "read_config.hpp"
 
-Config_Read::Config_Read(const string &file_name)
+ReadConfig::ReadConfig(const string &file_name)
 :file_name_(file_name)
 {
     cout<<"The directory of the yaml file: "
     << file_name_<<endl;
 }
 
-void Config_Read::get_param(inertial_param_t &inertial_param, 
+void ReadConfig::get_param(inertial_param_t &inertial_param, 
 aero_coeff_t &aero_coeff, 
 double &arm_length) const
 {
@@ -16,7 +16,7 @@ double &arm_length) const
     arm_length = arm_length;
 }
 
-void Config_Read::load_yaml_file()
+void ReadConfig::load_yaml_file()
 {
     try{
         Node config = YAML::LoadFile(file_name_);
@@ -36,7 +36,7 @@ void Config_Read::load_yaml_file()
     }
 }
 
-void Config_Read::get_Inertial_param_from_yaml(const Node &config)
+void ReadConfig::get_Inertial_param_from_yaml(const Node &config)
 {
     auto inertial_param_yaml = config["inertial_param"];
     
@@ -77,7 +77,7 @@ void Config_Read::get_Inertial_param_from_yaml(const Node &config)
     }
 }
 
-void Config_Read::get_Aero_coeff_from_yaml(const Node &config)
+void ReadConfig::get_Aero_coeff_from_yaml(const Node &config)
 {
     auto aero_coeff_yaml = config["aerodynamics_param"];
 
@@ -96,7 +96,7 @@ void Config_Read::get_Aero_coeff_from_yaml(const Node &config)
     }
 }
 
-void Config_Read::get_arm_length_from_yaml(const Node &config)
+void ReadConfig::get_arm_length_from_yaml(const Node &config)
 {
     auto arm_length_yaml = config["length_param"];
 

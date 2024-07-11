@@ -1,5 +1,5 @@
-#ifndef CONFIG_READ_HPP_
-#define CONFIG_READ_HPP_
+#ifndef READ_CONFIG_HPP_
+#define READ_CONFIG_HPP_
 #include "l1_estimator/type_definitions.hpp"
 #include <yaml-cpp/yaml.h>
 #include <string>
@@ -9,16 +9,18 @@ using std::string;
 using std::cerr;
 using YAML::Node;
 
-class Config_Read{
+class ReadConfig{
 
     public:
 
-    Config_Read() = delete;
+    ReadConfig() = delete;
 
-    Config_Read(const string& file_name);
+    ReadConfig(const string& file_name);
 
     void get_param(inertial_param_t& inertial_param,
     aero_coeff_t& aero_coeff, double& arm_length) const;
+
+    ~ReadConfig() = default;
 
     private:
 
