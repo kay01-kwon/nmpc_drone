@@ -1,11 +1,5 @@
 #include "convex_fn.hpp"
 
-/**
- * @brief Construct a new Convex_fn::Convex_fn object
- * 
- * @param bound  3 dimensional bound of disturbance
- * @param epsilon
- */
 Convex_fn::Convex_fn(const mat31_t &bound, 
 const double &epsilon)
 :epsilon_(epsilon), 

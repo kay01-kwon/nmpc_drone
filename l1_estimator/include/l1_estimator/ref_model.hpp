@@ -17,6 +17,8 @@ class RefModel{
         const double& k_p, const double& k_v,
         const double& k_q, const double& k_w);
 
+        RefModel(const inertial_param_t& inertial_param);
+
         /**
          * Set inputs
          * u_comp = u - C(s)*sigma_hat

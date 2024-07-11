@@ -44,13 +44,14 @@ int main(int argc, char**argv)
     delete read_nominal_param_ptr;
 
     // Simulation model object to test estimation performance
-    SimulationModel sim_model_obj(quad_model, 
+    SimulationModel sim_model_obj 
+    = SimulationModel(quad_model, 
     aero_coeff, 
     simulation_inertial_param, 
     l);
 
-    // Reference model object
-    RefModel ref_model_obj(nominal_inertial_param,
+    RefModel ref_model_obj= 
+    RefModel(nominal_inertial_param,
     kp, kv, kq, kw);
 
 

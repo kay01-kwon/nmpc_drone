@@ -1,5 +1,4 @@
 #include "ref_model.hpp"
-
 /**
  * @brief Construct a new Ref Model:: Ref Model object
  * 
@@ -20,7 +19,6 @@ curr_time_(0), prev_time_(0), dt_(0),
 u_hat_(u_hat_.setZero()),
 mu_hat_(mu_hat_.setZero())
 {
-
     s_hat_.setZero();
     s_hat_(6) = 1.0;
 
@@ -36,6 +34,30 @@ mu_hat_(mu_hat_.setZero())
 
     grav_.setZero();
     grav_(2) = -9.81;
+    assert(J_.size() == 9);
+}
+
+RefModel::RefModel(const inertial_param_t &inertial_param)
+:m_(inertial_param.m),
+J_(inertial_param.J)
+{
+    s_hat_.setZero();
+    s_hat_(6) = 1.0;
+
+    p_hat_.setZero();
+    v_hat_.setZero();
+
+    q_hat_.w() = 1;
+    q_hat_.x() = 0;
+    q_hat_.y() = 0;
+    q_hat_.z() = 0;
+
+    w_hat_.setZero();
+
+    grav_.setZero();
+    grav_(2) = -9.81;
+    assert(J_.size() == 9);
+
 }
 
 /**
