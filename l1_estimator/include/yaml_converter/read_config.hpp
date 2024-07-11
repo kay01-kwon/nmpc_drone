@@ -20,6 +20,9 @@ class ReadConfig{
     void get_param(inertial_param_t& inertial_param,
     aero_coeff_t& aero_coeff, double& arm_length) const;
 
+    void get_param(inertial_param_t& inertial_param)
+    const;
+
     ~ReadConfig() = default;
 
     private:

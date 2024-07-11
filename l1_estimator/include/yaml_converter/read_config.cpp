@@ -17,6 +17,11 @@ double &arm_length) const
     arm_length = arm_length;
 }
 
+void ReadConfig::get_param(inertial_param_t &inertial_param) const
+{
+    inertial_param = inertial_param_;
+}
+
 void ReadConfig::load_yaml_file()
 {
     try{
