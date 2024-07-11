@@ -3,6 +3,8 @@ project(l1_estimator)
 
 add_compile_options(-std=c++14)
 
+find_package(yaml-cpp REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
