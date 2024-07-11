@@ -24,14 +24,6 @@ convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),Convex_fn(bound_theta, epsi
 gamma_prj_obj_{GammaPrj(gamma_sigma), GammaPrj(gamma_theta)},
 lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)}
 {
-    // convex_fn_obj_[0] = Convex_fn(bound_sigma, epsilon_sigma);
-    // convex_fn_obj_[1] = Convex_fn(bound_theta, epsilon_theta);
-    
-    // gamma_prj_obj_[0] = GammaPrj(gamma_sigma);
-    // gamma_prj_obj_[1] = GammaPrj(gamma_theta);
-
-    // lpf_obj_[0] = Lpf(tau_sigma);
-    // lpf_obj_[1] = Lpf(tau_theta);
     
     assert(tau_sigma > 0);
     assert(tau_theta > 0);
