@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include "l1_estimator/l1_estimator.hpp"
 #include "yaml_converter/read_config.hpp"
-#include "l1_estimator/simulation_model.hpp"
+#include "simulation_model/simulation_model.hpp"
 
 // Declare ROS NodeHandle to get yaml directory.
 ros::NodeHandle nh;

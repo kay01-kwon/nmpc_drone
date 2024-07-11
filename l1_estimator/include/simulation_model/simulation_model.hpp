@@ -1,7 +1,7 @@
 #ifndef SIMULATION_MODEL_HPP_
 #define SIMULATION_MODEL_HPP_
 
-#include "tools.hpp"
+#include "l1_estimator/tools.hpp"
 #include <boost/lambda/lambda.hpp>
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/odeint/external/eigen/eigen.hpp>
@@ -51,7 +51,7 @@ class SimulationModel{
         mat31_t moment_, theta_ext_;
 
         double m_;
-        mat31_t J_;
+        mat33_t J_;
         mat31_t B_p_CG_COM_;
 
         mat31_t gravity_;

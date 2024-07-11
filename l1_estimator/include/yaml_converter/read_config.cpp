@@ -3,7 +3,7 @@
 ReadConfig::ReadConfig(const string &file_name)
 :file_name_(file_name)
 {
-    assert(typeid(file_name_) == typeid(string));
+    assert(file_name.size() > 0);
     cout<<"The directory of the yaml file: "
     << file_name_<<endl;
 }

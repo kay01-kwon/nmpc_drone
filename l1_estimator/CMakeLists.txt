@@ -67,6 +67,7 @@ include/l1_estimator/ref_model.cpp
 include/l1_estimator/tools.cpp
 include/l1_estimator/disturbance_estimator.cpp
 include/yaml_converter/read_config.cpp
+include/simulation_model/simulation_model.cpp
 )
 
 target_link_libraries(test_estimator

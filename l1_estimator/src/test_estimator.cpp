@@ -8,8 +8,8 @@ int main(int argc, char**argv)
 
     // Get parameter configuration directory
     // for simulation and nominal model, respectively.
-    nh.getParam("simulation_param", simulation_param_dir);
-    nh.getParam("nominal_param", nominal_param_dir);
+    nh.getParam("simulation_param_dir", simulation_param_dir);
+    nh.getParam("nominal_param_dir", nominal_param_dir);
 
     nh.getParam("quad_model",quad_model_);
     if (quad_model_ == 1)
@@ -41,7 +41,9 @@ int main(int argc, char**argv)
 
     // Simulation model object to test estimation performance
     SimulationModel sim_model_obj(quad_model, 
-    aero_coeff, simulation_inertial_param, l);
+    aero_coeff, 
+    simulation_inertial_param, 
+    l);
 
     // Reference model object
     RefModel ref_model_obj(nominal_inertial_param,
