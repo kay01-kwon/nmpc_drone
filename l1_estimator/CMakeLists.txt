@@ -59,7 +59,7 @@ target_link_libraries(lpf_test_node
 ${catkin_LIBRARIES})
 
 add_executable(test_estimator
-src/test.cpp
+src/test_estimator.cpp
 include/l1_estimator/convex_fn.cpp
 include/l1_estimator/gamma_proj.cpp
 include/l1_estimator/low_pass_filter.cpp

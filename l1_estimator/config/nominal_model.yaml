@@ -1,0 +1,19 @@
+inertial_param:
+    mass:
+        m: 1
+    MOI:
+        Jxx: 0.07
+        Jxy: 0.00000
+        Jxz: 0.00000
+        Jyy: 0.07
+        Jyz: 0.00000
+        Jzz: 0.12
+    offset:
+        x: 0.
+        y: 0.
+        z: 0.
+aerodynamics_param:
+    C_l: 1
+    C_m: 1
+length_param:
+    l: 0.17
