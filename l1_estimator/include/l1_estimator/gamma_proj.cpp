@@ -8,7 +8,10 @@
 GammaPrj::GammaPrj(const mat33_t &Gamma)
 :Gamma_(Gamma)
 {
-    print_Gamma_value();
+    // print_Gamma_value();
+    assert(Gamma(0) > 0 &&
+    Gamma(4) > 0 &&
+    Gamma(8) > 0);
 }
 
 /**

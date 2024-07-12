@@ -1,11 +1,13 @@
 #include <ros/ros.h>
+#include <numeric>
 #include "l1_estimator/l1_estimator.hpp"
 #include "yaml_converter/read_config.hpp"
 #include "simulation_model/simulation_model.hpp"
 #include "estimator_test/variable_def.h"
 
-
 void ros_get_param(const ros::NodeHandle& nh);
+
+void print_parameter_setup();
 
 int main(int argc, char**argv)
 {
@@ -16,58 +18,6 @@ int main(int argc, char**argv)
     ros::NodeHandle nh;
 
     ros_get_param(nh);
-
-    for(size_t i = 0; i < 3; i++)
-    {
-        bound_sigma(i) = bound_sigma(0);
-        bound_theta(i) = bound_theta(0);
-
-        Gamma_sigma(i*4) = Gamma_sigma(0);
-        Gamma_theta(i*4) = Gamma_theta(0);
-
-    }
-
-    cout<< "Bound (trans): " << bound_sigma <<endl;
-    cout<< "Epsil (trans): " << epsilon_sigma <<endl;
-
-    cout<< "Bound (orien): " << bound_theta << endl;
-    cout<< "Epsil (orien): " << epsilon_theta << endl;
-
-    cout << "Gamma Proj (trans): " << endl;
-    cout << Gamma_sigma << endl;
-
-    cout << "Gamma Proj (orien): " << endl;
-    cout << Gamma_theta << endl;
-
-
-    ReadConfig read_simulation_param_obj = 
-    ReadConfig(simulation_param_dir);
-
-    ReadConfig read_nominal_param_obj = 
-    ReadConfig(nominal_param_dir);
-
-    // Write the parameter by reference.
-    read_simulation_param_obj.get_param(simulation_inertial_param, 
-    aero_coeff, l);
-
-    read_nominal_param_obj.get_param(nominal_inertial_param);
-
-    dt = 0.01;
-    N = Tf/dt;
-
-    cout<<"Final Time: "<< Tf <<endl;
-
-    cout<<"Discrete time: "<< dt <<endl;
-
-    cout<<"Simulation step: "<< N <<endl;
-
-    // Capacity allocation
-    simulation_time.reserve(N);
-
-
-    cout << simulation_time.capacity() << endl;
-
-    assert(simulation_time.capacity() == N);
 
     // Simulation model object to test estimation performance
     SimulationModel sim_model_obj 
@@ -86,7 +36,6 @@ int main(int argc, char**argv)
         bound_theta, epsilon_theta, 
         Gamma_sigma, Gamma_theta,
         tau_sigma, tau_theta);
-
 
     return EXIT_SUCCESS;
 }
@@ -125,4 +74,64 @@ void ros_get_param(const ros::NodeHandle& nh)
 
     nh.getParam("tau_sigma", tau_sigma);
     nh.getParam("tau_theta", tau_theta);
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        bound_sigma(i) = bound_sigma(0);
+        bound_theta(i) = bound_theta(0);
+
+        Gamma_sigma(i*4) = Gamma_sigma(0);
+        Gamma_theta(i*4) = Gamma_theta(0);
+    }
+
+    ReadConfig read_simulation_param_obj = 
+    ReadConfig(simulation_param_dir);
+
+    ReadConfig read_nominal_param_obj = 
+    ReadConfig(nominal_param_dir);
+
+    // Write the parameter by reference.
+    read_simulation_param_obj.get_param(simulation_inertial_param, 
+    aero_coeff, l);
+
+    read_nominal_param_obj.get_param(nominal_inertial_param);
+
+    N = Tf/dt;
+
+    // Capacity allocation
+    simulation_time.reserve(N);
+
+    for(size_t i = 0; i < N; i++)
+    {
+        simulation_time.push_back(i*dt);
+    }
+
+    assert(dt > std::numeric_limits<double>::min());
+    assert(simulation_time.capacity() == N);
+
+    print_parameter_setup();
+
+}
+
+void print_parameter_setup()
+{
+
+    cout<< "Bound (trans): " << bound_sigma <<endl;
+    cout<< "Epsil (trans): " << epsilon_sigma <<endl;
+
+    cout<< "Bound (orien): " << bound_theta << endl;
+    cout<< "Epsil (orien): " << epsilon_theta << endl;
+
+    cout << "Gamma Proj (trans): " << endl;
+    cout << Gamma_sigma << endl;
+
+    cout << "Gamma Proj (orien): " << endl;
+    cout << Gamma_theta << endl;
+
+
+    cout<<"Final Time: "<< Tf <<endl;
+    cout<<"Discrete time: "<< dt <<endl;
+    cout<<"Simulation step: "<< N <<endl;
+
+
 }

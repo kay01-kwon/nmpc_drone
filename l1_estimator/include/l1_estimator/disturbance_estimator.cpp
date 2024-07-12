@@ -25,8 +25,8 @@ gamma_prj_obj_{GammaPrj(gamma_sigma), GammaPrj(gamma_theta)},
 lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)}
 {
     
-    assert(tau_sigma > 0);
-    assert(tau_theta > 0);
+    assert(tau_sigma > std::numeric_limits<double>::min());
+    assert(tau_theta > std::numeric_limits<double>::min());
 }
 
 /**

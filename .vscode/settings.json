@@ -12,6 +12,7 @@
     "files.associations": {
         "*.tcc": "cpp",
         "ostream": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "limits": "cpp"
     }
 }

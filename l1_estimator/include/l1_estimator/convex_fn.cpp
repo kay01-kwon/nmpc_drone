@@ -5,7 +5,7 @@ const double &epsilon)
 :epsilon_(epsilon), 
 bound_scalar_(sqrt(bound.transpose()*bound))
 {
-    print_parameter_value();
+    // print_parameter_value();
 }
 
 /**

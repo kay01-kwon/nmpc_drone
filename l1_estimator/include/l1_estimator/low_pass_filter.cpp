@@ -10,7 +10,8 @@ Lpf::Lpf(const double &tau)
       v_in_(v_in_.setZero()), v_out_(v_out_.setZero()),
       curr_time_(0), prev_time_(0), dt_(0)
 {
-    cout<<"Tau set: "<<tau_<<endl;
+    // cout<<"Tau set: "<<tau_<<endl;
+    assert(tau > 0);
 }
 
 /**

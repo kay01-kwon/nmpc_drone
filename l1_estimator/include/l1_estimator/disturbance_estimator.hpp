@@ -1,5 +1,6 @@
 #ifndef DISTURBANCE_ESTIMATOR_HPP_
 #define DISTURBANCE_ESTIMATOR_HPP_
+#include <numeric>
 #include "convex_fn.hpp"
 #include "gamma_proj.hpp"
 #include "low_pass_filter.hpp"
