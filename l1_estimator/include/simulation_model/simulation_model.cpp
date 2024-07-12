@@ -31,7 +31,8 @@ moment_(moment_.setZero())
     
     assert((quad_model == QuadModel::model1) 
     || (quad_model == QuadModel::model2));
-
+    
+    assert(B_p_CG_COM_.size() == 3);
     assert(inertial_param.J.size() == 9);
 
 }
@@ -103,6 +104,10 @@ mat31_t &v,
 quat_t &q, 
 mat31_t &w) const
 {
+    assert(p.size() == 3);
+    assert(v.size() == 3);
+    assert(w.size() == 3);
+    
     for(size_t i = 0; i < 3; i++)
     {
         p(i) = s_(i);

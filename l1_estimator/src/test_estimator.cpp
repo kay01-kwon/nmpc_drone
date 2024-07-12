@@ -27,13 +27,15 @@ int main(int argc, char**argv)
 
     rpm << 0, 0, 0, 0;
 
-    theta_ext << 0.001, 0, 0;
     sigma_ext << 0, 0, 0.01;
+    theta_ext << 0.001, 0, 0;
+
+    assert(sigma_ext.size() == 3);
+    assert(theta_ext.size() == 3);
 
     for(size_t i = 0; i < N; i++)
     {
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
-
     }
 
     return EXIT_SUCCESS;
@@ -212,20 +214,23 @@ const double &tau_sigma, const double &tau_theta)
     cout<<"Final Time: "<< Tf <<endl;
     cout<<"Discrete time: "<< dt <<endl;
     cout<<"Simulation step: "<< N <<endl;
+
+    cout << "***************************************" << endl;
 }
 
 void play_simulation_model(const mat41_t &rpm_, 
 const mat31_t &sigma_ext_, const mat31_t &theta_ext_, 
 const double &simulation_time_)
 {
-    simulation_model_ptr->set_control_input(rpm_);
-    simulation_model_ptr->set_disturbance(sigma_ext, theta_ext_);
-    simulation_model_ptr->set_time(simulation_time_);
-    simulation_model_ptr->solve();
 
     assert(rpm_.size() == 4);
     assert(sigma_ext_.size() == 3);
     assert(theta_ext_.size() == 3);
     assert(typeid(simulation_time_) == typeid(double));
+
+    simulation_model_ptr->set_control_input(rpm_);
+    simulation_model_ptr->set_disturbance(sigma_ext_, theta_ext_);
+    simulation_model_ptr->set_time(simulation_time_);
+    // simulation_model_ptr->solve();
     
 }

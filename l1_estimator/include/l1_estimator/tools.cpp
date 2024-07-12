@@ -121,9 +121,11 @@ void conjugate(const quat_t &q, quat_t &q_conj)
  */
 void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
 {
-    skew_sym_mat << 0, -vec(2), vec(1),
-                    vec(2), 0, -vec(3),
+    assert(vec.size() == 3);
+    skew_sym_mat << 0, -vec(0), vec(1),
+                    vec(2), 0, -vec(2),
                     -vec(1), vec(0), 0;
+
 }
 
 /**
@@ -205,6 +207,8 @@ const double &moment_coeff,
 mat31_t &force, 
 mat31_t &moment)
 {
+    assert(fabs(B_p_CG_COM(2)) < 1e-6);
+    assert(B_p_CG_COM.size() == 3);
     moment.setZero();
     /**
      * QuadModel::model1
@@ -261,7 +265,6 @@ mat31_t &moment)
         CG_p_CG_rotors[1] << 0, l, 0;
         CG_p_CG_rotors[2] << -l, 0, 0;
         CG_p_CG_rotors[3] << 0, -l, 0;
-
     }
     else
     {
@@ -276,11 +279,13 @@ mat31_t &moment)
         thrust_xyz[i] << 0, 0, thrust(i);
         CG_p_COM_rotors[i] = CG_p_CG_rotors[i] - B_p_CG_COM;
         convert_vec_to_skew(CG_p_CG_rotors[i], skew_symm);
-        moment += skew_symm*thrust_xyz[i];
+        moment = moment + skew_symm*thrust_xyz[i];
     }
 
     moment(2) = moment_coeff*(thrust(0) - thrust(1) + thrust(2) - thrust(3));
 
     assert((quad_model == QuadModel::model1)||(quad_model == QuadModel::model2));
-    assert(B_p_CG_COM(2) == 0);
+    
+    
+
 }
