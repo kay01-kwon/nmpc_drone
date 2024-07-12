@@ -62,6 +62,11 @@ void param_setup(const ros::NodeHandle& nh)
     // parameter for low pass filter
     double tau_sigma, tau_theta;
 
+    bound_sigma.setZero();
+    bound_theta.setZero();
+    Gamma_sigma.setZero();
+    Gamma_theta.setZero();
+
     // Get parameter configuration directory
     // for simulation and nominal model, respectively.
     nh.getParam("simulation_param_dir", simulation_param_dir);
@@ -214,7 +219,7 @@ const mat31_t &sigma_ext_, const mat31_t &theta_ext_,
 const double &simulation_time_)
 {
     simulation_model_ptr->set_control_input(rpm_);
-    simulation_model_ptr->set_disturbance(theta_ext, sigma_ext_);
+    simulation_model_ptr->set_disturbance(sigma_ext, theta_ext_);
     simulation_model_ptr->set_time(simulation_time_);
     simulation_model_ptr->solve();
 
