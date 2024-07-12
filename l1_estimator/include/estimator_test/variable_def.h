@@ -1,5 +1,6 @@
-#ifndef TEST_HPP_
-#define TEST_HPP_
+#ifndef VARIABLE_DEF_H_
+#define VARIABLE_DEF_H_
+
 #include <ros/ros.h>
 #include "l1_estimator/l1_estimator.hpp"
 #include "yaml_converter/read_config.hpp"
@@ -62,5 +63,7 @@ double epsilon_sigma, epsilon_theta;
 mat33_t Gamma_sigma, Gamma_theta;
 
 double tau_sigma, tau_theta;
+
+
 
 #endif
