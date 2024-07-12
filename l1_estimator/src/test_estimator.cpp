@@ -5,16 +5,19 @@
 #include "simulation_model/simulation_model.hpp"
 #include "estimator_test/variable_def.h"
 
-void param_estup(const ros::NodeHandle& nh);
+void param_setup(const ros::NodeHandle& nh);
 
 void print_parameter_setup(const mat31_t& bound_theta, const double& epsilon_theta,
 const mat31_t& bound_sigma, const double& epsilon_sigma,
 const mat33_t& Gamma_sigma, const mat33_t& Gamma_theta,
 const double& tau_sigma, const double& tau_theta);
 
+void play_simulation_model(const mat41_t& rpm_, 
+const mat31_t& sigma_ext_, const mat31_t& theta_ext_,
+const double& simulation_time_);
+
 int main(int argc, char**argv)
 {
-    
     ros::init(argc, argv, "Test node");
     
     // Declare ROS NodeHandle to get yaml directory.
@@ -29,9 +32,7 @@ int main(int argc, char**argv)
 
     for(size_t i = 0; i < N; i++)
     {
-        simulation_model_ptr->set_control_input(rpm);
-        simulation_model_ptr->set_disturbance(theta_ext, sigma_ext);
-        simulation_model_ptr->set_time(simulation_time[i]);
+        play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
     }
 
@@ -166,6 +167,10 @@ void param_setup(const ros::NodeHandle& nh)
     reference_model_ptr = &reference_model_obj;
     disturbance_est_ptr = &disturbance_est_obj;
 
+    assert(simulation_model_ptr != nullptr);
+    assert(reference_model_ptr != nullptr);
+    assert(disturbance_est_ptr != nullptr);
+
 }
 
 void print_parameter_setup(const mat31_t &bound_theta, const double &epsilon_theta, 
@@ -202,4 +207,20 @@ const double &tau_sigma, const double &tau_theta)
     cout<<"Final Time: "<< Tf <<endl;
     cout<<"Discrete time: "<< dt <<endl;
     cout<<"Simulation step: "<< N <<endl;
+}
+
+void play_simulation_model(const mat41_t &rpm_, 
+const mat31_t &sigma_ext_, const mat31_t &theta_ext_, 
+const double &simulation_time_)
+{
+    simulation_model_ptr->set_control_input(rpm_);
+    simulation_model_ptr->set_disturbance(theta_ext, sigma_ext_);
+    simulation_model_ptr->set_time(simulation_time_);
+    simulation_model_ptr->solve();
+
+    assert(rpm_.size() == 4);
+    assert(sigma_ext_.size() == 3);
+    assert(theta_ext_.size() == 3);
+    assert(typeid(simulation_time_) == typeid(double));
+    
 }

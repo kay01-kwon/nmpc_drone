@@ -13,6 +13,7 @@
         "*.tcc": "cpp",
         "ostream": "cpp",
         "dense": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "iostream": "cpp"
     }
 }
