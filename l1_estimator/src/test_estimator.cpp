@@ -1,9 +1,5 @@
 #include "estimator_test/load_param.h"
 
-#ifndef VARIABLE_H_
-#include "estimator_test/variable_def.h"
-#endif
-
 int main(int argc, char**argv)
 {
     
@@ -14,7 +10,9 @@ int main(int argc, char**argv)
     
     load_param(nh);
 
+    cout << simulation_time.capacity() << endl;
 
+    assert(simulation_time.capacity() == N);
 
 
     return EXIT_SUCCESS;

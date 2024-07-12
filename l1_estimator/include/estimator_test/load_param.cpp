@@ -58,6 +58,7 @@ void load_param(const ros::NodeHandle &nh)
     cout << "Gamma Proj (orien): " << endl;
     cout << Gamma_theta << endl;
 
+
     read_simulation_param_ptr = 
     new ReadConfig(simulation_param_dir);
 
