@@ -51,6 +51,8 @@ class RefModel{
         */
         void solve();
 
+        ~RefModel() = default;
+
     private:
 
         // Nominal inertial parameter (mass and moment of inertia)

@@ -35,6 +35,8 @@ class SimulationModel{
         void get_time(double& time) const;
 
         void solve();
+
+        ~SimulationModel() = default;
         
     private:
 

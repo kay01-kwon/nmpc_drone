@@ -32,7 +32,8 @@ class DisturbanceEstimator{
     void get_est_filtered(mat31_t& sigma_est_filtered, 
     mat31_t& theta_est_filtered) const;
 
-
+    ~DisturbanceEstimator() = default;
+    
     private:
 
     double m_;

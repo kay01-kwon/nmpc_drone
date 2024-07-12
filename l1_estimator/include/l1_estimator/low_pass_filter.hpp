@@ -21,6 +21,8 @@ class Lpf{
 
     void solve();
 
+    ~Lpf() = default;
+
     private:
 
     // vector to be processed

@@ -76,23 +76,11 @@ void load_param(const ros::NodeHandle &nh)
     delete read_simulation_param_ptr;
     delete read_nominal_param_ptr;
 
-    // Simulation model object to test estimation performance
-    SimulationModel sim_model_obj 
-    = SimulationModel(quad_model, 
-    aero_coeff, 
-    simulation_inertial_param, 
-    l);
+    read_simulation_param_ptr = nullptr;
+    read_nominal_param_ptr = nullptr;
 
-    RefModel ref_model_obj= 
-    RefModel(nominal_inertial_param,
-    kp, kv, kq, kw);
-
-    DisturbanceEstimator disturbance_estimator_obj
-    = DisturbanceEstimator(nominal_inertial_param,
-        bound_sigma, epsilon_sigma, 
-        bound_theta, epsilon_theta, 
-        Gamma_sigma, Gamma_theta,
-        tau_sigma, tau_theta);
+    assert(read_simulation_param_ptr == nullptr);
+    assert(read_nominal_param_ptr == nullptr);
 
     dt = 0.01;
     N = Tf/dt;
