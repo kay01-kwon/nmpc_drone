@@ -12,5 +12,15 @@
         <param name="kv" type="double" value="3.0"/>
         <param name="kq" type="double" value="5.0"/>
         <param name="kw" type="double" value="3.0"/>
+
+        <param name="b_sigma" type="double" value="5"/>
+        <param name="e_sigma" type="double" value="10"/>
+        
+        <param name="b_theta" type="double" value="5"/>
+        <param name="e_theta" type="double" value="10"/>
+
+        <param name="Gamma_sigma" type="double" value="1000"/>
+        <param name="Gamma_theta" type="double" value="1000"/>
+        
         
 </launch>

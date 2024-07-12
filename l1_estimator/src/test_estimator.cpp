@@ -35,6 +35,30 @@ int main(int argc, char**argv)
     nh.getParam("b_theta", bound_theta(0));
     nh.getParam("e_theta", epsilon_theta);
 
+    nh.getParam("Gamma_sigma", Gamma_sigma(0));
+    nh.getParam("Gamma_theta", Gamma_theta(0));
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        bound_sigma(i) = bound_sigma(0);
+        bound_theta(i) = bound_theta(0);
+
+        Gamma_sigma(i*4) = Gamma_sigma(0);
+        Gamma_theta(i*4) = Gamma_theta(0);
+
+    }
+
+    cout<< "Bound (trans): " << bound_sigma <<endl;
+    cout<< "Epsil (trans): " << epsilon_sigma <<endl;
+
+    cout<< "Bound (orien): " << bound_theta << endl;
+    cout<< "Epsil (orien): " << epsilon_theta << endl;
+
+    cout << "Gamma Proj (trans): " << endl;
+    cout << Gamma_sigma << endl;
+
+    cout << "Gamma Proj (orien): " << endl;
+    cout << Gamma_theta << endl;
 
     read_simulation_param_ptr = 
     new ReadConfig(simulation_param_dir);
