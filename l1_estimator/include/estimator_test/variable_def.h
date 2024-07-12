@@ -7,25 +7,6 @@
 
 using std::vector;
 
-// Declare inertial parameters for simulation
-// and nominal model.
-inertial_param_t simulation_inertial_param;
-inertial_param_t nominal_inertial_param;
-
-// Declare lift and moment coefficients
-aero_coeff_t aero_coeff;
-
-// Declare arm length
-double l;
-
-// String to store parameter directory
-string simulation_param_dir,
-nominal_param_dir;
-
-// quad model: '+' or 'x'
-QuadModel quad_model;
-
-double kp, kv, kq, kw;
 
 double b_sigma, b_theta;
 
@@ -62,5 +43,6 @@ mat33_t Gamma_sigma, Gamma_theta;
 
 double tau_sigma, tau_theta;
 
+mat41_t rpm;
 
 #endif

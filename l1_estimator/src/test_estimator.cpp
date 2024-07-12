@@ -9,7 +9,7 @@ void ros_get_param(const ros::NodeHandle& nh);
 
 void print_parameter_setup();
 
-void object_declation();
+void object_ptr_declation();
 
 int main(int argc, char**argv)
 {
@@ -21,11 +21,33 @@ int main(int argc, char**argv)
 
     ros_get_param(nh);
 
+    rpm << 0, 0, 0, 0;
+
+    theta_ext << 0.001, 0, 0;
+    sigma_ext << 0, 0, 0.01;
+
+    for(size_t i = 0; i < N; i++)
+    {
+        simulation_model_ptr->set_control_input(rpm);
+        simulation_model_ptr->set_disturbance(theta_ext, sigma_ext);
+        simulation_model_ptr->set_time(simulation_time[i]);
+
+    }
+
     return EXIT_SUCCESS;
 }
 
 void ros_get_param(const ros::NodeHandle& nh)
 {
+
+    // String to store parameter directory
+    string simulation_param_dir,
+    nominal_param_dir;
+
+    // quad model: '+' or 'x'
+    QuadModel quad_model;
+
+    double kp, kv, kq, kw;
     // Get parameter configuration directory
     // for simulation and nominal model, respectively.
     nh.getParam("simulation_param_dir", simulation_param_dir);
@@ -68,6 +90,17 @@ void ros_get_param(const ros::NodeHandle& nh)
         Gamma_theta(i*4) = Gamma_theta(0);
     }
 
+    // Declare inertial parameters for simulation
+    // and nominal model.
+    inertial_param_t simulation_inertial_param;
+    inertial_param_t nominal_inertial_param;
+
+    // Declare lift and moment coefficients
+    aero_coeff_t aero_coeff;
+
+    // Declare arm length
+    double l;
+
     ReadConfig read_simulation_param_obj = 
     ReadConfig(simulation_param_dir);
 
@@ -94,6 +127,28 @@ void ros_get_param(const ros::NodeHandle& nh)
     assert(simulation_time.capacity() == N);
 
     print_parameter_setup();
+
+    // Simulation model object to test estimation performance
+    SimulationModel simulation_model_obj 
+    = SimulationModel(quad_model, 
+    aero_coeff, 
+    simulation_inertial_param, 
+    l);
+
+    RefModel reference_model_obj= 
+    RefModel(nominal_inertial_param,
+    kp, kv, kq, kw);
+
+    DisturbanceEstimator disturbance_est_obj
+    = DisturbanceEstimator(nominal_inertial_param,
+        bound_sigma, epsilon_sigma, 
+        bound_theta, epsilon_theta, 
+        Gamma_sigma, Gamma_theta,
+        tau_sigma, tau_theta);
+
+    simulation_model_ptr = & simulation_model_obj;
+    reference_model_ptr = &reference_model_obj;
+    disturbance_est_ptr = &disturbance_est_obj;
 
 }
 
@@ -123,29 +178,11 @@ void print_parameter_setup()
     cout<<"Simulation step: "<< N <<endl;
 
 
+
+
 }
 
-void object_declation()
+void object_ptr_declation()
 {
-    // Simulation model object to test estimation performance
-    SimulationModel simulation_model_obj 
-    = SimulationModel(quad_model, 
-    aero_coeff, 
-    simulation_inertial_param, 
-    l);
 
-    RefModel reference_model_obj= 
-    RefModel(nominal_inertial_param,
-    kp, kv, kq, kw);
-
-    DisturbanceEstimator disturbance_est_obj
-    = DisturbanceEstimator(nominal_inertial_param,
-        bound_sigma, epsilon_sigma, 
-        bound_theta, epsilon_theta, 
-        Gamma_sigma, Gamma_theta,
-        tau_sigma, tau_theta);
-
-    simulation_model_ptr = & simulation_model_obj;
-    reference_model_ptr = &reference_model_obj;
-    disturbance_est_ptr = &disturbance_est_obj;
 }
