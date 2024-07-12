@@ -18,11 +18,6 @@ aero_coeff_t aero_coeff;
 // Declare arm length
 double l;
 
-// Declare ReadConfig pointer for 
-// simulation and nominal model, respectively.
-ReadConfig* read_simulation_param_ptr;
-ReadConfig* read_nominal_param_ptr;
-
 // String to store parameter directory
 string simulation_param_dir,
 nominal_param_dir;

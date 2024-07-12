@@ -6,6 +6,6 @@
 
 using boost::make_unique;
 
-void load_param(const ros::NodeHandle& nh);
+void load_param();
 
 #endif
