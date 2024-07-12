@@ -49,6 +49,10 @@ int N;
 
 vector<double> simulation_time;
 
+SimulationModel* simulation_model_ptr;
+RefModel* reference_model_ptr;
+DisturbanceEstimator* disturbance_est_ptr;
+
 // Parameter for disturbance estimator 
 mat31_t bound_sigma, bound_theta;
 
@@ -57,5 +61,6 @@ double epsilon_sigma, epsilon_theta;
 mat33_t Gamma_sigma, Gamma_theta;
 
 double tau_sigma, tau_theta;
+
 
 #endif

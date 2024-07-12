@@ -9,6 +9,8 @@ void ros_get_param(const ros::NodeHandle& nh);
 
 void print_parameter_setup();
 
+void object_declation();
+
 int main(int argc, char**argv)
 {
     
@@ -18,24 +20,6 @@ int main(int argc, char**argv)
     ros::NodeHandle nh;
 
     ros_get_param(nh);
-
-    // Simulation model object to test estimation performance
-    SimulationModel sim_model_obj 
-    = SimulationModel(quad_model, 
-    aero_coeff, 
-    simulation_inertial_param, 
-    l);
-
-    RefModel ref_model_obj= 
-    RefModel(nominal_inertial_param,
-    kp, kv, kq, kw);
-
-    DisturbanceEstimator disturbance_estimator_obj
-    = DisturbanceEstimator(nominal_inertial_param,
-        bound_sigma, epsilon_sigma, 
-        bound_theta, epsilon_theta, 
-        Gamma_sigma, Gamma_theta,
-        tau_sigma, tau_theta);
 
     return EXIT_SUCCESS;
 }
@@ -115,23 +99,53 @@ void ros_get_param(const ros::NodeHandle& nh)
 
 void print_parameter_setup()
 {
+    cout << "***************************************" << endl;
+    cout << "Convex function setup" << endl;
+    cout << "Bound (trans): " << bound_sigma << endl;
+    cout << "Epsil (trans): " << epsilon_sigma << endl;
+    cout << endl;
+    cout << "Bound (orien): " << bound_theta << endl;
+    cout << "Epsil (orien): " << epsilon_theta << endl;
 
-    cout<< "Bound (trans): " << bound_sigma <<endl;
-    cout<< "Epsil (trans): " << epsilon_sigma <<endl;
 
-    cout<< "Bound (orien): " << bound_theta << endl;
-    cout<< "Epsil (orien): " << epsilon_theta << endl;
-
+    cout << "***************************************" << endl;
+    cout << "Gamma projection setup" << endl;
     cout << "Gamma Proj (trans): " << endl;
     cout << Gamma_sigma << endl;
-
+    cout << endl;
     cout << "Gamma Proj (orien): " << endl;
     cout << Gamma_theta << endl;
 
-
+    cout << "***************************************" << endl;
+    cout << "Simulation time setup" << endl;
     cout<<"Final Time: "<< Tf <<endl;
     cout<<"Discrete time: "<< dt <<endl;
     cout<<"Simulation step: "<< N <<endl;
 
 
+}
+
+void object_declation()
+{
+    // Simulation model object to test estimation performance
+    SimulationModel simulation_model_obj 
+    = SimulationModel(quad_model, 
+    aero_coeff, 
+    simulation_inertial_param, 
+    l);
+
+    RefModel reference_model_obj= 
+    RefModel(nominal_inertial_param,
+    kp, kv, kq, kw);
+
+    DisturbanceEstimator disturbance_est_obj
+    = DisturbanceEstimator(nominal_inertial_param,
+        bound_sigma, epsilon_sigma, 
+        bound_theta, epsilon_theta, 
+        Gamma_sigma, Gamma_theta,
+        tau_sigma, tau_theta);
+
+    simulation_model_ptr = & simulation_model_obj;
+    reference_model_ptr = &reference_model_obj;
+    disturbance_est_ptr = &disturbance_est_obj;
 }
