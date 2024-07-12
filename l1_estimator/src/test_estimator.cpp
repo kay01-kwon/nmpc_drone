@@ -5,11 +5,12 @@
 #include "simulation_model/simulation_model.hpp"
 #include "estimator_test/variable_def.h"
 
-void ros_get_param(const ros::NodeHandle& nh);
+void param_estup(const ros::NodeHandle& nh);
 
-void print_parameter_setup();
-
-void object_ptr_declation();
+void print_parameter_setup(const mat31_t& bound_theta, const double& epsilon_theta,
+const mat31_t& bound_sigma, const double& epsilon_sigma,
+const mat33_t& Gamma_sigma, const mat33_t& Gamma_theta,
+const double& tau_sigma, const double& tau_theta);
 
 int main(int argc, char**argv)
 {
@@ -19,7 +20,7 @@ int main(int argc, char**argv)
     // Declare ROS NodeHandle to get yaml directory.
     ros::NodeHandle nh;
 
-    ros_get_param(nh);
+    param_setup(nh);
 
     rpm << 0, 0, 0, 0;
 
@@ -37,7 +38,7 @@ int main(int argc, char**argv)
     return EXIT_SUCCESS;
 }
 
-void ros_get_param(const ros::NodeHandle& nh)
+void param_setup(const ros::NodeHandle& nh)
 {
 
     // String to store parameter directory
@@ -47,7 +48,19 @@ void ros_get_param(const ros::NodeHandle& nh)
     // quad model: '+' or 'x'
     QuadModel quad_model;
 
+    // Reference model control gain
     double kp, kv, kq, kw;
+
+    // Parameter for convex function
+    mat31_t bound_sigma, bound_theta;
+    double epsilon_sigma, epsilon_theta;
+
+    // parameter for projection operator
+    mat33_t Gamma_sigma, Gamma_theta;
+
+    // parameter for low pass filter
+    double tau_sigma, tau_theta;
+
     // Get parameter configuration directory
     // for simulation and nominal model, respectively.
     nh.getParam("simulation_param_dir", simulation_param_dir);
@@ -126,7 +139,10 @@ void ros_get_param(const ros::NodeHandle& nh)
     assert(dt > std::numeric_limits<double>::min());
     assert(simulation_time.capacity() == N);
 
-    print_parameter_setup();
+    print_parameter_setup(bound_theta, epsilon_theta,
+    bound_theta, epsilon_theta,
+    Gamma_sigma, Gamma_theta,
+    tau_sigma, tau_theta);
 
     // Simulation model object to test estimation performance
     SimulationModel simulation_model_obj 
@@ -152,7 +168,10 @@ void ros_get_param(const ros::NodeHandle& nh)
 
 }
 
-void print_parameter_setup()
+void print_parameter_setup(const mat31_t &bound_theta, const double &epsilon_theta, 
+const mat31_t &bound_sigma, const double &epsilon_sigma, 
+const mat33_t &Gamma_sigma, const mat33_t &Gamma_theta, 
+const double &tau_sigma, const double &tau_theta)
 {
     cout << "***************************************" << endl;
     cout << "Convex function setup" << endl;
@@ -162,8 +181,8 @@ void print_parameter_setup()
     cout << "Bound (orien): " << bound_theta << endl;
     cout << "Epsil (orien): " << epsilon_theta << endl;
 
-
     cout << "***************************************" << endl;
+
     cout << "Gamma projection setup" << endl;
     cout << "Gamma Proj (trans): " << endl;
     cout << Gamma_sigma << endl;
@@ -172,17 +191,15 @@ void print_parameter_setup()
     cout << Gamma_theta << endl;
 
     cout << "***************************************" << endl;
+
+    cout << "Low pass filter setup" << endl;
+    cout << "tau (trans): "<< tau_sigma << endl;
+    cout << "tau (orien): "<< tau_theta << endl;
+
+    cout << "***************************************" << endl;
+
     cout << "Simulation time setup" << endl;
     cout<<"Final Time: "<< Tf <<endl;
     cout<<"Discrete time: "<< dt <<endl;
     cout<<"Simulation step: "<< N <<endl;
-
-
-
-
-}
-
-void object_ptr_declation()
-{
-
 }
