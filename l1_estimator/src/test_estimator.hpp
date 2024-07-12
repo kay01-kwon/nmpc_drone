@@ -32,6 +32,8 @@ QuadModel quad_model;
 
 double kp, kv, kq, kw;
 
+double b_sigma, b_theta;
+
 // External force and moment
 mat31_t theta_ext, sigma_ext;
 
@@ -51,5 +53,14 @@ double Tf;
 int N;
 
 vector<double> simulation_time;
+
+// Parameter for disturbance estimator 
+mat31_t bound_sigma, bound_theta;
+
+double epsilon_sigma, epsilon_theta;
+
+mat33_t Gamma_sigma, Gamma_theta;
+
+double tau_sigma, tau_theta;
 
 #endif

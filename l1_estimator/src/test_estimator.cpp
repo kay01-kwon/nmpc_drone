@@ -29,6 +29,13 @@ int main(int argc, char**argv)
     nh.getParam("kq", kq);
     nh.getParam("kw", kw);
 
+    nh.getParam("b_sigma", bound_sigma(0));
+    nh.getParam("e_sigma", epsilon_sigma);
+
+    nh.getParam("b_theta", bound_theta(0));
+    nh.getParam("e_theta", epsilon_theta);
+
+
     read_simulation_param_ptr = 
     new ReadConfig(simulation_param_dir);
 
@@ -56,6 +63,13 @@ int main(int argc, char**argv)
     RefModel ref_model_obj= 
     RefModel(nominal_inertial_param,
     kp, kv, kq, kw);
+
+    DisturbanceEstimator disturbance_estimator_obj
+    = DisturbanceEstimator(nominal_inertial_param,
+        bound_sigma, epsilon_sigma, 
+        bound_theta, epsilon_theta, 
+        Gamma_sigma, Gamma_theta,
+        tau_sigma, tau_theta);
 
     dt = 0.01;
     N = Tf/dt;
