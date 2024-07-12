@@ -122,8 +122,8 @@ void conjugate(const quat_t &q, quat_t &q_conj)
 void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
 {
     assert(vec.size() == 3);
-    skew_sym_mat << 0, -vec(0), vec(1),
-                    vec(2), 0, -vec(2),
+    skew_sym_mat << 0, -vec(2), vec(1),
+                    vec(2), 0, -vec(0),
                     -vec(1), vec(0), 0;
 
 }
