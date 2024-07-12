@@ -38,6 +38,9 @@ int main(int argc, char**argv)
     nh.getParam("Gamma_sigma", Gamma_sigma(0));
     nh.getParam("Gamma_theta", Gamma_theta(0));
 
+    nh.getParam("tau_sigma", tau_sigma);
+    nh.getParam("tau_theta", tau_theta);
+
     for(size_t i = 0; i < 3; i++)
     {
         bound_sigma(i) = bound_sigma(0);

@@ -22,5 +22,8 @@
         <param name="Gamma_sigma" type="double" value="1000"/>
         <param name="Gamma_theta" type="double" value="1000"/>
         
+        <param name="tau_sigma" type="double" value="10"/>
+        <param name="tau_theta" type="double" value="10"/>
         
+
 </launch>
