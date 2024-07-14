@@ -27,6 +27,21 @@ moment_(moment_.setZero())
     s_(6) = 1;
     gravity_ << 0, 0, -9.81;
 
+    if(quad_model == QuadModel::model1)
+    {
+        CG_p_CG_rotors[0] << l_, 0, 0;
+        CG_p_CG_rotors[1] << 0, l_, 0;
+        CG_p_CG_rotors[2] << -l_, 0, 0;
+        CG_p_CG_rotors[3] << 0, -l_, 0;
+    }
+    else
+    {
+        CG_p_CG_rotors[0] << -l_*sqrt(2)/2.0, -l_*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[1] << l_*sqrt(2)/2.0, l_*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[2] << -l_*sqrt(2)/2.0, l_*sqrt(2)/2.0, 0;
+        CG_p_CG_rotors[3] << -l_*sqrt(2)/2.0, -l_*sqrt(2)/2.0, 0;
+    }
+
     assert(dt_ >= 0);
     
     assert((quad_model == QuadModel::model1) 
@@ -55,9 +70,8 @@ void SimulationModel::set_control_input(const mat41_t &rpm)
 
     assert( thrust.size() == 4);
 
-    convert_thrust_to_wrench(quad_model_,
-    l_,
-    B_p_CG_COM_,
+    convert_thrust_to_wrench(B_p_CG_COM_,
+    CG_p_CG_rotors,
     thrust,
     moment_coeff_,
     force_,

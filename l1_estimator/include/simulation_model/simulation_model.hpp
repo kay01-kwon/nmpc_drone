@@ -55,6 +55,7 @@ class SimulationModel{
         double m_;
         mat33_t J_;
         mat31_t B_p_CG_COM_;
+        mat31_t CG_p_CG_rotors[4];
 
         mat31_t gravity_;
 

@@ -33,9 +33,8 @@ quat_t& unit_q);
 // Signum to control reference model or test controller
 double signum(double num);
 
-void convert_thrust_to_wrench(const QuadModel& quad_model,
-const double &arm_length, 
-const mat31_t &COM,
+void convert_thrust_to_wrench(const mat31_t &B_p_CG_COM,
+const mat31_t CG_p_CG_rotors[],
 const mat41_t &thrust,
 const double &moment_coeff,
 mat31_t &force,

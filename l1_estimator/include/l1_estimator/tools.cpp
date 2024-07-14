@@ -199,9 +199,8 @@ double signum(double num)
  * @param force output force from the above parameters
  * @param moment output moment from the above parameters
  */
-void convert_thrust_to_wrench(const QuadModel &quad_model, 
-const double &arm_length, 
-const mat31_t &B_p_CG_COM, 
+void convert_thrust_to_wrench(const mat31_t &B_p_CG_COM,
+const mat31_t CG_p_CG_rotors[],
 const mat41_t &thrust,
 const double &moment_coeff,
 mat31_t &force, 
@@ -246,7 +245,6 @@ mat31_t &moment)
     */
 
     double collective_thrust;
-    double l(arm_length);
 
     collective_thrust = thrust(0) + thrust(1) + thrust(2) + thrust(3);
     
@@ -254,25 +252,9 @@ mat31_t &moment)
                 0,
                 collective_thrust;
 
-    mat31_t CG_p_CG_rotors[4];
     mat31_t CG_p_COM_rotors[4];
     mat31_t thrust_xyz[4];
     mat33_t skew_symm;
-    
-    if(quad_model == QuadModel::model1)
-    {
-        CG_p_CG_rotors[0] << l, 0, 0;
-        CG_p_CG_rotors[1] << 0, l, 0;
-        CG_p_CG_rotors[2] << -l, 0, 0;
-        CG_p_CG_rotors[3] << 0, -l, 0;
-    }
-    else
-    {
-        CG_p_CG_rotors[0] << -l*sqrt(2)/2.0, -l*sqrt(2)/2.0, 0;
-        CG_p_CG_rotors[1] << l*sqrt(2)/2.0, l*sqrt(2)/2.0, 0;
-        CG_p_CG_rotors[2] << -l*sqrt(2)/2.0, l*sqrt(2)/2.0, 0;
-        CG_p_CG_rotors[3] << -l*sqrt(2)/2.0, -l*sqrt(2)/2.0, 0;
-    }
 
     for(size_t i = 0; i < 4; i++)
     {
@@ -283,9 +265,6 @@ mat31_t &moment)
     }
 
     moment(2) = moment_coeff*(thrust(0) - thrust(1) + thrust(2) - thrust(3));
-
-    assert((quad_model == QuadModel::model1)||(quad_model == QuadModel::model2));
-    
     
 
 }
