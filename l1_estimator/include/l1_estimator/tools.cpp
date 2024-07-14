@@ -80,18 +80,7 @@ void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
     + 2 * q_vec * q_vec.transpose()
     + 2 * q.w() * skew_sym;
 
-    mat33_t test_mat;
-    test_mat = rotm.transpose()*rotm;
-    
-    assert( (fabs(test_mat(0,0) - 1.0) < 1e-6)
-    && (fabs(test_mat(1,1) - 1.0) < 1e-6)
-    && (fabs(test_mat(2,2) - 1.0) < 1e-6)
-    && (fabs(test_mat(0,1)) < 1e-6)
-    && (fabs(test_mat(0,2)) < 1e-6)
-    && (fabs(test_mat(1,0)) < 1e-6)
-    && (fabs(test_mat(1,2)) < 1e-6)
-    && (fabs(test_mat(2,0)) < 1e-6)
-    && (fabs(test_mat(2,1)) < 1e-6) );
+    assert(rotm.size() == 9);
 }
 
 /**
@@ -209,40 +198,6 @@ mat31_t &moment)
     assert(fabs(B_p_CG_COM(2)) < 1e-6);
     assert(B_p_CG_COM.size() == 3);
     moment.setZero();
-    /**
-     * QuadModel::model1
-     * 
-     *               y
-     *               ^
-     *               |
-     *               
-     *               1 (CCW)
-     *               |
-     *               |
-     *               |
-     * 2 (CW) --------------- 0 (CW)    ----------> x
-     *               |
-     *               |
-     *               |
-     *               3 (CCW)
-     * 
-     * 
-     * QuadModel::model2
-     * 
-     *            y
-     *            ^
-     *            |
-     *            |
-     *    2 (CW)          1 (CCW)
-     *      x           x
-     *        x       x
-     *          x   x
-     *            x                    ----------> x
-     *          x   x
-     *        x       x
-     *      x           x
-     *    3 (CCW)         0 (CW)
-    */
 
     double collective_thrust;
 

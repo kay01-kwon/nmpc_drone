@@ -27,6 +27,41 @@ moment_(moment_.setZero())
     s_(6) = 1;
     gravity_ << 0, 0, -9.81;
 
+        /**
+     * QuadModel::model1
+     * 
+     *               y
+     *               ^
+     *               |
+     *               
+     *               1 (CCW)
+     *               |
+     *               |
+     *               |
+     * 2 (CW) --------------- 0 (CW)    ----------> x
+     *               |
+     *               |
+     *               |
+     *               3 (CCW)
+     * 
+     * 
+     * QuadModel::model2
+     * 
+     *            y
+     *            ^
+     *            |
+     *            |
+     *    2 (CW)          1 (CCW)
+     *      x           x
+     *        x       x
+     *          x   x
+     *            x                    ----------> x
+     *          x   x
+     *        x       x
+     *      x           x
+     *    3 (CCW)         0 (CW)
+    */
+
     if(quad_model == QuadModel::model1)
     {
         CG_p_CG_rotors[0] << l_, 0, 0;
