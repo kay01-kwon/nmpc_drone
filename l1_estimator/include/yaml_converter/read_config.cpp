@@ -50,39 +50,53 @@ void ReadConfig::get_Inertial_param_from_yaml(const Node &config)
     double Jxx, Jxy, Jxz, Jyy, Jyz, Jzz;
     double rx, ry, rz;
 
-    if(inertial_param_yaml)
-    {
-        // Get mass information
-        inertial_param_.m = inertial_param_yaml["mass"]["m"].as<double>();
+    assert(inertial_param_yaml > 0);
 
-        // Get MOI information
-        Jxx = inertial_param_yaml["MOI"]["Jxx"].as<double>();
-        Jxy = inertial_param_yaml["MOI"]["Jxy"].as<double>();
-        Jxz = inertial_param_yaml["MOI"]["Jxz"].as<double>();
-        Jyy = inertial_param_yaml["MOI"]["Jyy"].as<double>();
-        Jyz = inertial_param_yaml["MOI"]["Jyz"].as<double>();
-        Jzz = inertial_param_yaml["MOI"]["Jzz"].as<double>();
-        
-        inertial_param_.J <<    Jxx, Jxy, Jxz,
-                                Jxy, Jyy, Jyz,
-                                Jxz, Jyz, Jzz;
+    assert(inertial_param_yaml["mass"]["m"] != 0);
 
-        // Get offset information
-        rx = inertial_param_yaml["offset"]["x"].as<double>();
-        ry = inertial_param_yaml["offset"]["y"].as<double>();
-        rz = inertial_param_yaml["offset"]["z"].as<double>();
-        
-        inertial_param_.r_offset << rx, ry, rz;
+    assert(inertial_param_yaml["MOI"]["Jxx"] != 0);
+    assert(inertial_param_yaml["MOI"]["Jxy"] != 0);
+    assert(inertial_param_yaml["MOI"]["Jxz"] != 0);
+    assert(inertial_param_yaml["MOI"]["Jyy"] != 0);
+    assert(inertial_param_yaml["MOI"]["Jyz"] != 0);
+    assert(inertial_param_yaml["MOI"]["Jzz"] != 0);
+
+    assert(inertial_param_yaml["offset"]["x"] != 0);
+    assert(inertial_param_yaml["offset"]["y"] != 0);
+    assert(inertial_param_yaml["offset"]["z"] != 0);
+
+    // Get mass information
+    inertial_param_.m = inertial_param_yaml["mass"]["m"].as<double>();
 
 
-        // cout << "***************************************" << endl;
-        // cout << "Mass: " << inertial_param_.m << endl;
-        // cout << "MOI matrix: "<<endl;
-        // cout<<inertial_param_.J<<endl;
-        // cout << "offset: "<<endl;
-        // cout<<inertial_param_.r_offset<<endl;
 
-    }
+    // Get MOI information
+    Jxx = inertial_param_yaml["MOI"]["Jxx"].as<double>();
+    Jxy = inertial_param_yaml["MOI"]["Jxy"].as<double>();
+    Jxz = inertial_param_yaml["MOI"]["Jxz"].as<double>();
+    Jyy = inertial_param_yaml["MOI"]["Jyy"].as<double>();
+    Jyz = inertial_param_yaml["MOI"]["Jyz"].as<double>();
+    Jzz = inertial_param_yaml["MOI"]["Jzz"].as<double>();
+    
+    inertial_param_.J <<    Jxx, Jxy, Jxz,
+                            Jxy, Jyy, Jyz,
+                            Jxz, Jyz, Jzz;
+
+    // Get offset information
+    rx = inertial_param_yaml["offset"]["x"].as<double>();
+    ry = inertial_param_yaml["offset"]["y"].as<double>();
+    rz = inertial_param_yaml["offset"]["z"].as<double>();
+    
+    inertial_param_.r_offset << rx, ry, rz;
+
+
+    // cout << "***************************************" << endl;
+    // cout << "Mass: " << inertial_param_.m << endl;
+    // cout << "MOI matrix: "<<endl;
+    // cout<<inertial_param_.J<<endl;
+    // cout << "offset: "<<endl;
+    // cout<<inertial_param_.r_offset<<endl;
+
 }
 
 void ReadConfig::get_Aero_coeff_from_yaml(const Node &config)
@@ -91,28 +105,30 @@ void ReadConfig::get_Aero_coeff_from_yaml(const Node &config)
 
     double C_l, C_m;
 
-    if(aero_coeff_yaml)
-    {
-        C_l = aero_coeff_yaml["C_l"].as<double>();
-        C_m = aero_coeff_yaml["C_m"].as<double>();
+    assert(aero_coeff_yaml != 0);
+    assert(aero_coeff_yaml["C_l"] != 0);
+    assert(aero_coeff_yaml["C_m"] != 0);
 
-        aero_coeff_.lift_coeff = C_l;
-        aero_coeff_.moment_coeff = C_m;
+    C_l = aero_coeff_yaml["C_l"].as<double>();
+    C_m = aero_coeff_yaml["C_m"].as<double>();
 
-        // cout << "lift coefficient: " << C_l << endl;
-        // cout << "moment coefficient: " << C_m << endl;
-    }
+    aero_coeff_.lift_coeff = C_l;
+    aero_coeff_.moment_coeff = C_m;
+
+    // cout << "lift coefficient: " << C_l << endl;
+    // cout << "moment coefficient: " << C_m << endl;
 }
 
 void ReadConfig::get_arm_length_from_yaml(const Node &config)
 {
     auto arm_length_yaml = config["length_param"];
 
-    if(arm_length_yaml)
-    {
-        arm_length_ = arm_length_yaml["l"].as<double>();
-        // cout << "Arm length: " << arm_length_ << endl;
-        // cout << "***************************************" << endl;
+    assert(arm_length_yaml != 0);
+    assert(arm_length_yaml["l"] != 0);
 
-    }
+
+    arm_length_ = arm_length_yaml["l"].as<double>();
+    // cout << "Arm length: " << arm_length_ << endl;
+    // cout << "***************************************" << endl;
+
 }
