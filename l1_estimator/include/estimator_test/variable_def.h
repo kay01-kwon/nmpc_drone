@@ -1,5 +1,7 @@
-#ifndef VARIABLE_H_
-#define VARIABLE_H_
+#pragma once
+#ifndef VARIABLE_H
+#define VARIABLE_H
+
 #include <ros/ros.h>
 #include "l1_estimator/l1_estimator.hpp"
 #include "yaml_converter/read_config.hpp"

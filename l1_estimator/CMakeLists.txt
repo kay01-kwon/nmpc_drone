@@ -36,8 +36,8 @@ catkin_package(
   CATKIN_DEPENDS roscpp std_msgs message_runtime
 )
 
-# add_library(LoadLibrary SHARED
-# include/estimator_test/load_param.cpp)
+# add_library(EstimatorToolsLib SHARED
+# include/estimator_test/estimator_test_tools.cpp)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
