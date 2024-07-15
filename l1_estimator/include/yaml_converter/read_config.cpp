@@ -6,6 +6,7 @@ ReadConfig::ReadConfig(const string &file_name)
     assert(file_name.size() > 0);
     cout<<"The directory of the yaml file: "
     << file_name_<<endl;
+    load_yaml_file();
 }
 
 void ReadConfig::get_param(inertial_param_t &inertial_param, 
@@ -73,6 +74,7 @@ void ReadConfig::get_Inertial_param_from_yaml(const Node &config)
         
         inertial_param_.r_offset << rx, ry, rz;
 
+
         // cout << "***************************************" << endl;
         // cout << "Mass: " << inertial_param_.m << endl;
         // cout << "MOI matrix: "<<endl;
@@ -108,8 +110,8 @@ void ReadConfig::get_arm_length_from_yaml(const Node &config)
 
     if(arm_length_yaml)
     {
-        arm_length_ = arm_length_yaml["arm_lenth"]["l"].as<double>();
-        // cout << "Arm length: " << l_ << endl;
+        arm_length_ = arm_length_yaml["l"].as<double>();
+        // cout << "Arm length: " << arm_length_ << endl;
         // cout << "***************************************" << endl;
 
     }

@@ -13,10 +13,12 @@
 
 void param_setup(const ros::NodeHandle& nh);
 
-void print_parameter_setup(const mat31_t& bound_theta, const double& epsilon_theta,
-const mat31_t& bound_sigma, const double& epsilon_sigma,
-const mat33_t& Gamma_sigma, const mat33_t& Gamma_theta,
-const double& tau_sigma, const double& tau_theta);
+void print_parameter_setup(const inertial_param_t& inertial_param, 
+    const aero_coeff_t& aero_param,
+    const mat31_t& bound_theta, const double& epsilon_theta,
+    const mat31_t& bound_sigma, const double& epsilon_sigma,
+    const mat33_t& Gamma_sigma, const mat33_t& Gamma_theta,
+    const double& tau_sigma, const double& tau_theta);
 
 void play_simulation_model(const mat41_t& rpm_, 
 const mat31_t& sigma_ext_, const mat31_t& theta_ext_,
@@ -146,10 +148,12 @@ void param_setup(const ros::NodeHandle& nh)
     assert(dt > std::numeric_limits<double>::min());
     assert(simulation_time.capacity() == N);
 
-    print_parameter_setup(bound_theta, epsilon_theta,
-    bound_theta, epsilon_theta,
-    Gamma_sigma, Gamma_theta,
-    tau_sigma, tau_theta);
+    print_parameter_setup(simulation_inertial_param,
+        aero_coeff,
+        bound_theta, epsilon_theta,
+        bound_theta, epsilon_theta,
+        Gamma_sigma, Gamma_theta,
+        tau_sigma, tau_theta);
 
     // Simulation model object to test estimation performance
     simulation_model_ptr 
@@ -183,11 +187,24 @@ void param_setup(const ros::NodeHandle& nh)
  * @param tau_sigma 
  * @param tau_theta 
  */
-void print_parameter_setup(const mat31_t &bound_theta, const double &epsilon_theta, 
-const mat31_t &bound_sigma, const double &epsilon_sigma, 
-const mat33_t &Gamma_sigma, const mat33_t &Gamma_theta, 
-const double &tau_sigma, const double &tau_theta)
+void print_parameter_setup(const inertial_param_t& inertial_param, 
+    const aero_coeff_t& aero_param,
+    const mat31_t &bound_theta, const double &epsilon_theta, 
+    const mat31_t &bound_sigma, const double &epsilon_sigma, 
+    const mat33_t &Gamma_sigma, const mat33_t &Gamma_theta, 
+    const double &tau_sigma, const double &tau_theta)
 {
+    cout << "***************************************" << endl;
+    cout << "Inertial parameter setup" << endl;
+    cout << "mass: " << inertial_param.m << endl;
+    cout << "MOI: " << inertial_param.J << endl;
+    cout << "COM offset: "<< inertial_param.r_offset << endl;
+
+    cout << "***************************************" << endl;
+    cout << "Aero parameter setup" << endl;
+    cout << "lift coeff: " << aero_param.lift_coeff << endl;
+    cout << "moment coeff: " << aero_param.moment_coeff << endl;
+
     cout << "***************************************" << endl;
     cout << "Convex function setup" << endl;
     cout << "Bound (trans): " << bound_sigma << endl;

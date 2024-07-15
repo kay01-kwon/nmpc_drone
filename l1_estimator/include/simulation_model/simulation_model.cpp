@@ -22,6 +22,8 @@ l_(arm_length),
 dt_(0),
 force_(force_.setZero()),
 moment_(moment_.setZero()),
+sigma_ext_(sigma_ext_.setZero()),
+theta_ext_(theta_ext_.setZero()),
 prev_time_(0)
 {
 
@@ -189,7 +191,7 @@ void SimulationModel::get_time(double &time) const
 void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
-    assert(curr_time_ > prev_time_);
+    assert(dt_ > 0);
 
     cout<<endl;
     rk4_.do_step(
@@ -234,20 +236,12 @@ const double &t)
     q.y() = s(8);
     q.z() = s(9);
 
-    for(size_t i = 0; i < 4; i++)
-        cout<<" s("<<i+6<<"): "<<s(i+6)<<" ";
-    cout<<endl;
-
     // Get current angular velocity
     for(int i = 0; i < 3; i++)
     {
         w(i) = s(i+10);
     }
 
-    assert(q.w()*q.w() 
-    + q.x()*q.x()
-    + q.y()*q.y()
-    + q.z()*q.z() > 0);
 
     // Get unit quaternion and then convert it to rotation matrix 
     convert_quat_to_unit_quat(q, q_unit);
@@ -257,14 +251,14 @@ const double &t)
     dpdt = v;
 
     // Translational dynamics
-    dvdt = R*force_/m_ + gravity_;
+    dvdt = R*force_/m_ + gravity_ + theta_ext_;
 
     // Attitude kinematics
     get_dqdt(q_unit, w, dqdt);
 
     // Attitude dynamics
     convert_vec_to_skew(w, w_skew);
-    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w));
+    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w)) + theta_ext_;
 
     // Put the rate of state
     for(int i = 0; i < 3; i++)

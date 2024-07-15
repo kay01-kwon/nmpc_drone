@@ -11,7 +11,7 @@ int main(int argc, char**argv)
 
     rpm << 0, 0, 0, 0;
 
-    sigma_ext << 0, 0, 9.81;
+    sigma_ext << 0, 0, 0;
     theta_ext << 0, 0, 0;
 
     assert(sigma_ext.size() == 3);

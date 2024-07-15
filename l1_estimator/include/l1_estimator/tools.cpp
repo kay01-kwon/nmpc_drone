@@ -149,19 +149,13 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
         + q.w()*q.w()
     );
 
-    assert(den != 0);
+    assert(den > 0);
 
+    unit_q.w() = q.w()/den;
     unit_q.x() = q.x()/den;
     unit_q.y() = q.y()/den;
     unit_q.z() = q.z()/den;
-    unit_q.w() = q.w()/den;
     
-    assert(fabs(
-        unit_q.x()*unit_q.x()
-        +unit_q.y()*unit_q.y()
-        +unit_q.z()*unit_q.z()
-        +unit_q.w()*unit_q.w()-1
-        ) < 1e-6);
 }
 
 /**
