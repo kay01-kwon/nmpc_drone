@@ -20,6 +20,15 @@ int main(int argc, char**argv)
     for(size_t i = 0; i < N; i++)
     {
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
+
+        // Get state from the simulator model.
+        simulation_model_ptr->get_state(p_state[i], v_state[i], 
+        q_state[i], w_state[i]);
+
+        cout<<"Position: ";
+        for(size_t j = 0; j < 3; j++)
+            cout<<p_state[i](j)<<endl;
+
     }
 
     return EXIT_SUCCESS;

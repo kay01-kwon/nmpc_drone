@@ -3,10 +3,10 @@
 /**
  * @brief Construct a new Simulation Model:: Simulation Model object
  * 
- * @param quad_model 
- * @param aero_coeff 
- * @param inertial_param 
- * @param arm_length 
+ * @param quad_model model1: '+', model2: 'x'
+ * @param aero_coeff lift_coeff, moment_coeff
+ * @param inertial_param mass, moment of inertia, B_p_CG_COM
+ * @param arm_length arm length
  */
 SimulationModel::SimulationModel(const QuadModel &quad_model, 
 const aero_coeff_t &aero_coeff, 
@@ -23,8 +23,11 @@ dt_(0),
 force_(force_.setZero()),
 moment_(moment_.setZero())
 {
+    // Initialize state variables
     s_.setZero();
-    s_(6) = 1;
+    s_(6) = 1.0;
+
+    // Put gravity
     gravity_ << 0, 0, -9.81;
 
         /**
@@ -76,8 +79,6 @@ moment_(moment_.setZero())
         CG_p_CG_rotors[2] << -l_*sqrt(2)/2.0, l_*sqrt(2)/2.0, 0;
         CG_p_CG_rotors[3] << -l_*sqrt(2)/2.0, -l_*sqrt(2)/2.0, 0;
     }
-
-    assert(dt_ >= 0);
     
     assert((quad_model == QuadModel::model1) 
     || (quad_model == QuadModel::model2));
@@ -128,6 +129,7 @@ const mat31_t &theta_ext)
 
     assert(sigma_ext.size() == 3);
     assert(theta_ext.size() == 3);
+
 }
 
 /**
@@ -164,7 +166,7 @@ mat31_t &w) const
         w(i) = s_(i+10);
     }
     
-    q.z() = s_(6);
+    q.w() = s_(6);
     q.x() = s_(7);
     q.y() = s_(8);
     q.z() = s_(9);
@@ -188,7 +190,6 @@ void SimulationModel::get_time(double &time) const
 void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
-
     rk4_.do_step(
         [this]
         (const state13_t& s, state13_t& dsdt, const double& t)
@@ -230,6 +231,11 @@ const double &t)
     q.x() = s(7);
     q.y() = s(8);
     q.z() = s(9);
+
+    assert(q.w()*q.w() 
+    + q.x()*q.x()
+    + q.y()*q.y()
+    + q.z()*q.z() > 0);
 
     // Get current angular velocity
     for(int i = 0; i < 3; i++)
