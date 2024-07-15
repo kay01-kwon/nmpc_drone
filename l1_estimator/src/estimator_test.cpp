@@ -12,13 +12,14 @@ int main(int argc, char**argv)
     rpm << 0, 0, 0, 0;
 
     sigma_ext << 0, 0, 0.01;
-    theta_ext << 0.001, 0, 0;
+    theta_ext << 0, 0, 0;
 
     assert(sigma_ext.size() == 3);
     assert(theta_ext.size() == 3);
 
-    for(size_t i = 0; i < N; i++)
+    for(size_t i = 1; i < N; i++)
     {
+        cout<<"Simulation time: "<<simulation_time[i]<<endl;
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
         // Get state from the simulator model.

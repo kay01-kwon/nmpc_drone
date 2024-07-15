@@ -21,7 +21,8 @@ B_p_CG_COM_(inertial_param.r_offset),
 l_(arm_length),
 dt_(0),
 force_(force_.setZero()),
-moment_(moment_.setZero())
+moment_(moment_.setZero()),
+prev_time_(0)
 {
     // Initialize state variables
     s_.setZero();
@@ -190,6 +191,12 @@ void SimulationModel::get_time(double &time) const
 void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
+    assert(curr_time_ > prev_time_);
+    for(size_t i = 0; i < s_.size(); i++)
+    {
+        cout<<"s_(" << i << "): " << s_(i) << " ";
+    }
+    cout<<endl;
     rk4_.do_step(
         [this]
         (const state13_t& s, state13_t& dsdt, const double& t)
@@ -232,16 +239,16 @@ const double &t)
     q.y() = s(8);
     q.z() = s(9);
 
-    assert(q.w()*q.w() 
-    + q.x()*q.x()
-    + q.y()*q.y()
-    + q.z()*q.z() > 0);
-
     // Get current angular velocity
     for(int i = 0; i < 3; i++)
     {
         w(i) = s(i+10);
     }
+
+    assert(q.w()*q.w() 
+    + q.x()*q.x()
+    + q.y()*q.y()
+    + q.z()*q.z() > 0);
 
     // Get unit quaternion and then convert it to rotation matrix 
     convert_quat_to_unit_quat(q, q_unit);
