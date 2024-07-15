@@ -152,30 +152,22 @@ void param_setup(const ros::NodeHandle& nh)
     tau_sigma, tau_theta);
 
     // Simulation model object to test estimation performance
-    SimulationModel simulation_model_obj 
-    = SimulationModel(quad_model, 
+    simulation_model_ptr 
+    = new SimulationModel(quad_model, 
     aero_coeff, 
     simulation_inertial_param, 
     l);
 
-    RefModel reference_model_obj= 
-    RefModel(nominal_inertial_param,
+    reference_model_ptr = 
+    new RefModel(nominal_inertial_param,
     kp, kv, kq, kw);
 
-    DisturbanceEstimator disturbance_est_obj
-    = DisturbanceEstimator(nominal_inertial_param,
+    disturbance_est_ptr
+    = new DisturbanceEstimator(nominal_inertial_param,
         bound_sigma, epsilon_sigma, 
         bound_theta, epsilon_theta, 
         Gamma_sigma, Gamma_theta,
         tau_sigma, tau_theta);
-
-    simulation_model_ptr = & simulation_model_obj;
-    reference_model_ptr = &reference_model_obj;
-    disturbance_est_ptr = &disturbance_est_obj;
-
-    assert(simulation_model_ptr != nullptr);
-    assert(reference_model_ptr != nullptr);
-    assert(disturbance_est_ptr != nullptr);
 
 }
 

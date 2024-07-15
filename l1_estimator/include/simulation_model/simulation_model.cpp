@@ -24,11 +24,9 @@ force_(force_.setZero()),
 moment_(moment_.setZero()),
 prev_time_(0)
 {
-    // Initialize state variables
-    s_.setZero();
-    s_(6) = 1.0;
 
-    // Put gravity
+    s_.setZero();
+    s_(6) = 1;
     gravity_ << 0, 0, -9.81;
 
         /**
@@ -192,10 +190,7 @@ void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
     assert(curr_time_ > prev_time_);
-    for(size_t i = 0; i < s_.size(); i++)
-    {
-        cout<<"s_(" << i << "): " << s_(i) << " ";
-    }
+
     cout<<endl;
     rk4_.do_step(
         [this]
@@ -238,6 +233,10 @@ const double &t)
     q.x() = s(7);
     q.y() = s(8);
     q.z() = s(9);
+
+    for(size_t i = 0; i < 4; i++)
+        cout<<" s("<<i+6<<"): "<<s(i+6)<<" ";
+    cout<<endl;
 
     // Get current angular velocity
     for(int i = 0; i < 3; i++)
