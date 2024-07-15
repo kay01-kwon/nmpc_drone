@@ -128,6 +128,16 @@ void param_setup(const ros::NodeHandle& nh)
     // Capacity allocation
     simulation_time.reserve(N);
 
+    p_state.reserve(N);
+    v_state.reserve(N);
+    q_state.reserve(N);
+    w_state.reserve(N);
+
+    p_ref.reserve(N);
+    v_ref.reserve(N);
+    q_ref.reserve(N);
+    w_ref.reserve(N);
+
     for(size_t i = 0; i < N; i++)
     {
         simulation_time.push_back(i*dt);

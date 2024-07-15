@@ -29,6 +29,16 @@ int N;
 
 vector<double> simulation_time;
 
+vector<mat31_t> p_state;
+vector<mat31_t> v_state;
+vector<quat_t> q_state;
+vector<mat31_t> w_state;
+
+vector<mat31_t> p_ref;
+vector<mat31_t> v_ref;
+vector<quat_t> q_ref;
+vector<mat31_t> w_ref;
+
 SimulationModel* simulation_model_ptr;
 RefModel* reference_model_ptr;
 DisturbanceEstimator* disturbance_est_ptr;
