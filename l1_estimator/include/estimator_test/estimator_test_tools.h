@@ -10,6 +10,7 @@
 #ifndef VARIABLE_DEF_H
 #include "variable_def.h"
 #endif
+
 void param_setup(const ros::NodeHandle& nh);
 
 void print_parameter_setup(const mat31_t& bound_theta, const double& epsilon_theta,
@@ -22,6 +23,13 @@ const mat31_t& sigma_ext_, const mat31_t& theta_ext_,
 const double& simulation_time_);
 
 
+/**
+ * @brief From ros node handle get parameters
+ * such as inertial param, reference model param, 
+ * disturbance param and so on
+ * 
+ * @param nh Node handle
+ */
 void param_setup(const ros::NodeHandle& nh)
 {
 
@@ -161,6 +169,18 @@ void param_setup(const ros::NodeHandle& nh)
 
 }
 
+/**
+ * @brief print parameter setup
+ * 
+ * @param bound_theta 
+ * @param epsilon_theta 
+ * @param bound_sigma 
+ * @param epsilon_sigma 
+ * @param Gamma_sigma 
+ * @param Gamma_theta 
+ * @param tau_sigma 
+ * @param tau_theta 
+ */
 void print_parameter_setup(const mat31_t &bound_theta, const double &epsilon_theta, 
 const mat31_t &bound_sigma, const double &epsilon_sigma, 
 const mat33_t &Gamma_sigma, const mat33_t &Gamma_theta, 
@@ -199,6 +219,15 @@ const double &tau_sigma, const double &tau_theta)
     cout << "***************************************" << endl;
 }
 
+
+/**
+ * @brief play simulation model
+ * 
+ * @param rpm_ rotor rpm
+ * @param sigma_ext_ disturbance (trans)
+ * @param theta_ext_ disturbance (orien)
+ * @param simulation_time_ simulation time
+ */
 void play_simulation_model(const mat41_t &rpm_, 
 const mat31_t &sigma_ext_, const mat31_t &theta_ext_, 
 const double &simulation_time_)
@@ -212,7 +241,7 @@ const double &simulation_time_)
     simulation_model_ptr->set_control_input(rpm_);
     simulation_model_ptr->set_disturbance(sigma_ext_, theta_ext_);
     simulation_model_ptr->set_time(simulation_time_);
-    // simulation_model_ptr->solve();
+    simulation_model_ptr->integrate();
     
 }
 

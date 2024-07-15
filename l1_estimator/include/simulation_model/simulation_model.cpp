@@ -185,7 +185,7 @@ void SimulationModel::get_time(double &time) const
  * @brief solve the simulation model
  * 
  */
-void SimulationModel::solve()
+void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
 

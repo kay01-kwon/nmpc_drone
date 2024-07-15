@@ -60,8 +60,8 @@ include/l1_estimator/low_pass_filter.cpp)
 target_link_libraries(lpf_test_node
 ${catkin_LIBRARIES})
 
-add_executable(test_estimator
-src/test_estimator.cpp
+add_executable(estimator_test
+src/estimator_test.cpp
 include/l1_estimator/convex_fn.cpp
 include/l1_estimator/gamma_proj.cpp
 include/l1_estimator/low_pass_filter.cpp
@@ -72,7 +72,7 @@ include/yaml_converter/read_config.cpp
 include/simulation_model/simulation_model.cpp
 )
 
-target_link_libraries(test_estimator
+target_link_libraries(estimator_test
 ${YAML_CPP_LIBRARIES}
 ${catkin_LIBRARIES}
 )
