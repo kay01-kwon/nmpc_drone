@@ -21,6 +21,7 @@ void RosLpf::ros_setup()
 
 void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
 {
+    mat31_t v_in;
     switch (init_time)
     {
     case true:
@@ -28,8 +29,6 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
         signal_msg->stamp.sec
         + (signal_msg->stamp.nsec)*1e-9
         - time_offset;
-
-        mat31_t v_in;
         
         for(size_t i = 0; i < 3; i++)
         {
@@ -45,8 +44,8 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
         lpf_obj.get_filtered_vector(signal_filtered_);
         break;
     
-    default:
-        // Before filtering the signal,
+    case false:
+            // Before filtering the signal,
         // get the time offset.
         time_offset = signal_msg->stamp.sec
         + (signal_msg->stamp.nsec)*1e-9;
