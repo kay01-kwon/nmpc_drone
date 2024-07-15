@@ -197,8 +197,14 @@ void print_parameter_setup(const inertial_param_t& inertial_param,
     cout << "***************************************" << endl;
     cout << "Inertial parameter setup" << endl;
     cout << "mass: " << inertial_param.m << endl;
-    cout << "MOI: " << inertial_param.J << endl;
-    cout << "COM offset: "<< inertial_param.r_offset << endl;
+    cout << "MOI: " << endl;
+    cout << inertial_param.J <<endl;
+    cout << endl;
+    cout << "COM offset: ";
+    for(size_t i = 0; i < inertial_param.r_offset.size(); i++)
+        cout << inertial_param.r_offset(i) << " ";
+    cout<<endl;
+
 
     cout << "***************************************" << endl;
     cout << "Aero parameter setup" << endl;
@@ -207,11 +213,18 @@ void print_parameter_setup(const inertial_param_t& inertial_param,
 
     cout << "***************************************" << endl;
     cout << "Convex function setup" << endl;
-    cout << "Bound (trans): " << bound_sigma << endl;
+    cout << "Bound (trans): " << endl;
+    for(size_t i = 0; i < bound_sigma.size(); i++)
+        cout << bound_sigma(i) << " ";
+    cout<<endl;
     cout << "Epsil (trans): " << epsilon_sigma << endl;
     cout << endl;
-    cout << "Bound (orien): " << bound_theta << endl;
+    cout << "Bound (orien): " << endl;
+    for(size_t i = 0; i < bound_theta.size(); i++)
+        cout << bound_theta(i) << " ";
+    cout << endl;
     cout << "Epsil (orien): " << epsilon_theta << endl;
+
 
     cout << "***************************************" << endl;
 

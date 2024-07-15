@@ -192,8 +192,7 @@ void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
     assert(dt_ > 0);
-
-    cout<<endl;
+    
     rk4_.do_step(
         [this]
         (const state13_t& s, state13_t& dsdt, const double& t)
