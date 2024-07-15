@@ -17,12 +17,9 @@ int main(int argc, char**argv)
     assert(sigma_ext.size() == 3);
     assert(theta_ext.size() == 3);
 
-    simulation_model_ptr->get_state(p_state[0], v_state[0], q_state[0], w_state[0]);
-
 
     for(size_t i = 1; i < N; i++)
     {
-        cout<<simulation_model_ptr<<endl;
         cout<<"Simulation time: "<<simulation_time[i]<<endl;
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 

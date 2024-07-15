@@ -125,7 +125,7 @@ void param_setup(const ros::NodeHandle& nh)
 
     read_nominal_param_obj.get_param(nominal_inertial_param);
 
-    N = Tf/dt;
+    N = Tf/dt + 1;
 
     // Capacity allocation
     simulation_time.reserve(N);
