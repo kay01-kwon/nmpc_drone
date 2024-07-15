@@ -21,8 +21,9 @@ void RosLpf::ros_setup()
 
 void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
 {
-    if(init_time == true)
+    switch (init_time)
     {
+    case true:
         time_curr =  
         signal_msg->stamp.sec
         + (signal_msg->stamp.nsec)*1e-9
@@ -42,13 +43,15 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
 
         // Integrate and get the filtered signal
         lpf_obj.get_filtered_vector(signal_filtered_);
-    }else
-    {
+        break;
+    
+    default:
         // Before filtering the signal,
         // get the time offset.
         time_offset = signal_msg->stamp.sec
         + (signal_msg->stamp.nsec)*1e-9;
         init_time = true;
+        break;
     }
 
 }
