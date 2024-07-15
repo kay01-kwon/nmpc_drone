@@ -24,33 +24,33 @@ void RosLpf::callback(const Lpf_testConstPtr &signal_msg)
     mat31_t v_in;
     switch (init_time)
     {
-    case true:
-        time_curr =  
-        signal_msg->stamp.sec
-        + (signal_msg->stamp.nsec)*1e-9
-        - time_offset;
+        case true:
+            time_curr =  
+            signal_msg->stamp.sec
+            + (signal_msg->stamp.nsec)*1e-9
+            - time_offset;
+            
+            for(size_t i = 0; i < v_in.size(); i++)
+            {
+                v_in(i) = signal_msg->v[i];
+            }
+
+            lpf_obj.set_input_and_time(v_in, time_curr);
+
+            // Integrate.
+            lpf_obj.solve();
+
+            // Integrate and get the filtered signal
+            lpf_obj.get_filtered_vector(signal_filtered_);
+            break;
         
-        for(size_t i = 0; i < 3; i++)
-        {
-            v_in(i) = signal_msg->v[i];
-        }
-
-        lpf_obj.set_input_and_time(v_in, time_curr);
-
-        // Integrate.
-        lpf_obj.solve();
-
-        // Integrate and get the filtered signal
-        lpf_obj.get_filtered_vector(signal_filtered_);
-        break;
-    
-    case false:
+        case false:
             // Before filtering the signal,
-        // get the time offset.
-        time_offset = signal_msg->stamp.sec
-        + (signal_msg->stamp.nsec)*1e-9;
-        init_time = true;
-        break;
+            // get the time offset.
+            time_offset = signal_msg->stamp.sec
+            + (signal_msg->stamp.nsec)*1e-9;
+            init_time = true;
+            break;
     }
 
 }
