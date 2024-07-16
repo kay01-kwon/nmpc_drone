@@ -12,7 +12,7 @@ int main(int argc, char**argv)
     rpm << 0, 0, 0, 0;
 
     sigma_ext << 1, 2, 0;
-    theta_ext << 3, -2, 1;
+    theta_ext << 1, -2, 1;
 
     assert(sigma_ext.size() == 3);
     assert(theta_ext.size() == 3);
@@ -64,7 +64,8 @@ int main(int argc, char**argv)
 
     }
 
-
+    plt::plot(simulation_time, sigma_ext_x);
+    plt::plot(simulation_time, sigma_est_x);
     plt::plot(simulation_time, sigma_est_lpf_x);
     plt::grid(true);
     plt::show();

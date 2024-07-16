@@ -249,7 +249,7 @@ const double &t)
     dpdt = v;
 
     // Translational dynamics
-    dvdt = R*force_/m_ + gravity_ + theta_ext_;
+    dvdt = R*force_/m_ + gravity_ + sigma_ext_;
 
     // Attitude kinematics
     get_dqdt(q_unit, w, dqdt);

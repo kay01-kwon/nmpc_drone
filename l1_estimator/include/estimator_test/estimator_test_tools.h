@@ -193,6 +193,9 @@ void param_setup(const ros::NodeHandle& nh)
         Gamma_sigma, Gamma_theta,
         tau_sigma, tau_theta);
 
+    sigma_est_noisy.setZero();
+    theta_est_noisy.setZero();
+
 }
 
 /**
@@ -423,22 +426,22 @@ const mat31_t &angular_velocity)
 inline void demux_disturbance_ext(const mat31_t &sigma_, 
 const mat31_t &theta_)
 {
-    demux_vec3(theta_, theta_ext_x, theta_ext_y, theta_ext_z);
     demux_vec3(sigma_, sigma_ext_x, sigma_ext_y, sigma_ext_z);
+    demux_vec3(theta_, theta_ext_x, theta_ext_y, theta_ext_z);
 }
 
 inline void demux_disturbance_est_noisy(const mat31_t &sigma_, 
 const mat31_t &theta_)
 {
-    demux_vec3(theta_, theta_est_x, theta_est_y, theta_est_z);
     demux_vec3(sigma_, sigma_est_x, sigma_est_y, sigma_est_z);
+    demux_vec3(theta_, theta_est_x, theta_est_y, theta_est_z);
 }
 
 inline void demux_disturbance_est_filtered(const mat31_t &sigma_, 
 const mat31_t &theta_)
 {
-    demux_vec3(theta_, theta_est_lpf_x, theta_est_lpf_y, theta_est_lpf_z);
     demux_vec3(sigma_, sigma_est_lpf_x, sigma_est_lpf_y, sigma_est_lpf_z);
+    demux_vec3(theta_, theta_est_lpf_x, theta_est_lpf_y, theta_est_lpf_z);
 }
 
 /**
