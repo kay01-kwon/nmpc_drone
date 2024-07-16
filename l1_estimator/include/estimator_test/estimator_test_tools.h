@@ -299,12 +299,8 @@ inline void variable_capacity_reserve(const int &N_)
     // simulation time
     simulation_time.reserve(N_);
 
-    // State variables
-    p_state.reserve(N_);
-    v_state.reserve(N_);
-    q_state.reserve(N_);
-    w_state.reserve(N_);
-
+    // Simulation state
+    // ************************************************
     // State position variables
     x_state.reserve(N_);
     y_state.reserve(N_);
@@ -321,17 +317,13 @@ inline void variable_capacity_reserve(const int &N_)
     qy_state.reserve(N_);
     qz_state.reserve(N_);
 
-    // Statee angular velocity variables
+    // State angular velocity variables
     wx_state.reserve(N_);
     wy_state.reserve(N_);
     wz_state.reserve(N_);
-    
-    // Reference variables
-    p_ref.reserve(N_);
-    v_ref.reserve(N_);
-    q_ref.reserve(N_);
-    w_ref.reserve(N_);
 
+    // ************************************************
+    // Reference model state
     // Reference position variables
     x_ref.reserve(N_);
     y_ref.reserve(N_);
@@ -352,6 +344,29 @@ inline void variable_capacity_reserve(const int &N_)
     wx_ref.reserve(N_);
     wy_ref.reserve(N_);
     wz_ref.reserve(N_);    
+
+    // ************************************************
+    // Disturbance terms
+
+    sigma_ext_x.reserve(N_);
+    sigma_ext_y.reserve(N_);
+    sigma_ext_z.reserve(N_);
+
+    sigma_est_x.reserve(N_);
+    sigma_est_y.reserve(N_);
+    sigma_est_z.reserve(N_);
+
+    theta_est_x.reserve(N_);
+    theta_est_y.reserve(N_);
+    theta_est_z.reserve(N_);
+
+    sigma_est_lpf_x.reserve(N_);
+    sigma_est_lpf_y.reserve(N_);
+    sigma_est_lpf_z.reserve(N_);
+
+    theta_est_lpf_x.reserve(N_);
+    theta_est_lpf_y.reserve(N_);
+    theta_est_lpf_z.reserve(N_);
 
 
 }

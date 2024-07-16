@@ -27,23 +27,23 @@ int main(int argc, char**argv)
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
         // Get state from the simulator model.
-        simulation_model_ptr->get_state(p_state[i], v_state[i], 
-        q_state[i], w_state[i]);
+        simulation_model_ptr->get_state(p_state, v_state, 
+        q_state, w_state);
 
         // Set control input, measured state, disturbance and simulation time
         reference_model_ptr->set_input_state_disturbance_time(u_comp, mu_comp,
-        p_state[i], v_state[i], q_state[i], w_state[i],
+        p_state, v_state, q_state, w_state,
         sigma_est_noisy, theta_est_noisy, simulation_time[i]);
 
         // Integrate the reference model (Prediction step)
         reference_model_ptr->prediction();
 
         // Get state from the reference model (Prediction)
-        reference_model_ptr->get_state_from_ref_model(p_ref[i], v_ref[i], q_ref[i], w_ref[i]);
+        reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
 
         // Set disturbance estimator
-        disturbance_est_ptr->set_state_time(p_state[i], p_ref[i], 
-        v_state[i], v_ref[i], q_state[i], q_ref[i], w_state[i], w_ref[i], simulation_time[i]);
+        disturbance_est_ptr->set_state_time(p_state, p_ref, 
+        v_state, v_ref, q_state, q_ref, w_state, w_ref, simulation_time[i]);
 
         disturbance_est_ptr->solve();
 
@@ -52,8 +52,8 @@ int main(int argc, char**argv)
         disturbance_est_ptr->get_est_filtered(sigma_est_lpf, theta_est_lpf);
 
 
-        demux_simulation_state(p_state[i], v_state[i], q_state[i], w_state[i]);
-        demux_reference_state(p_ref[i], v_ref[i], q_ref[i], w_ref[i]);
+        demux_simulation_state(p_state, v_state, q_state, w_state);
+        demux_reference_state(p_ref, v_ref, q_ref, w_ref);
 
     }
 

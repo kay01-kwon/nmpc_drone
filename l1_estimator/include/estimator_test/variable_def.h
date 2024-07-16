@@ -29,15 +29,15 @@ int N;
 
 vector<double> simulation_time;
 
-vector<mat31_t> p_state;
-vector<mat31_t> v_state;
-vector<quat_t> q_state;
-vector<mat31_t> w_state;
+mat31_t p_state;
+mat31_t v_state;
+quat_t q_state;
+mat31_t w_state;
 
-vector<mat31_t> p_ref;
-vector<mat31_t> v_ref;
-vector<quat_t> q_ref;
-vector<mat31_t> w_ref;
+mat31_t p_ref;
+mat31_t v_ref;
+quat_t q_ref;
+mat31_t w_ref;
 
 vector<double> x_state, y_state, z_state; 
 vector<double> vx_state, vy_state, vz_state;
