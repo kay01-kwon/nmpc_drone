@@ -52,7 +52,7 @@ class RefModel{
         /**
          * Step integration of rungee kutta 4th order.
         */
-        void integrate();
+        void prediction();
 
         ~RefModel() = default;
 

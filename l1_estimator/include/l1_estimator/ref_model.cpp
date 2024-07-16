@@ -146,7 +146,7 @@ quat_t &q_ref, mat31_t &w_ref) const
  * after setting input, state, disturbance, and time
  * 
  */
-void RefModel::integrate()
+void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
