@@ -13,7 +13,6 @@
 
 namespace plt = matplotlibcpp;
 
-
 void param_setup(const ros::NodeHandle& nh);
 
 void print_parameter_setup(const inertial_param_t& inertial_param, 
@@ -27,6 +26,11 @@ void play_simulation_model(const mat41_t& rpm_,
 const mat31_t& sigma_ext_, const mat31_t& theta_ext_,
 const double& simulation_time_);
 
+void variable_capacity_reserve(const int& N);
+
+void demux_vec3(const mat31_t& v, vector<double>&x, vector<double>&y, vector<double>&z);
+
+void demux_quat(const quat_t& q, vector<double>&qw, vector<double>&qx, vector<double>&qy, vector<double>&qz);
 
 /**
  * @brief From ros node handle get parameters
@@ -128,21 +132,13 @@ void param_setup(const ros::NodeHandle& nh)
 
     read_nominal_param_obj.get_param(nominal_inertial_param);
 
+    // Compute simulation time step
     N = Tf/dt + 1;
 
-    // Capacity allocation
-    simulation_time.reserve(N);
+    // Allocate vector by the simulation type step
+    variable_capacity_reserve(N);
 
-    p_state.reserve(N);
-    v_state.reserve(N);
-    q_state.reserve(N);
-    w_state.reserve(N);
-
-    p_ref.reserve(N);
-    v_ref.reserve(N);
-    q_ref.reserve(N);
-    w_ref.reserve(N);
-
+    // Put simulation time step
     for(size_t i = 0; i < N; i++)
     {
         simulation_time.push_back(i*dt);
@@ -278,6 +274,108 @@ const double &simulation_time_)
     simulation_model_ptr->set_time(simulation_time_);
     simulation_model_ptr->integrate();
     
+}
+
+
+/**
+ * @brief Allocate variables by the size of N
+ * 
+ * @param N_ 
+ */
+inline void variable_capacity_reserve(const int &N_)
+{
+    // simulation time
+    simulation_time.reserve(N_);
+
+    // State variables
+    p_state.reserve(N_);
+    v_state.reserve(N_);
+    q_state.reserve(N_);
+    w_state.reserve(N_);
+
+    // State position variables
+    x_state.reserve(N_);
+    y_state.reserve(N_);
+    z_state.reserve(N_);
+
+    // State velocity variables
+    vx_state.reserve(N_);
+    vy_state.reserve(N_);
+    vz_state.reserve(N_);
+
+    // State quaternion variables
+    qw_state.reserve(N_);
+    qx_state.reserve(N_);
+    qy_state.reserve(N_);
+    qz_state.reserve(N_);
+
+    // Statee angular velocity variables
+    wx_state.reserve(N_);
+    wy_state.reserve(N_);
+    wz_state.reserve(N_);
+    
+    // Reference variables
+    p_ref.reserve(N_);
+    v_ref.reserve(N_);
+    q_ref.reserve(N_);
+    w_ref.reserve(N_);
+
+    // Reference position variables
+    x_ref.reserve(N_);
+    y_ref.reserve(N_);
+    z_ref.reserve(N_);
+
+    // Reference velocity variables
+    vx_ref.reserve(N_);
+    vy_ref.reserve(N_);
+    vz_ref.reserve(N_);
+
+    // REference quaternion variables
+    qw_ref.reserve(N_);
+    qx_ref.reserve(N_);
+    qy_ref.reserve(N_);
+    qz_ref.reserve(N_);
+
+    // Reference angular velocity variables
+    wx_ref.reserve(N_);
+    wy_ref.reserve(N_);
+    wz_ref.reserve(N_);    
+
+
+}
+
+/**
+ * @brief Demux 3 dimensional vector into comp_x, comp_y, comp_z
+ * 
+ * @param v 3 dim vector to demux
+ * @param comp_x 
+ * @param comp_y 
+ * @param comp_z 
+ */
+inline void demux_vec3(const mat31_t &v, 
+vector<double> &comp_x, vector<double> &comp_y, vector<double> &comp_z)
+{
+    comp_x.push_back(v(0));
+    comp_y.push_back(v(1));
+    comp_z.push_back(v(2));
+}
+
+/**
+ * @brief Demux quaternion into w, x, y, and z
+ * 
+ * @param q quaternion to demux
+ * @param qw 
+ * @param qx 
+ * @param qy 
+ * @param qz 
+ */
+inline void demux_quat(const quat_t & q, 
+vector<double>& qw, vector<double>& qx, vector<double>& qy, vector<double>& qz)
+{
+    qw.push_back(q.w());
+    qx.push_back(q.x());
+    qy.push_back(q.y());
+    qz.push_back(q.z());
 }
 
 #endif

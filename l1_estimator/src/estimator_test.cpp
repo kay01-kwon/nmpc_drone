@@ -29,6 +29,11 @@ int main(int argc, char**argv)
 
     }
 
+
+    // plt::plot(simulation_time[i], p_state);
+    plt::grid(true);
+    plt::show();
+
     delete simulation_model_ptr;
     delete reference_model_ptr;
     delete disturbance_est_ptr;
