@@ -60,35 +60,23 @@ void RefModel::initialize_state_variables()
  * @brief set input, state and disturbance in order.
  * @param u_comp force rejected translational disturbance from rotor thrust
  * @param mu_comp moment compensated orientational disturbance from rotor thrust
- * @param s estimated state
+ * @param p_state position from meas
+ * @param v_state linear velocity from meas
+ * @param q_state quaternion from meas
+ * @param w_state angular velocity from meas
  * @param sigma_hat noisy translational disturbance
  * @param theta_hat noisy orientational disturbance
  * @param time Current time
  */
 void RefModel::set_input_state_disturbance_time(const mat31_t &u_comp, 
-const mat31_t &mu_comp, const state13_t &s, 
+const mat31_t &mu_comp, 
+const mat31_t &p_state, const mat31_t &v_state,
+const quat_t &q_state, const mat31_t &w_state,
 const mat31_t &sigma_hat, const mat31_t &theta_hat,
 const double &time)
 {
     // Set time
     curr_time_ = time;
-    // Temporarily store state values.
-    mat31_t p_state, v_state;
-
-    quat_t q_state;
-    mat31_t w_state;
-
-    for(size_t i = 0; i < 3; i++)
-    {
-        p_state(i) = s(i);
-        v_state(i) = s(i+3);
-        w_state(i) = s(i+10);
-    }
-
-    q_state.w() = s(6);
-    q_state.x() = s(7);
-    q_state.y() = s(8);
-    q_state.z() = s(9);
     
     // Get the position and velocity error, respectively.
     mat31_t p_tilde, v_tilde;
@@ -158,7 +146,7 @@ quat_t &q_ref, mat31_t &w_ref) const
  * after setting input, state, disturbance, and time
  * 
  */
-void RefModel::solve()
+void RefModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
 

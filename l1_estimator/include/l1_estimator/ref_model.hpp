@@ -37,7 +37,8 @@ class RefModel{
         */
         void set_input_state_disturbance_time(const mat31_t& u_comp,
         const mat31_t& mu_comp, 
-        const state13_t& s, 
+        const mat31_t &p_state, const mat31_t &v_state,
+        const quat_t &q_state, const mat31_t &w_state, 
         const mat31_t& sigma_hat, const mat31_t& theta_hat,
         const double& t);
 
@@ -51,7 +52,7 @@ class RefModel{
         /**
          * Step integration of rungee kutta 4th order.
         */
-        void solve();
+        void integrate();
 
         ~RefModel() = default;
 
