@@ -79,14 +79,28 @@ const double &time)
     curr_time_ = time;
     
     // Get the position and velocity error, respectively.
-    mat31_t p_tilde, v_tilde;
+    mat31_t v_tilde;
 
-    p_tilde = p_hat_ - p_state;
+    // p_tilde = p_hat_ - p_state;
     v_tilde = v_hat_ - v_state;
 
     // Control translational reference model.
-    u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_hat;
+    // u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_hat;
 
+    // for(size_t i = 0; i < 3; i++)
+    // {
+    //     s_hat_(i) = p_state(i);
+    //     s_hat_(i+3) = v_state(i);
+    //     s_hat_(i+10) = w_state(i);
+    // }
+
+    // s_hat_(6) = q_state.w();
+    // s_hat_(7) = q_state.x();
+    // s_hat_(8) = q_state.y();
+    // s_hat_(9) = q_state.z();
+    
+
+    u_hat_ = u_comp + sigma_hat;
 
     mat33_t C, R, skiew_sym;
     mat31_t q_vec;

@@ -154,15 +154,15 @@ void param_setup(const ros::NodeHandle& nh)
     read_nominal_param_obj.get_param(nominal_inertial_param);
 
     // Compute simulation time step
-    N = Tf/dt + 1;
+    N = (int)Tf/dt + 1;
 
     // Allocate vector by the simulation type step
     variable_capacity_reserve(N);
 
     // Put simulation time step
-    for(size_t i = 0; i < N; i++)
+    for(int i = 0; i < N; i++)
     {
-        simulation_time.push_back(i*dt);
+        simulation_time.push_back((double)i*dt);
     }
 
     assert(dt > std::numeric_limits<double>::min());

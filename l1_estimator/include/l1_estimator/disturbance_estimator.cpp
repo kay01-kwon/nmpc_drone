@@ -22,7 +22,8 @@ const double &tau_sigma, const double &tau_theta)
 J_(inertial_param.J),
 convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),Convex_fn(bound_theta, epsilon_theta)},
 gamma_prj_obj_{GammaPrj(gamma_sigma), GammaPrj(gamma_theta)},
-lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)}
+lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)},
+prev_time_(0)
 {
     
     assert(tau_sigma > std::numeric_limits<double>::min());
