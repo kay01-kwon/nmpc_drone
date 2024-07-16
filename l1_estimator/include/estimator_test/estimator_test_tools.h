@@ -154,17 +154,16 @@ void param_setup(const ros::NodeHandle& nh)
     read_nominal_param_obj.get_param(nominal_inertial_param);
 
     // Compute simulation time step
-    N = (size_t)(Tf/dt);
-    N += 1;
+    N = static_cast<int>(Tf/dt);
 
     // Allocate vector by the simulation type step
     variable_capacity_reserve(N);
 
-    // Put simulation time step
-    for(size_t i = 0; i < N; i++)
+    simulation_time.reserve(N);
+
+    for(int i = 0; i < N; i++)
     {
-        double t = i*dt;
-        simulation_time.push_back(t);
+        simulation_time.push_back(i*dt);
     }
 
     assert(dt > std::numeric_limits<double>::min());
@@ -372,13 +371,17 @@ inline void variable_capacity_reserve(const int &N_)
     sigma_est_y.reserve(N_);
     sigma_est_z.reserve(N_);
 
-    theta_est_x.reserve(N_);
-    theta_est_y.reserve(N_);
-    theta_est_z.reserve(N_);
-
     sigma_est_lpf_x.reserve(N_);
     sigma_est_lpf_y.reserve(N_);
     sigma_est_lpf_z.reserve(N_);
+
+    theta_ext_x.reserve(N_);
+    theta_ext_y.reserve(N_);
+    theta_ext_z.reserve(N_);
+
+    theta_est_x.reserve(N_);
+    theta_est_y.reserve(N_);
+    theta_est_z.reserve(N_);
 
     theta_est_lpf_x.reserve(N_);
     theta_est_lpf_y.reserve(N_);

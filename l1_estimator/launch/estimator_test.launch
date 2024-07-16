@@ -6,10 +6,10 @@
         
         <param name="quad_model" type="int" value="1"/>
         <param name="simulation_final_time" type="double" value="10"/>
-        <param name="discrete_time" type="double" value="0.010"/>
+        <param name="discrete_time" type="double" value="0.01"/>
         
-        <param name="kp" type="double" value="0.0"/>
-        <param name="kv" type="double" value="0.0"/>
+        <param name="kp" type="double" value="0"/>
+        <param name="kv" type="double" value="0"/>
         <param name="kq" type="double" value="5.0"/>
         <param name="kw" type="double" value="2.0"/>
 

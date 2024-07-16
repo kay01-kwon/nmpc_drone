@@ -58,6 +58,7 @@ void RefModel::initialize_state_variables()
 
 /**
  * @brief set input, state and disturbance in order.
+ * 
  * @param u_comp force rejected translational disturbance from rotor thrust
  * @param mu_comp moment compensated orientational disturbance from rotor thrust
  * @param p_state position from meas
@@ -87,17 +88,17 @@ const double &time)
     // Control translational reference model.
     // u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_hat;
 
-    // for(size_t i = 0; i < 3; i++)
-    // {
-    //     s_hat_(i) = p_state(i);
-    //     s_hat_(i+3) = v_state(i);
-    //     s_hat_(i+10) = w_state(i);
-    // }
+    for(size_t i = 0; i < 3; i++)
+    {
+        s_hat_(i) = p_state(i);
+        s_hat_(i+3) = v_state(i);
+        s_hat_(i+10) = w_state(i);
+    }
 
-    // s_hat_(6) = q_state.w();
-    // s_hat_(7) = q_state.x();
-    // s_hat_(8) = q_state.y();
-    // s_hat_(9) = q_state.z();
+    s_hat_(6) = q_state.w();
+    s_hat_(7) = q_state.x();
+    s_hat_(8) = q_state.y();
+    s_hat_(9) = q_state.z();
     
 
     u_hat_ = u_comp + sigma_hat;
