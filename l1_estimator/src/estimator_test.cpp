@@ -27,10 +27,6 @@ int main(int argc, char**argv)
         simulation_model_ptr->get_state(p_state[i], v_state[i], 
         q_state[i], w_state[i]);
 
-        // cout<<"Position: ";
-        // for(size_t j = 0; j < 3; j++)
-        //     cout<<p_state[i](j)<<endl;
-
     }
 
     delete simulation_model_ptr;

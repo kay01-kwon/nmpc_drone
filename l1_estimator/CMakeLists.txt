@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS system)
 
+find_package(Python3 3.8 EXACT COMPONENTS Interpreter Development)
+
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
@@ -72,7 +74,13 @@ include/yaml_converter/read_config.cpp
 include/simulation_model/simulation_model.cpp
 )
 
+target_include_directories(estimator_test
+PRIVATE
+${Python3_INCLUDE_DIRS}
+)
+
 target_link_libraries(estimator_test
 ${YAML_CPP_LIBRARIES}
 ${catkin_LIBRARIES}
+${Python3_LIBRARIES} 
 )

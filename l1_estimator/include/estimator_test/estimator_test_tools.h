@@ -6,10 +6,13 @@
 #include "l1_estimator/l1_estimator.hpp"
 #include "yaml_converter/read_config.hpp"
 #include "simulation_model/simulation_model.hpp"
-
-#ifndef VARIABLE_DEF_H
 #include "variable_def.h"
-#endif
+
+#include "matplotlibcpp.h"
+
+
+namespace plt = matplotlibcpp;
+
 
 void param_setup(const ros::NodeHandle& nh);
 
