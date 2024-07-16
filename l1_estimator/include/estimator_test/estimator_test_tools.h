@@ -28,9 +28,21 @@ const double& simulation_time_);
 
 void variable_capacity_reserve(const int& N);
 
+void demux_simulation_state(const mat31_t& position,
+const mat31_t& linear_velocity,
+const quat_t& quaternion,
+const mat31_t& angular_velocity);
+
+void demux_reference_state(const mat31_t& position,
+const mat31_t& linear_velocity,
+const quat_t& quaternion,
+const mat31_t& angular_velocity);
+
 void demux_vec3(const mat31_t& v, vector<double>&x, vector<double>&y, vector<double>&z);
 
 void demux_quat(const quat_t& q, vector<double>&qw, vector<double>&qx, vector<double>&qy, vector<double>&qz);
+
+
 
 /**
  * @brief From ros node handle get parameters
@@ -342,6 +354,46 @@ inline void variable_capacity_reserve(const int &N_)
     wz_ref.reserve(N_);    
 
 
+}
+
+/**
+ * @brief Put simulation state in the order of position, 
+ * linear velocity, quaternion, and angular velocity
+ * 
+ * @param position 
+ * @param linear_velocity 
+ * @param quaternion 
+ * @param angular_velocity 
+ */
+inline void demux_simulation_state(const mat31_t &position, 
+const mat31_t &linear_velocity, 
+const quat_t &quaternion, 
+const mat31_t &angular_velocity)
+{
+    demux_vec3(position, x_state, y_state, z_state);
+    demux_vec3(linear_velocity, vx_state, vy_state, vz_state);
+    demux_quat(quaternion, qw_state, qx_state, qy_state, qz_state);
+    demux_vec3(angular_velocity, wx_state, wy_state, wz_state);
+}
+
+/**
+ * @brief Put reference state in the order of position, 
+ * linear velocity, quaternion, and angular velocity
+ * 
+ * @param position 
+ * @param linear_velocity 
+ * @param quaternion 
+ * @param angular_velocity 
+ */
+inline void demux_reference_state(const mat31_t &position, 
+const mat31_t &linear_velocity, 
+const quat_t &quaternion, 
+const mat31_t &angular_velocity)
+{
+    demux_vec3(position, x_ref, y_ref, z_ref);
+    demux_vec3(linear_velocity, vx_ref, vy_ref, vz_ref);
+    demux_quat(quaternion, qw_ref, qx_ref, qy_ref, qz_ref);
+    demux_vec3(angular_velocity, wx_ref, wy_ref, wz_ref);
 }
 
 /**

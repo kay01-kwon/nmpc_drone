@@ -191,7 +191,6 @@ void SimulationModel::get_time(double &time) const
 void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
-    assert(dt_ > 0);
     
     rk4_.do_step(
         [this]
