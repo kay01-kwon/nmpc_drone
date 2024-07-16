@@ -38,6 +38,15 @@ const mat31_t& linear_velocity,
 const quat_t& quaternion,
 const mat31_t& angular_velocity);
 
+void demux_disturbance_ext(const mat31_t& sigma_,
+const mat31_t& theta_);
+
+void demux_disturbance_est_noisy(const mat31_t& sigma_,
+const mat31_t& theta_);
+
+void demux_disturbance_est_filtered(const mat31_t& sigma_,
+const mat31_t& theta_);
+
 void demux_vec3(const mat31_t& v, vector<double>&x, vector<double>&y, vector<double>&z);
 
 void demux_quat(const quat_t& q, vector<double>&qw, vector<double>&qx, vector<double>&qy, vector<double>&qz);
@@ -409,6 +418,27 @@ const mat31_t &angular_velocity)
     demux_vec3(linear_velocity, vx_ref, vy_ref, vz_ref);
     demux_quat(quaternion, qw_ref, qx_ref, qy_ref, qz_ref);
     demux_vec3(angular_velocity, wx_ref, wy_ref, wz_ref);
+}
+
+inline void demux_disturbance_ext(const mat31_t &sigma_, 
+const mat31_t &theta_)
+{
+    demux_vec3(theta_, theta_ext_x, theta_ext_y, theta_ext_z);
+    demux_vec3(sigma_, sigma_ext_x, sigma_ext_y, sigma_ext_z);
+}
+
+inline void demux_disturbance_est_noisy(const mat31_t &sigma_, 
+const mat31_t &theta_)
+{
+    demux_vec3(theta_, theta_est_x, theta_est_y, theta_est_z);
+    demux_vec3(sigma_, sigma_est_x, sigma_est_y, sigma_est_z);
+}
+
+inline void demux_disturbance_est_filtered(const mat31_t &sigma_, 
+const mat31_t &theta_)
+{
+    demux_vec3(theta_, theta_est_lpf_x, theta_est_lpf_y, theta_est_lpf_z);
+    demux_vec3(sigma_, sigma_est_lpf_x, sigma_est_lpf_y, sigma_est_lpf_z);
 }
 
 /**
