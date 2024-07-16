@@ -15,5 +15,6 @@
         "dense": "cpp",
         "limits": "cpp",
         "iostream": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/home/kay/catkin_ws/src/research/l1_estimator"
 }

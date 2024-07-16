@@ -154,15 +154,17 @@ void param_setup(const ros::NodeHandle& nh)
     read_nominal_param_obj.get_param(nominal_inertial_param);
 
     // Compute simulation time step
-    N = (int)Tf/dt + 1;
+    N = (size_t)(Tf/dt);
+    N += 1;
 
     // Allocate vector by the simulation type step
     variable_capacity_reserve(N);
 
     // Put simulation time step
-    for(int i = 0; i < N; i++)
+    for(size_t i = 0; i < N; i++)
     {
-        simulation_time.push_back((double)i*dt);
+        double t = i*dt;
+        simulation_time.push_back(t);
     }
 
     assert(dt > std::numeric_limits<double>::min());
@@ -195,6 +197,9 @@ void param_setup(const ros::NodeHandle& nh)
 
     sigma_est_noisy.setZero();
     theta_est_noisy.setZero();
+
+    sigma_est_lpf.setZero();
+    theta_est_lpf.setZero();
 
 }
 
@@ -291,7 +296,6 @@ const double &simulation_time_)
     assert(rpm_.size() == 4);
     assert(sigma_ext_.size() == 3);
     assert(theta_ext_.size() == 3);
-    assert(typeid(simulation_time_) == typeid(double));
 
     simulation_model_ptr->set_control_input(rpm_);
     simulation_model_ptr->set_disturbance(sigma_ext_, theta_ext_);
@@ -379,7 +383,6 @@ inline void variable_capacity_reserve(const int &N_)
     theta_est_lpf_x.reserve(N_);
     theta_est_lpf_y.reserve(N_);
     theta_est_lpf_z.reserve(N_);
-
 
 }
 

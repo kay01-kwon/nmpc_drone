@@ -19,7 +19,7 @@ int main(int argc, char**argv)
     mu_comp.setZero();
 
 
-    for(size_t i = 0; i < N; i++)
+    for(int i = 0; i < 10; i++)
     {
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -56,8 +56,17 @@ int main(int argc, char**argv)
         demux_disturbance_est_noisy(sigma_est_noisy, theta_est_noisy);
         demux_disturbance_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        cout<<"Simulation time: "<<simulation_time[i]<<" ";
-        cout<<"Reference (x): "<<p_ref(0)<<endl;
+        // if(i < 10)
+        // {
+        //     cout << "Simulation time: " << simulation_time[i] << endl;
+        //     cout << "Reference (x): " << p_ref(0) << endl;
+        //     cout << "State (x): "<< p_state(0) << endl;
+        //     cout << "Disturbance ext (x): "<< sigma_ext(0) << endl;
+        //     cout << "Disturbance_est_noisy (x): "<<sigma_est_noisy(0) << endl;
+        //     cout << "Disturbance_est_lpf (x): "<<sigma_est_lpf(0) << endl;
+        //     cout << endl;
+        // }
+
 
     }
 

@@ -30,9 +30,10 @@ mat31_t &vec_proj) const
 {
     if( (f > 0) && ( y.transpose()*Gamma_*grad_f > 0 ))
     {
+        double den = grad_f.transpose()*grad_f;
         vec_proj = Gamma_*(
             y - 
-            grad_f*grad_f.transpose()/(grad_f.transpose()*grad_f)
+            grad_f*grad_f.transpose()/den
             *Gamma_*y*f
         );
     }

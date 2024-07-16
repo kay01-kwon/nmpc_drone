@@ -23,6 +23,10 @@ J_(inertial_param.J),
 convex_fn_obj_{Convex_fn(bound_sigma, epsilon_sigma),Convex_fn(bound_theta, epsilon_theta)},
 gamma_prj_obj_{GammaPrj(gamma_sigma), GammaPrj(gamma_theta)},
 lpf_obj_{Lpf(tau_sigma), Lpf(tau_theta)},
+sigma_hat_(sigma_hat_.setZero()), theta_hat_(theta_hat_.setZero()),
+dsigma_hat_(dsigma_hat_.setZero()), dtheta_hat_(dtheta_hat_.setZero()),
+sigma_hat_lpf_(sigma_hat_lpf_.setZero()), theta_hat_lpf_(theta_hat_lpf_.setZero()),
+D_(D_.setZero()),
 prev_time_(0)
 {
     
@@ -102,16 +106,6 @@ const double &time)
     gamma_prj_obj_[1].getProjGamma(y_theta
     , f2, Df2, dtheta_hat_);
 
-
-    lpf_obj_[0].set_input_and_time(sigma_hat_, curr_time_);
-    lpf_obj_[0].solve();
-    lpf_obj_[0].get_filtered_vector(sigma_hat_lpf_);
-
-
-    lpf_obj_[1].set_input_and_time(theta_hat_, curr_time_);
-    lpf_obj_[1].solve();
-    lpf_obj_[1].get_filtered_vector(theta_hat_lpf_);
-
 }
 
 /**
@@ -128,13 +122,23 @@ void DisturbanceEstimator::solve()
         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
     },
     D_, prev_time_, dt_);
-    prev_time_ = curr_time_;
 
     for(size_t i =  0; i < 3; i++)
     {
         sigma_hat_(i) = D_(i);
         theta_hat_(i) = D_(i+3);
     }
+
+    lpf_obj_[0].set_input_and_time(sigma_hat_, curr_time_);
+    lpf_obj_[0].solve();
+    lpf_obj_[0].get_filtered_vector(sigma_hat_lpf_);
+
+    lpf_obj_[1].set_input_and_time(theta_hat_, curr_time_);
+    lpf_obj_[1].solve();
+    lpf_obj_[1].get_filtered_vector(theta_hat_lpf_);
+
+    prev_time_ = curr_time_;
+
 }
 
 /**

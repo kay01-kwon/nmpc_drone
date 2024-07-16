@@ -25,7 +25,7 @@ double dt;
 double Tf;
 
 // Step
-int N;
+size_t N;
 
 vector<double> simulation_time;
 
