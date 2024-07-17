@@ -73,3 +73,5 @@ To do list
 - [x] Employ matplotlib to plot data.
 
 - [x] Fix the nan problem on quaternion and $\theta_{est}$.
+
+- [ ] Make the plot tools in the estimator_test_tool folder.
