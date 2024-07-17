@@ -257,7 +257,7 @@ const double &t)
 
     // Attitude dynamics
     convert_vec_to_skew(w, w_skew);
-    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w)) + theta_ext_;
+    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w)+ theta_ext_);
 
     // Put the rate of state
     for(int i = 0; i < 3; i++)

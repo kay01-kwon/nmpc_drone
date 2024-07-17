@@ -20,10 +20,10 @@
         <param name="e_theta" type="double" value="10"/>
 
         <param name="Gamma_sigma" type="double" value="1000"/>
-        <param name="Gamma_theta" type="double" value="1000"/>
+        <param name="Gamma_theta" type="double" value="100"/>
         
         <param name="tau_sigma" type="double" value="10"/>
-        <param name="tau_theta" type="double" value="2"/>
+        <param name="tau_theta" type="double" value="10"/>
         
 
 </launch>

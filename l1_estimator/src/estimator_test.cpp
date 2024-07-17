@@ -13,7 +13,7 @@ int main(int argc, char**argv)
     rpm << 0, 0, 0, 0;
 
     sigma_ext << 1, 2, 0;
-    theta_ext << 0, 0, 0;
+    theta_ext << 1, 0, 0;
 
     mat31_t u_comp, mu_comp;
     u_comp.setZero();
@@ -62,7 +62,7 @@ int main(int argc, char**argv)
         demux_disturbance_est_noisy(sigma_est_noisy, theta_est_noisy);
         demux_disturbance_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        if(i < 10)
+        if(i <= 10)
         {
             cout << "Simulation time: " << simulation_time[i] << endl;
 
@@ -94,18 +94,64 @@ int main(int argc, char**argv)
             cout << "Reference (w): " << w_ref(0) 
             << " " << w_ref(1) << " " << w_ref(2) << endl;
 
-            cout << "Disturbance ext (x): "<< sigma_ext(0) << endl;
-            cout << "Disturbance_est_noisy (x): "<<sigma_est_noisy(0) << endl;
-            cout << "Disturbance_est_lpf (x): "<<sigma_est_lpf(0) << endl;
+            cout<<endl;
+
+            cout << "Translational disturbance info" << endl;
+            cout << "Disturbance ext: "<< sigma_ext(0) 
+            <<" " << sigma_ext(1) << " " << sigma_ext(2) << endl;
+
+            cout << "Disturbance est noisy: "<< sigma_est_noisy(0) 
+            <<" " << sigma_est_noisy(1) << " " << sigma_est_noisy(2) << endl;
+
+            cout << "Disturbance est filtered: "<< sigma_est_lpf(0) 
+            <<" " << sigma_est_lpf(1) << " " << sigma_est_lpf(2) << endl;
+
+            cout<<endl;
+
+            cout << "Orientational disturbance info" << endl;
+            cout << "Disturbance ext: "<< theta_ext(0) 
+            <<" " << theta_ext(1) << " " << theta_ext(2) << endl;
+
+            cout << "Disturbance est noisy: "<< theta_est_noisy(0) 
+            <<" " << theta_est_noisy(1) << " " << theta_est_noisy(2) << endl;
+
+            cout << "Disturbance est filtered: "<< theta_est_lpf(0) 
+            <<" " << theta_est_lpf(1) << " " << theta_est_lpf(2) << endl;
+
             cout << endl;
         }
 
 
     }
 
-    plt::plot(simulation_time, sigma_est_x);
-    plt::plot(simulation_time, sigma_est_lpf_x);
-    plt::plot(simulation_time, sigma_ext_x);
+
+    cout << "At final time step" << endl;
+
+    cout << "Translational disturbance info" << endl;
+    cout << "Disturbance ext: "<< sigma_ext(0) 
+    <<" " << sigma_ext(1) << " " << sigma_ext(2) << endl;
+
+    cout << "Disturbance est noisy: "<< sigma_est_noisy(0) 
+    <<" " << sigma_est_noisy(1) << " " << sigma_est_noisy(2) << endl;
+
+    cout << "Disturbance est filtered: "<< sigma_est_lpf(0) 
+    <<" " << sigma_est_lpf(1) << " " << sigma_est_lpf(2) << endl;
+
+    cout<<endl;
+
+    cout << "Orientational disturbance info" << endl;
+    cout << "Disturbance ext: "<< theta_ext(0) 
+    <<" " << theta_ext(1) << " " << theta_ext(2) << endl;
+
+    cout << "Disturbance est noisy: "<< theta_est_noisy(0) 
+    <<" " << theta_est_noisy(1) << " " << theta_est_noisy(2) << endl;
+
+    cout << "Disturbance est filtered: "<< theta_est_lpf(0) 
+    <<" " << theta_est_lpf(1) << " " << theta_est_lpf(2) << endl;
+
+    plt::plot(simulation_time, theta_est_x);
+    plt::plot(simulation_time, theta_est_lpf_x);
+    plt::plot(simulation_time, theta_ext_x);
     plt::grid(true);
     plt::show();
 
