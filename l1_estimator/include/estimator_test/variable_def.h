@@ -34,6 +34,11 @@ mat31_t v_state;
 quat_t q_state;
 mat31_t w_state;
 
+mat31_t p_state_prev; 
+mat31_t v_state_prev;
+quat_t q_state_prev;
+mat31_t w_state_prev;
+
 mat31_t p_ref;
 mat31_t v_ref;
 quat_t q_ref;

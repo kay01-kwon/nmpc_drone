@@ -19,10 +19,6 @@ int main(int argc, char**argv)
     u_comp.setZero();
     mu_comp.setZero();
 
-    mat31_t p_state_prev, v_state_prev;
-    p_state_prev.setZero();
-    v_state_prev.setZero();
-    
 
     assert(simulation_time.capacity() == N);
 
@@ -34,10 +30,9 @@ int main(int argc, char**argv)
         simulation_model_ptr->get_state(p_state, v_state, 
         q_state, w_state);
 
-
         // Set control input, measured state, disturbance and simulation time
         reference_model_ptr->set_input_state_disturbance_time(u_comp, mu_comp,
-        p_state_prev, v_state_prev, q_state, w_state,
+        p_state_prev, v_state_prev, q_state_prev, w_state_prev,
         sigma_est_noisy, theta_est_noisy, simulation_time[i]);
 
         // Integrate the reference model (Prediction step)
@@ -45,7 +40,7 @@ int main(int argc, char**argv)
 
         // Set disturbance estimator
         disturbance_est_ptr->set_state_time(p_state_prev, p_ref, 
-        v_state_prev, v_ref, q_state, q_ref, w_state, w_ref, simulation_time[i]);
+        v_state_prev, v_ref, q_state_prev, q_ref, w_state_prev, w_ref, simulation_time[i]);
 
         // Get state from the reference model (Prediction)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
@@ -58,6 +53,8 @@ int main(int argc, char**argv)
 
         p_state_prev = p_state;
         v_state_prev = v_state;
+        q_state_prev = q_state;
+        w_state_prev = w_state;
 
         demux_simulation_state(p_state, v_state, q_state, w_state);
         demux_reference_state(p_ref, v_ref, q_ref, w_ref);

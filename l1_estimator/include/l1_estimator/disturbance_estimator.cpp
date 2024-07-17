@@ -61,12 +61,18 @@ const double &time)
     mat33_t P, P_transpose;
     mat33_t J_inv, J_inv_transpose;
     mat31_t q_vec;
-    double c = 1.0;
+    double c = 0.0;
+
+    assert(isnan(q_ref.w())== false);
+    assert(isnan(q_ref.x())== false);
+    assert(isnan(q_ref.y())== false);
+    assert(isnan(q_ref.z())== false);
 
     conjugate(q_state, q_conj);
     otimes(q_conj, q_ref, q_tilde);
     convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
     get_rotm_from_quat(q_tilde_unit,R);
+    
     w_tilde = w_ref - R.transpose()*w_state;
 
     v_tilde = v_ref - v_state;
@@ -86,15 +92,17 @@ const double &time)
     P_transpose = P.transpose();
 
     y_sigma = - v_tilde;
-    y_theta = - P_transpose * w_tilde
-    -c*P_transpose*J_inv_transpose*q_vec;
+    y_theta = - P_transpose * w_tilde;
+
+    for(size_t i = 0; i < w_tilde.size(); i++)
+        assert(isnan(w_tilde(i)) == false);
+
 
     double f1, f2;
     mat31_t Df1, Df2;
     
     convex_fn_obj_[0].get_fn_value(sigma_hat_, f1, Df1);
     convex_fn_obj_[1].get_fn_value(theta_hat_, f2, Df2);
-
 
     // Get the time derivative of translational and orientational disturbance, respectively.
     gamma_prj_obj_[0].getProjGamma(y_sigma

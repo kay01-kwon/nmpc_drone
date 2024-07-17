@@ -87,13 +87,6 @@ const double &time)
     // Set time
     curr_time_ = time;
 
-
-    // p_tilde = p_hat_ - p_state;
-    v_tilde = v_hat_ - v_state;
-
-    // Control translational reference model.
-    // u_hat_ = u_comp - (k_p_*p_tilde + k_v_*v_tilde) + sigma_hat;
-
     for(size_t i = 0; i < 3; i++)
     {
         s_hat_(i) = p_state(i);
@@ -105,10 +98,8 @@ const double &time)
     s_hat_(7) = q_state.x();
     s_hat_(8) = q_state.y();
     s_hat_(9) = q_state.z();
-    
 
     u_hat_ = u_comp + sigma_hat;
-
 
     conjugate(q_state, q_state_conj);
     otimes(q_state_conj, q_hat_, q_tilde);
@@ -128,14 +119,17 @@ const double &time)
 
     convert_vec_to_skew(w_tilde, skiew_sym);
 
+    for(size_t i = 0; i < theta_hat.size();i++)
+        assert(isnan(theta_hat(i)) == false);
+
     mu_hat_ = C
     *(mu_comp + R*theta_hat)
     - J_
     *skiew_sym
-    *R.transpose()*w_state
-    -(k_q_*q_vec + k_w_*w_tilde);
+    *R.transpose()*w_state;
 
-    mu_hat_<< 0, 0, 0;
+    for(size_t i = 0; i < mu_hat_.size();i++)
+        assert(isnan(mu_hat_(i)) == false);
 
 }
 
@@ -185,14 +179,8 @@ void RefModel::prediction()
     q_hat_.y() = s_hat_(8);
     q_hat_.z() = s_hat_(9);
 
-    // double check_quaternion_value;
-    // check_quaternion_value = 0;
-
-    // for(size_t i = 0 ; i < 4; i++)
-    //     check_quaternion_value += s_hat_(i+6)*s_hat_(i+6);
-
-    // assert(check_quaternion_value > 0);
-    // assert(isnan(check_quaternion_value) == false);
+    for(size_t i = 0; i < w_hat_.size(); i++)
+        assert(isnan(w_hat_(i)) == false);
 
     prev_time_ = curr_time_;
 }

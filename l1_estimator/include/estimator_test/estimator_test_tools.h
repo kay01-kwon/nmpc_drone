@@ -200,6 +200,17 @@ void param_setup(const ros::NodeHandle& nh)
     sigma_est_lpf.setZero();
     theta_est_lpf.setZero();
 
+    p_state_prev.setZero();
+    v_state_prev.setZero();
+
+    q_state_prev.setIdentity();
+    w_state_prev.setZero();
+
+    p_ref.setZero();
+    v_ref.setZero();
+    q_ref.setIdentity();
+    w_ref.setZero();
+
 }
 
 /**

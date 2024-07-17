@@ -67,20 +67,17 @@ void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
  */
 void get_rotm_from_quat(const quat_t &q, mat33_t &rotm)
 {
-    mat33_t eye_m;
-    mat31_t q_vec;
-    mat33_t skew_sym;
+    double qw, qx, qy, qz;
+    
+    qw = q.w();
+    qx = q.x();
+    qy = q.y();
+    qz = q.z();
 
-    eye_m.setIdentity();
+    rotm << 1-2*(qy*qy + qz*qz), 2*(qx*qy-qw*qz), 2*(qx*qz+qw*qy),
+    2*(qy*qx+qw*qz), 1-2*(qx*qx+qz*qz), 2*(qy*qz-qw*qx),
+    2*(qz*qx-qw*qy), 2*(qz*qy+qw*qx), 1-2*(qx*qx+qy*qy);
 
-    convert_quat_to_quat_vec(q, q_vec);
-    convert_vec_to_skew(q_vec,skew_sym);
-
-    rotm = (q.w()*q.w() - q_vec.transpose()*q_vec)*eye_m
-    + 2 * q_vec * q_vec.transpose()
-    + 2 * q.w() * skew_sym;
-
-    assert(rotm.size() == 9);
 }
 
 /**
@@ -104,7 +101,7 @@ void conjugate(const quat_t &q, quat_t &q_conj)
  * @param skew_sym_mat 3 by 3 skew symmetric matrix from vec
  */
 void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
-{
+{    
     skew_sym_mat << 0, -vec(2), vec(1),
                     vec(2), 0, -vec(0),
                     -vec(1), vec(0), 0;
@@ -131,12 +128,17 @@ mat31_t &q_vec)
  */
 void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
 {
-    double den;
+    double den, qw, qx, qy ,qz;
 
-    den = sqrt(q.w() * q.w()
-    + q.x() * q.x()
-    + q.y() * q.y()
-    + q.z() * q.z());
+    qw = q.w();
+    qx = q.x();
+    qy = q.y();
+    qz = q.z();
+
+    den = sqrt(qw * qw
+    + qx * qx
+    + qy * qy
+    + qz * qz);
 
     // assert(den > 0);
 
@@ -144,7 +146,6 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
     unit_q.x() = q.x()/den;
     unit_q.y() = q.y()/den;
     unit_q.z() = q.z()/den;
-    
 
 }
 
