@@ -70,4 +70,6 @@ To do list
 
 To do list
 
-- [ ] Employ matplotlib to plot data.
+- [x] Employ matplotlib to plot data.
+
+- [x] Fix the nan problem on quaternion and $\theta_{est}$.
