@@ -8,11 +8,6 @@
 #include "simulation_model/simulation_model.hpp"
 #include "variable_def.h"
 
-#include "matplotlibcpp.h"
-
-
-namespace plt = matplotlibcpp;
-
 void param_setup(const ros::NodeHandle& nh);
 
 void print_parameter_setup(const inertial_param_t& inertial_param, 

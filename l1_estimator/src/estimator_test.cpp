@@ -1,5 +1,6 @@
 #include "estimator_test/estimator_test_tools.h"
 #include <assert.h>
+#include "estimator_test/plot_tools_for_estimator_test.h"
 
 int main(int argc, char**argv)
 {
@@ -155,10 +156,6 @@ int main(int argc, char**argv)
     plt::grid(true);
     plt::show();
 
-
-    // plt::plot(simulation_time, vx_state);
-    // plt::grid(true);
-    // plt::show();
     
 
     delete simulation_model_ptr;
