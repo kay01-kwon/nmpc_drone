@@ -53,17 +53,15 @@ const quat_t &q_state, const quat_t &q_ref,
 const mat31_t &w_state, const mat31_t &w_ref, 
 const double &time)
 {
-    mat31_t p_tilde, v_tilde;
-
-    p_tilde = p_ref - p_state;
-
-    v_tilde = v_ref - v_state;
-
-    curr_time_ = time;
-
+    mat31_t v_tilde;
     quat_t q_conj, q_tilde, q_tilde_unit;
     mat33_t R;
     mat31_t w_tilde;
+    mat31_t y_sigma, y_theta;
+    mat33_t P, P_transpose;
+    mat33_t J_inv, J_inv_transpose;
+    mat31_t q_vec;
+    double c = 1.0;
 
     conjugate(q_state, q_conj);
     otimes(q_conj, q_ref, q_tilde);
@@ -71,11 +69,9 @@ const double &time)
     get_rotm_from_quat(q_tilde_unit,R);
     w_tilde = w_ref - R.transpose()*w_state;
 
-    mat31_t y_sigma, y_theta;
-    mat33_t P, P_transpose;
-    mat33_t J_inv, J_inv_transpose;
-    mat31_t q_vec;
-    double c = 1.0;
+    v_tilde = v_ref - v_state;
+
+    curr_time_ = time;
 
     J_inv = J_.inverse();
     J_inv_transpose = J_inv.transpose();

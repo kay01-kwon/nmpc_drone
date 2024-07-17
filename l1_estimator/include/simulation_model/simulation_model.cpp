@@ -125,11 +125,15 @@ void SimulationModel::set_control_input(const mat41_t &rpm)
 void SimulationModel::set_disturbance(const mat31_t &sigma_ext, 
 const mat31_t &theta_ext)
 {
+
+    for(size_t i = 0; i < sigma_ext.size(); i++)
+    {
+        assert(isnan(sigma_ext(i)) == false);
+        assert(isnan(theta_ext(i)) == false);
+    }
+
     sigma_ext_ = sigma_ext;
     theta_ext_ = theta_ext;
-
-    assert(sigma_ext.size() == 3);
-    assert(theta_ext.size() == 3);
 
 }
 
@@ -156,10 +160,7 @@ mat31_t &v,
 quat_t &q, 
 mat31_t &w) const
 {
-    assert(p.size() == 3);
-    assert(v.size() == 3);
-    assert(w.size() == 3);
-    
+
     for(size_t i = 0; i < 3; i++)
     {
         p(i) = s_(i);
@@ -191,7 +192,7 @@ void SimulationModel::get_time(double &time) const
 void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
-    
+
     rk4_.do_step(
         [this]
         (const state13_t& s, state13_t& dsdt, const double& t)

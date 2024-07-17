@@ -43,6 +43,7 @@ void RefModel::initialize_state_variables()
     s_hat_(6) = 1.0;
 
     p_hat_.setZero();
+
     v_hat_.setZero();
 
     q_hat_.w() = 1;
@@ -76,11 +77,16 @@ const quat_t &q_state, const mat31_t &w_state,
 const mat31_t &sigma_hat, const mat31_t &theta_hat,
 const double &time)
 {
+
+    // Get the position and velocity error, respectively.
+    mat31_t v_tilde, w_tilde;
+    mat33_t C, R, skiew_sym;
+    mat31_t q_vec;
+    quat_t q_state_conj, q_tilde;
+
     // Set time
     curr_time_ = time;
-    
-    // Get the position and velocity error, respectively.
-    mat31_t v_tilde;
+
 
     // p_tilde = p_hat_ - p_state;
     v_tilde = v_hat_ - v_state;
@@ -103,12 +109,6 @@ const double &time)
 
     u_hat_ = u_comp + sigma_hat;
 
-    mat33_t C, R, skiew_sym;
-    mat31_t q_vec;
-
-    // Get the current state of quaternion
-    // and then compute the quaternion error.
-    quat_t q_state_conj, q_tilde;
 
     conjugate(q_state, q_state_conj);
     otimes(q_state_conj, q_hat_, q_tilde);
@@ -118,8 +118,6 @@ const double &time)
     convert_quat_to_quat_vec(q_tilde, q_vec);
 
     q_vec = signum(q_tilde.w())*q_vec;
-
-    mat31_t w_tilde;
 
     // Get the error of angular velocity
     w_tilde = w_hat_ - R.transpose()*w_state;
@@ -136,6 +134,8 @@ const double &time)
     *skiew_sym
     *R.transpose()*w_state
     -(k_q_*q_vec + k_w_*w_tilde);
+
+    mu_hat_<< 0, 0, 0;
 
 }
 
@@ -185,6 +185,15 @@ void RefModel::prediction()
     q_hat_.y() = s_hat_(8);
     q_hat_.z() = s_hat_(9);
 
+    // double check_quaternion_value;
+    // check_quaternion_value = 0;
+
+    // for(size_t i = 0 ; i < 4; i++)
+    //     check_quaternion_value += s_hat_(i+6)*s_hat_(i+6);
+
+    // assert(check_quaternion_value > 0);
+    // assert(isnan(check_quaternion_value) == false);
+
     prev_time_ = curr_time_;
 }
 
@@ -211,7 +220,7 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     q.x() = s(7);
     q.y() = s(8);
     q.z() = s(9);
-    
+
     convert_quat_to_unit_quat(q, q_unit);
 
     for(size_t i = 0; i < 3; i++)

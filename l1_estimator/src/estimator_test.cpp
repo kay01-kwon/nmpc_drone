@@ -1,4 +1,5 @@
 #include "estimator_test/estimator_test_tools.h"
+#include <assert.h>
 
 int main(int argc, char**argv)
 {
@@ -21,8 +22,9 @@ int main(int argc, char**argv)
     mat31_t p_state_prev, v_state_prev;
     p_state_prev.setZero();
     v_state_prev.setZero();
+    
 
-    double time;
+    assert(simulation_time.capacity() == N);
 
     for(int i = 0; i < N; i++)
     {
@@ -31,6 +33,7 @@ int main(int argc, char**argv)
         // Get state from the simulator model.
         simulation_model_ptr->get_state(p_state, v_state, 
         q_state, w_state);
+
 
         // Set control input, measured state, disturbance and simulation time
         reference_model_ptr->set_input_state_disturbance_time(u_comp, mu_comp,
@@ -47,15 +50,14 @@ int main(int argc, char**argv)
         // Get state from the reference model (Prediction)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
 
-        p_state_prev = p_state;
-        v_state_prev = v_state;
-
         disturbance_est_ptr->solve();
 
         disturbance_est_ptr->get_est_raw(sigma_est_noisy, theta_est_noisy);
 
         disturbance_est_ptr->get_est_filtered(sigma_est_lpf, theta_est_lpf);
 
+        p_state_prev = p_state;
+        v_state_prev = v_state;
 
         demux_simulation_state(p_state, v_state, q_state, w_state);
         demux_reference_state(p_ref, v_ref, q_ref, w_ref);
@@ -66,10 +68,35 @@ int main(int argc, char**argv)
         if(i < 10)
         {
             cout << "Simulation time: " << simulation_time[i] << endl;
-            cout << "Reference (x): " << p_ref(0) << endl;
-            cout << "Reference (vx): " << v_ref(0) << endl;
-            cout << "State (x): "<< p_state(0) << endl;
-            cout << "State (vx): " << v_state(0) << endl;
+
+            cout << "State (p): " << p_state(0) 
+            << " " << p_state(1) << " " << p_state(2) << endl;
+            
+            cout << "State (v): " << v_state(0) 
+            << " " << v_state(1) << " " << v_state(2) << endl;
+
+            cout << "State (q): " << q_state.w() 
+            << " " << q_state.x() << " " << q_state.y() <<
+            " " << q_state.z() << endl;
+
+            cout << "State (w): " << w_state(0) 
+            << " " << w_state(1) << " " << w_state(2) << endl;
+
+
+
+            cout << "Reference (p): " << p_ref(0) 
+            << " " << p_ref(1) << " " << p_ref(2) << endl;
+            
+            cout << "Reference (v): " << v_ref(0) 
+            << " " << v_ref(1) << " " << v_ref(2) << endl;
+
+            cout << "Reference (q): " << q_ref.w() 
+            << " " << q_ref.x() << " " << q_ref.y() <<
+            " " << q_ref.z() << endl;
+
+            cout << "Reference (w): " << w_ref(0) 
+            << " " << w_ref(1) << " " << w_ref(2) << endl;
+
             cout << "Disturbance ext (x): "<< sigma_ext(0) << endl;
             cout << "Disturbance_est_noisy (x): "<<sigma_est_noisy(0) << endl;
             cout << "Disturbance_est_lpf (x): "<<sigma_est_lpf(0) << endl;

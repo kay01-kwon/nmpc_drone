@@ -9,6 +9,7 @@
             "type": "ros",
             "request": "launch",
             "target": "/home/kay/catkin_ws/src/research/l1_estimator/launch/estimator_test.launch",
+            "preLaunchTask": ""
         }
 
     ]

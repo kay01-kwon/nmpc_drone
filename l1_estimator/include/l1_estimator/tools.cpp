@@ -95,11 +95,6 @@ void conjugate(const quat_t &q, quat_t &q_conj)
     q_conj.x() = -q.x();
     q_conj.y() = -q.y();
     q_conj.z() = -q.z();
-
-    assert(q_conj.w() - q.w() == 0);
-    assert(q_conj.x() + q.x() == 0 
-    && q_conj.y() + q.y() == 0
-    && q_conj.z() + q.z() == 0);
 }
 
 /**
@@ -110,11 +105,9 @@ void conjugate(const quat_t &q, quat_t &q_conj)
  */
 void convert_vec_to_skew(const mat31_t& vec, mat33_t &skew_sym_mat)
 {
-    assert(vec.size() == 3);
     skew_sym_mat << 0, -vec(2), vec(1),
                     vec(2), 0, -vec(0),
                     -vec(1), vec(0), 0;
-
 }
 
 /**
@@ -128,8 +121,6 @@ void convert_quat_to_quat_vec(const quat_t& q,
 mat31_t &q_vec)
 {
     q_vec << q.x(), q.y(), q.z();
-
-    assert(q_vec.size() == 3);
 }
 
 /**
@@ -142,20 +133,19 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
 {
     double den;
 
-    den = sqrt(
-        q.x()*q.x()
-        + q.y()*q.y()
-        + q.z()*q.z()
-        + q.w()*q.w()
-    );
+    den = sqrt(q.w() * q.w()
+    + q.x() * q.x()
+    + q.y() * q.y()
+    + q.z() * q.z());
 
-    assert(den > 0);
+    // assert(den > 0);
 
     unit_q.w() = q.w()/den;
     unit_q.x() = q.x()/den;
     unit_q.y() = q.y()/den;
     unit_q.z() = q.z()/den;
     
+
 }
 
 /**
