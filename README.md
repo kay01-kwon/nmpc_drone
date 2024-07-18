@@ -48,6 +48,8 @@ Continuous low pass filter result is shown below.
 
 ## Reference model
 
+- [ ] Establish theory on attitude dynamics again.
+
 - [ ] Set the previous posterior state except disturbance and integrate. Herein, do not use the state computed by the reference model but the previous posterior obtained by measurement update.
 
 - [ ] Implement measurement update.
@@ -55,6 +57,8 @@ Continuous low pass filter result is shown below.
 ## Disturbance estimator
 
 - [x] Program the disturbance estimator which utilizes Gamma projection, convex function, and low pass filter.
+
+- [x] Test the estimator code.
 
 - [ ] Compare combination of kalman filter and reference model with simple thing.
 
@@ -74,4 +78,4 @@ To do list
 
 - [x] Fix the nan problem on quaternion and $\theta_{est}$.
 
-- [ ] Make the plot tools in the estimator_test_tool folder.
+- [x] Make the plot tools in the estimator_test_tool folder.
