@@ -126,8 +126,15 @@ const double &time)
 
     convert_vec_to_skew(w_hat_, w_skew);
 
+    // mu_hat_ = C
+    // *(mu_comp + theta_hat)
+    // - w_skew*(J_*w_hat_);
+
     mu_hat_ = C
-    *(mu_comp + theta_hat)
+    *(mu_comp + R*theta_hat)
+    - J_
+    *skiew_sym
+    *R.transpose()*w_state
     - w_skew*(J_*w_hat_);
 
     for(size_t i = 0; i < mu_hat_.size();i++)

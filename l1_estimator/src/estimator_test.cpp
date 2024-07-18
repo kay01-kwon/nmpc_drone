@@ -44,11 +44,11 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        // theta_ext << 3*cos(0.4*simulation_time[i]),
-        // 3*sin(simulation_time[i]),
-        // 4*cos(simulation_time[i]);
+        theta_ext << 3*cos(0.4*simulation_time[i]),
+        3*cos(0.8*simulation_time[i]),
+        4*cos(1.3*simulation_time[i]);
         
-        theta_ext << 0, 0, 1;
+        // theta_ext << 0, 0, 1;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -104,7 +104,8 @@ int main(int argc, char**argv)
 
     keywords_setup(line_width, font_size);
     
-    plot_sigma_data();
+    plt::figure_size(3500,2000);
+    plot_theta_data();
 
     plt::show();
 
@@ -280,7 +281,7 @@ void plot_angular_velocity_data()
 
 void plot_sigma_data()
 {
-    plt::figure_size(3500,2000);
+
     plt::subplot(3,1,1);
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{x}$";
@@ -309,7 +310,6 @@ void plot_sigma_data()
 
 void plot_theta_data()
 {
-    plt::figure_size(3500,2000);
     plt::subplot(3,1,1);
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$θ_{x}$";

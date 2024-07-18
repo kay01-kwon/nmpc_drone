@@ -66,6 +66,9 @@ Continuous low pass filter result is shown below.
 
 <img src='l1_estimator/figures/disturbance_estimation_result(trans).png'>
 
+### Rotational disturbance estimation result
+<img src='l1_estimator/figures/disturbance_estimation_result(orien).png'>
+
 ## Simulation model
 
 To do list
