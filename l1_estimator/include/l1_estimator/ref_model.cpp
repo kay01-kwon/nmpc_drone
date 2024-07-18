@@ -122,11 +122,13 @@ const double &time)
     for(size_t i = 0; i < theta_hat.size();i++)
         assert(isnan(theta_hat(i)) == false);
 
+    mat33_t w_skew;
+
+    convert_vec_to_skew(w_hat_, w_skew);
+
     mu_hat_ = C
-    *(mu_comp + R*theta_hat)
-    - J_
-    *skiew_sym
-    *R.transpose()*w_state;
+    *(mu_comp + theta_hat)
+    - w_skew*(J_*w_hat_);
 
     for(size_t i = 0; i < mu_hat_.size();i++)
         assert(isnan(mu_hat_(i)) == false);
@@ -226,6 +228,7 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     {
         dsdt(i) = dpdt(i);
         dsdt(i+3) = dvdt(i);
+        dsdt(i+10) = dwdt(i);
     }
 
     dsdt(6) = dqdt.w();
@@ -233,8 +236,4 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     dsdt(8) = dqdt.y();
     dsdt(9) = dqdt.z();
 
-    for(int i = 0; i < 3; i++)
-    {
-        dsdt(i+10) = dwdt(i);
-    }
 }

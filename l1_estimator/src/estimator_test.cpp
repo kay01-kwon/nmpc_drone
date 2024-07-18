@@ -13,8 +13,8 @@ int main(int argc, char**argv)
 
     rpm << 0, 0, 0, 0;
 
-    sigma_ext << 1, 2, 0;
-    theta_ext << 1, 0, 0;
+    // sigma_ext << 1, 2, 0;
+    // theta_ext << 1, 0, 0;
 
     mat31_t u_comp, mu_comp;
     u_comp.setZero();
@@ -25,6 +25,15 @@ int main(int argc, char**argv)
 
     for(int i = 0; i < N; i++)
     {
+        sigma_ext << 1*cos(0.3*simulation_time[i]),
+        2*cos(1*simulation_time[i]),
+        0;
+
+        theta_ext << 3*cos(0.4*simulation_time[i]),
+        3*sin(simulation_time[i]),
+        4*cos(simulation_time[i]);
+        
+
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
         // Get state from the simulator model.
@@ -79,17 +88,75 @@ int main(int argc, char**argv)
 
 
     keywords_setup(line_width, font_size);
-    ticks_setup(Tf, 50, 0, 5, 5);
 
-    y_label = "x";
-    data1_label = "x ref";
-    data2_label = "x state";
+    // ticks_setup(Tf, 20, 0, 5, 5);    
+    // y_label = "x";
+    // data1_label = "x ref";
+    // data2_label = "x state";
+
+    // plot_data(simulation_time, y_label, 
+    // data1_label, data2_label ,x_ref, x_state);
+    // plt::show();
+
+    // ticks_setup(Tf, 20, 0, 5, 5);
     
+    // y_label = "y";
+    // data1_label = "y ref";
+    // data2_label = "y state";
 
+    // plot_data(simulation_time, y_label, 
+    // data1_label, data2_label ,y_ref, y_state);
+    // plt::show();
+
+
+    // ticks_setup(Tf, 20, 0, 5, 5);    
+    // y_label = "z";
+    // data1_label = "z ref";
+    // data2_label = "z state";
+
+    // plot_data(simulation_time, y_label, 
+    // data1_label, data2_label ,z_ref, z_state);
+    // plt::show();
+
+    // ticks_setup(Tf, 2, -2, 5, 5);
+    
+    // y_label = "$d_{x}$";
+    // data1_label = "$d_{est}$";
+    // data2_label = "$d_{gnd}$";
+
+    // plot_data(simulation_time, y_label, 
+    // data1_label, data2_label ,sigma_est_x, sigma_ext_x);
+    // plt::show();
+
+
+    ticks_setup(Tf, 2, -2, 5, 5);
+    
+    y_label = "$\theta_{x}$";
+    data1_label = "$\theta_{est}$";
+    data2_label = "$\theta_{gnd}$";
 
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,x_ref, x_state);
+    data1_label, data2_label ,theta_est_x, theta_ext_x);
+    plt::show();
+
+    ticks_setup(Tf, 2, -2, 5, 5);
     
+    y_label = "$\theta_{y}$";
+    data1_label = "$\theta_{est}$";
+    data2_label = "$\theta_{gnd}$";
+
+    plot_data(simulation_time, y_label, 
+    data1_label, data2_label ,theta_est_y, theta_ext_y);
+    plt::show();
+
+    ticks_setup(Tf, 2, -2, 5, 5);
+    
+    y_label = "$\theta_{z}$";
+    data1_label = "$\theta_{est}$";
+    data2_label = "$\theta_{gnd}$";
+
+    plot_data(simulation_time, y_label, 
+    data1_label, data2_label ,theta_est_z, theta_ext_z);
     plt::show();
 
     delete simulation_model_ptr;

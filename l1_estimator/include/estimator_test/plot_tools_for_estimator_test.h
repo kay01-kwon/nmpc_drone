@@ -19,6 +19,7 @@ using std::vector;
 map<string, string> line_keywords;
 map<string, string> label_keywords;
 map<string, string> ticks_keywords;
+map<string, string> legend_keywords;
 
 vector<double> x_ticks;
 vector<double> y_ticks;
@@ -99,6 +100,10 @@ inline void fontsize_setup(const int & font_size)
     double tick_font_size = font_size*0.8;
 
     ticks_keywords.insert(pair<string, string>
+    ("fontsize",to_string(tick_font_size))
+    );
+
+    legend_keywords.insert(pair<string, string>
     ("fontsize",to_string(tick_font_size))
     );
 
@@ -190,7 +195,6 @@ const vector<double> &data2)
     line_keywords.insert(pair<string, string>
     ("label", data2_label_));
 
-
     line_keywords.insert(pair<string,string>
     ("linestyle","--"));
 
@@ -207,7 +211,7 @@ const vector<double> &data2)
     plt::xlabel("time", label_keywords);
     plt::ylabel(y_label_, label_keywords);
 
-    plt::legend();
+    plt::legend(legend_keywords);
 
     plt::grid(true);
 
