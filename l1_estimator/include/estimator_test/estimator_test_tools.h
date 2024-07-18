@@ -55,6 +55,14 @@ const mat31_t &theta_ext_, const mat31_t &sigma_ext_,
 const mat31_t &theta_est_lpf_, const mat31_t &sigma_est_lpf_,
 const mat31_t &theta_est_noisy_, const mat31_t &sigma_est_noisy_);
 
+void initialilze_temporary_data_to_store_min_max();
+
+void find_max(const double& data, double& dest);
+
+void find_min(const double& data, double& dest);
+
+
+
 /**
  * @brief From ros node handle get parameters
  * such as inertial param, reference model param, 
@@ -215,6 +223,8 @@ void param_setup(const ros::NodeHandle& nh)
     v_ref.setZero();
     q_ref.setIdentity();
     w_ref.setZero();
+
+    initialilze_temporary_data_to_store_min_max();
 
 }
 
@@ -583,6 +593,39 @@ const mat31_t &theta_est_noisy_, const mat31_t &sigma_est_noisy_)
     <<" " << theta_est_lpf_(1) << " " << theta_est_lpf_(2) << endl;
 
     cout << endl;
+}
+
+inline void initialilze_temporary_data_to_store_min_max()
+{
+    x_max = x_min = y_max = y_min = z_max = z_min = 0;
+
+    vx_max = vx_min = vy_max = vy_min = vz_max = vz_min = 0;
+
+    wx_max = wx_min = wy_max = wy_min = wz_max = wz_min = 0;
+}
+
+inline void find_max(const double &data, double &dest)
+{
+    if(data >= dest)
+    {
+        dest = data;
+    }
+    else
+    {
+        return;
+    }
+}
+
+inline void find_min(const double &data, double &dest)
+{
+    if(data <= dest)
+    {
+        dest = data;
+    }
+    else
+    {
+        return;
+    }
 }
 
 #endif

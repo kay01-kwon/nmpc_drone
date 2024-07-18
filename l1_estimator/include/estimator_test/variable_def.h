@@ -62,6 +62,11 @@ vector<double> theta_est_x, theta_est_y, theta_est_z;
 vector<double> theta_est_lpf_x, theta_est_lpf_y, theta_est_lpf_z;
 vector<double> theta_ext_x, theta_ext_y, theta_ext_z;
 
+double x_max, x_min, y_max, y_min, z_max, z_min;
+double vx_max, vx_min, vy_max, vy_min, vz_max, vz_min;
+double wx_max, wx_min, wy_max, wy_min, wz_max, wz_min;
+
+
 SimulationModel* simulation_model_ptr;
 RefModel* reference_model_ptr;
 DisturbanceEstimator* disturbance_est_ptr;

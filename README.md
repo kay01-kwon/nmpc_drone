@@ -62,6 +62,10 @@ Continuous low pass filter result is shown below.
 
 - [ ] Compare combination of kalman filter and reference model with simple thing.
 
+### Translational disturbance estimation result
+
+<img src='l1_estimator/figures/disturbance_estimation_result(trans).png'>
+
 ## Simulation model
 
 To do list

@@ -45,13 +45,13 @@ string& data2_label_,
 const vector<double> &data1,
 const vector<double> &data2);
 
-void plot_data(const vector<double> &time,
-string &data1_label_,
-string &data2_label_,
-string &data3_label_,
-const vector<double> &data1,
-const vector<double> &data2,
-const vector<double> &data3);
+// void plot_data(const vector<double> &time,
+// string &data1_label_,
+// string &data2_label_,
+// string &data3_label_,
+// const vector<double> &data1,
+// const vector<double> &data2,
+// const vector<double> &data3);
 
 
 /**
@@ -114,6 +114,9 @@ inline void fontsize_setup(const int & font_size)
     cout << "Ticks keyword font setup" << endl;
 
     cout << ticks_keywords["fontsize"] << endl;
+
+    legend_keywords.insert(std::pair<string, string>
+    ("loc","upper right"));
 
 }
 
@@ -178,7 +181,6 @@ string& data2_label_,
 const vector<double> &data1,
 const vector<double> &data2)
 {
-    plt::figure_size(3500,2000);
 
     line_keywords.insert(pair<string, string>
     ("color","r"));
@@ -218,16 +220,6 @@ const vector<double> &data2)
     x_ticks.clear();
     y_ticks.clear();
 
-}
-
-inline void plot_data(const vector<double> &time, 
-string &data1_label_, 
-string &data2_label_, 
-string &data3_label_, 
-const vector<double> &data1, 
-const vector<double> &data2, 
-const vector<double> &data3)
-{
 }
 
 #endif
