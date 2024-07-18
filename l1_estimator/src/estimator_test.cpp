@@ -65,61 +65,9 @@ int main(int argc, char**argv)
 
         if(i <= 10)
         {
-            cout << "Simulation time: " << simulation_time[i] << endl;
-
-            cout << "State (p): " << p_state(0) 
-            << " " << p_state(1) << " " << p_state(2) << endl;
-            
-            cout << "State (v): " << v_state(0) 
-            << " " << v_state(1) << " " << v_state(2) << endl;
-
-            cout << "State (q): " << q_state.w() 
-            << " " << q_state.x() << " " << q_state.y() <<
-            " " << q_state.z() << endl;
-
-            cout << "State (w): " << w_state(0) 
-            << " " << w_state(1) << " " << w_state(2) << endl;
-
-
-
-            cout << "Reference (p): " << p_ref(0) 
-            << " " << p_ref(1) << " " << p_ref(2) << endl;
-            
-            cout << "Reference (v): " << v_ref(0) 
-            << " " << v_ref(1) << " " << v_ref(2) << endl;
-
-            cout << "Reference (q): " << q_ref.w() 
-            << " " << q_ref.x() << " " << q_ref.y() <<
-            " " << q_ref.z() << endl;
-
-            cout << "Reference (w): " << w_ref(0) 
-            << " " << w_ref(1) << " " << w_ref(2) << endl;
-
-            cout<<endl;
-
-            cout << "Translational disturbance info" << endl;
-            cout << "Disturbance ext: "<< sigma_ext(0) 
-            <<" " << sigma_ext(1) << " " << sigma_ext(2) << endl;
-
-            cout << "Disturbance est noisy: "<< sigma_est_noisy(0) 
-            <<" " << sigma_est_noisy(1) << " " << sigma_est_noisy(2) << endl;
-
-            cout << "Disturbance est filtered: "<< sigma_est_lpf(0) 
-            <<" " << sigma_est_lpf(1) << " " << sigma_est_lpf(2) << endl;
-
-            cout<<endl;
-
-            cout << "Orientational disturbance info" << endl;
-            cout << "Disturbance ext: "<< theta_ext(0) 
-            <<" " << theta_ext(1) << " " << theta_ext(2) << endl;
-
-            cout << "Disturbance est noisy: "<< theta_est_noisy(0) 
-            <<" " << theta_est_noisy(1) << " " << theta_est_noisy(2) << endl;
-
-            cout << "Disturbance est filtered: "<< theta_est_lpf(0) 
-            <<" " << theta_est_lpf(1) << " " << theta_est_lpf(2) << endl;
-
-            cout << endl;
+            print_state(simulation_time[i], p_state, v_state, q_state, w_state,
+            p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
+            sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
         }
 
 
@@ -127,36 +75,29 @@ int main(int argc, char**argv)
 
 
     cout << "At final time step" << endl;
+    print_state(simulation_time[N-1], p_state, v_state, q_state, w_state,
+    p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
+    sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
 
-    cout << "Translational disturbance info" << endl;
-    cout << "Disturbance ext: "<< sigma_ext(0) 
-    <<" " << sigma_ext(1) << " " << sigma_ext(2) << endl;
 
-    cout << "Disturbance est noisy: "<< sigma_est_noisy(0) 
-    <<" " << sigma_est_noisy(1) << " " << sigma_est_noisy(2) << endl;
+    // plt::plot(simulation_time, theta_est_x);
+    // plt::plot(simulation_time, theta_est_lpf_x);
+    // plt::plot(simulation_time, theta_ext_x);
+    // plt::grid(true);
+    // plt::show();
 
-    cout << "Disturbance est filtered: "<< sigma_est_lpf(0) 
-    <<" " << sigma_est_lpf(1) << " " << sigma_est_lpf(2) << endl;
+    double line_width, font_size;
 
-    cout<<endl;
+    line_width = 6;
+    font_size = 20;
 
-    cout << "Orientational disturbance info" << endl;
-    cout << "Disturbance ext: "<< theta_ext(0) 
-    <<" " << theta_ext(1) << " " << theta_ext(2) << endl;
+    keywords_setup(line_width, font_size);
 
-    cout << "Disturbance est noisy: "<< theta_est_noisy(0) 
-    <<" " << theta_est_noisy(1) << " " << theta_est_noisy(2) << endl;
+    // ticks_setup(Tf, 50, 0, 5, 5);
 
-    cout << "Disturbance est filtered: "<< theta_est_lpf(0) 
-    <<" " << theta_est_lpf(1) << " " << theta_est_lpf(2) << endl;
-
-    plt::plot(simulation_time, theta_est_x);
-    plt::plot(simulation_time, theta_est_lpf_x);
-    plt::plot(simulation_time, theta_ext_x);
-    plt::grid(true);
-    plt::show();
-
+    plot_two_data(simulation_time, x_state, x_ref);
     
+    plt::show();
 
     delete simulation_model_ptr;
     delete reference_model_ptr;

@@ -1,6 +1,6 @@
 #ifndef PLOT_TOOLS_FOR_ESTIMATOR_TEST_H_
 #define PLOT_TOOLS_FOR_ESTIMATOR_TEST_H_
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <vector>
 #include "matplotlibcpp.h"
@@ -8,7 +8,7 @@
 
 namespace plt = matplotlibcpp;
 
-using std::unordered_map;
+using std::map;
 using std::string;
 using std::pair;
 using std::to_string;
@@ -16,27 +16,28 @@ using std::to_string;
 using std::vector;
 
 
-unordered_map<string, string> line_keywords;
-unordered_map<string, string> label_keywords;
-unordered_map<string, string> tic_keywords;
+map<string, string> line_keywords;
+map<string, string> label_keywords;
+map<string, string> ticks_keywords;
 
-vector<double> x_tics;
-vector<double> y_tics;
+vector<double> x_ticks;
+vector<double> y_ticks;
 
-void keywords_setup(const int& line_width, const int& font_size);
+void keywords_setup(const int &line_width, const int &font_size);
 
 void linewidth_setup(const int& line_width);
 
 void fontsize_setup(const int& font_size);
 
-void ticks_setup(double &Tf, double &max, double &min, 
-int &x_tick_size, int &y_tick_size);
+void ticks_setup(const double &Tf, const double &y_max, const double &y_min, 
+const int &x_tick_size, const int &y_tick_size);
 
 void plot_two_data(const vector<double> &time, 
 const vector<double> &data1,
 const vector<double> &data2);
 
-void keywords_setup(const int& line_width, const int& font_size)
+void keywords_setup(const int &line_width, 
+const int &font_size)
 {
     linewidth_setup(line_width);
     fontsize_setup(font_size);
@@ -45,31 +46,31 @@ void keywords_setup(const int& line_width, const int& font_size)
 inline void linewidth_setup(const int &line_width)
 {
     line_keywords.insert(pair<string, string>
-    ("line_width",to_string(line_width))
+    ("linewidth",to_string(line_width))
     );
 }
 
 inline void fontsize_setup(const int & font_size)
 {
     line_keywords.insert(pair<string, string>
-    ("font_size",to_string(font_size))
+    ("fontsize",to_string(font_size))
     );
     
     label_keywords.insert(pair<string, string>
-    ("font_size",to_string(font_size))
+    ("fontsize",to_string(font_size))
     );
 
-    tic_keywords.insert(pair<string, string>
-    ("font_size","to_string(font_size)")
+    ticks_keywords.insert(pair<string, string>
+    ("fontsize","to_string(font_size)")
     );
 }
 
-inline void ticks_setup(double &Tf, double &y_max, double &y_min, 
-int &x_tics_size, int &y_tics_size)
+inline void ticks_setup(double &Tf, double y_max, double y_min, 
+int x_ticks_size, int y_ticks_size)
 {
     double gap;
-    x_tics.reserve(x_tics_size);
-    y_tics.reserve(y_tics_size);
+    x_ticks.reserve(x_ticks_size);
+    y_ticks.reserve(y_ticks_size);
 
     if(y_min != 0)
     {
@@ -91,14 +92,14 @@ int &x_tics_size, int &y_tics_size)
 
     gap = y_max - y_min;
 
-    for(size_t i = 0; i < x_tics_size; i++)
+    for(size_t i = 0; i < x_ticks_size; i++)
     {
-        x_tics.push_back(i*Tf/(x_tics_size-1));
+        x_ticks.push_back(i*Tf/(x_ticks_size-1));
     }
 
-    for(size_t i = 0; i < y_tics_size; i++)
+    for(size_t i = 0; i < y_ticks_size; i++)
     {
-        y_tics.push_back(y_min + i*gap/(y_tics_size-1));
+        y_ticks.push_back(y_min + i*gap/(y_ticks_size-1));
     }
 }
 
@@ -109,8 +110,8 @@ const vector<double> &data2)
     plt::plot(time, data1, line_keywords);
     plt::plot(time, data2, line_keywords);
 
-    plt::xticks(x_tics,tic_keywords);
-    plt::yticks(y_tics,tic_keywords);
+    // plt::xticks(x_ticks,tick_keywords);
+    // plt::yticks(y_ticks,tick_keywords);
     plt::grid(true);
 }
 
