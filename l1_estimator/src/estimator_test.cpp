@@ -70,9 +70,7 @@ int main(int argc, char**argv)
             sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
         }
 
-
     }
-
 
     cout << "At final time step" << endl;
     print_state(simulation_time[N-1], p_state, v_state, q_state, w_state,
@@ -80,20 +78,15 @@ int main(int argc, char**argv)
     sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
 
 
-    // plt::plot(simulation_time, theta_est_x);
-    // plt::plot(simulation_time, theta_est_lpf_x);
-    // plt::plot(simulation_time, theta_ext_x);
-    // plt::grid(true);
-    // plt::show();
-
-    double line_width, font_size;
-
-    line_width = 6;
-    font_size = 20;
-
     keywords_setup(line_width, font_size);
 
     // ticks_setup(Tf, 50, 0, 5, 5);
+
+    for(const auto& line_keyword: line_keywords)
+    {
+        cout << line_keyword.first << endl;
+        cout << line_keyword.second << endl;
+    }
 
     plot_two_data(simulation_time, x_state, x_ref);
     

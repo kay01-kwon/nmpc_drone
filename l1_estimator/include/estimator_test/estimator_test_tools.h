@@ -46,14 +46,14 @@ void demux_vec3(const mat31_t& v, vector<double>&x, vector<double>&y, vector<dou
 
 void demux_quat(const quat_t& q, vector<double>&qw, vector<double>&qx, vector<double>&qy, vector<double>&qz);
 
-void print_state(const double& time, 
-const mat31_t& p_state, const mat31_t& v_state,
-const quat_t &q_state, const mat31_t &w_state,
-const mat31_t &p_ref, const mat31_t &v_ref, 
-const quat_t &q_ref, const mat31_t &w_ref,
-const mat31_t &theta_ext, const mat31_t &sigma_ext,
-const mat31_t &theta_est_lpf, const mat31_t &sigma_est_lpf,
-const mat31_t &theta_est_noisy, const mat31_t &sigma_est_noisy);
+void print_state(const double& time_, 
+const mat31_t& p_state_, const mat31_t& v_state_,
+const quat_t &q_state_, const mat31_t &w_state_,
+const mat31_t &p_ref_, const mat31_t &v_ref_, 
+const quat_t &q_ref_, const mat31_t &w_ref_,
+const mat31_t &theta_ext_, const mat31_t &sigma_ext_,
+const mat31_t &theta_est_lpf_, const mat31_t &sigma_est_lpf_,
+const mat31_t &theta_est_noisy_, const mat31_t &sigma_est_noisy_);
 
 /**
  * @brief From ros node handle get parameters
@@ -122,6 +122,9 @@ void param_setup(const ros::NodeHandle& nh)
 
     nh.getParam("tau_sigma", tau_sigma);
     nh.getParam("tau_theta", tau_theta);
+
+    nh.getParam("line_width", line_width);
+    nh.getParam("font_size", font_size);
 
     for(size_t i = 0; i < 3; i++)
     {
@@ -516,68 +519,68 @@ vector<double>& qw, vector<double>& qx, vector<double>& qy, vector<double>& qz)
  * @param theta_est_noisy 
  * @param sigma_est_noisy 
  */
-inline void print_state(const double& time, 
-const mat31_t& p_state, const mat31_t& v_state,
-const quat_t &q_state, const mat31_t &w_state,
-const mat31_t &p_ref, const mat31_t &v_ref, 
-const quat_t &q_ref, const mat31_t &w_ref,
-const mat31_t &theta_ext, const mat31_t &sigma_ext,
-const mat31_t &theta_est_lpf, const mat31_t &sigma_est_lpf,
-const mat31_t &theta_est_noisy, const mat31_t &sigma_est_noisy)
+inline void print_state(const double& time_, 
+const mat31_t& p_state_, const mat31_t& v_state_,
+const quat_t &q_state_, const mat31_t &w_state_,
+const mat31_t &p_ref_, const mat31_t &v_ref_, 
+const quat_t &q_ref_, const mat31_t &w_ref_,
+const mat31_t &theta_ext_, const mat31_t &sigma_ext_,
+const mat31_t &theta_est_lpf_, const mat31_t &sigma_est_lpf_,
+const mat31_t &theta_est_noisy_, const mat31_t &sigma_est_noisy_)
 {
-    cout << "Simulation time: " << time << endl;
+    cout << "Simulation time: " << time_ << endl;
 
-    cout << "State (p): " << p_state(0) 
-    << " " << p_state(1) << " " << p_state(2) << endl;
+    cout << "State (p): " << p_state_(0) 
+    << " " << p_state_(1) << " " << p_state_(2) << endl;
     
-    cout << "State (v): " << v_state(0) 
-    << " " << v_state(1) << " " << v_state(2) << endl;
+    cout << "State (v): " << v_state_(0) 
+    << " " << v_state_(1) << " " << v_state_(2) << endl;
 
-    cout << "State (q): " << q_state.w() 
-    << " " << q_state.x() << " " << q_state.y() <<
-    " " << q_state.z() << endl;
+    cout << "State (q): " << q_state_.w() 
+    << " " << q_state_.x() << " " << q_state_.y() <<
+    " " << q_state_.z() << endl;
 
-    cout << "State (w): " << w_state(0) 
-    << " " << w_state(1) << " " << w_state(2) << endl;
+    cout << "State (w): " << w_state_(0) 
+    << " " << w_state_(1) << " " << w_state_(2) << endl;
 
 
 
-    cout << "Reference (p): " << p_ref(0) 
-    << " " << p_ref(1) << " " << p_ref(2) << endl;
+    cout << "Reference (p): " << p_ref_(0) 
+    << " " << p_ref_(1) << " " << p_ref_(2) << endl;
     
-    cout << "Reference (v): " << v_ref(0) 
-    << " " << v_ref(1) << " " << v_ref(2) << endl;
+    cout << "Reference (v): " << v_ref_(0) 
+    << " " << v_ref_(1) << " " << v_ref_(2) << endl;
 
-    cout << "Reference (q): " << q_ref.w() 
-    << " " << q_ref.x() << " " << q_ref.y() <<
-    " " << q_ref.z() << endl;
+    cout << "Reference (q): " << q_ref_.w() 
+    << " " << q_ref_.x() << " " << q_ref_.y() <<
+    " " << q_ref_.z() << endl;
 
-    cout << "Reference (w): " << w_ref(0) 
-    << " " << w_ref(1) << " " << w_ref(2) << endl;
+    cout << "Reference (w): " << w_ref_(0) 
+    << " " << w_ref_(1) << " " << w_ref_(2) << endl;
 
     cout<<endl;
 
     cout << "Translational disturbance info" << endl;
-    cout << "Disturbance ext: "<< sigma_ext(0) 
-    <<" " << sigma_ext(1) << " " << sigma_ext(2) << endl;
+    cout << "Disturbance ext: "<< sigma_ext_(0) 
+    <<" " << sigma_ext_(1) << " " << sigma_ext_(2) << endl;
 
-    cout << "Disturbance est noisy: "<< sigma_est_noisy(0) 
-    <<" " << sigma_est_noisy(1) << " " << sigma_est_noisy(2) << endl;
+    cout << "Disturbance est noisy: "<< sigma_est_noisy_(0) 
+    <<" " << sigma_est_noisy_(1) << " " << sigma_est_noisy_(2) << endl;
 
-    cout << "Disturbance est filtered: "<< sigma_est_lpf(0) 
-    <<" " << sigma_est_lpf(1) << " " << sigma_est_lpf(2) << endl;
+    cout << "Disturbance est filtered: "<< sigma_est_lpf_(0) 
+    <<" " << sigma_est_lpf_(1) << " " << sigma_est_lpf_(2) << endl;
 
     cout<<endl;
 
     cout << "Orientational disturbance info" << endl;
-    cout << "Disturbance ext: "<< theta_ext(0) 
-    <<" " << theta_ext(1) << " " << theta_ext(2) << endl;
+    cout << "Disturbance ext: "<< theta_ext_(0) 
+    <<" " << theta_ext_(1) << " " << theta_ext_(2) << endl;
 
-    cout << "Disturbance est noisy: "<< theta_est_noisy(0) 
-    <<" " << theta_est_noisy(1) << " " << theta_est_noisy(2) << endl;
+    cout << "Disturbance est noisy: "<< theta_est_noisy_(0) 
+    <<" " << theta_est_noisy_(1) << " " << theta_est_noisy_(2) << endl;
 
-    cout << "Disturbance est filtered: "<< theta_est_lpf(0) 
-    <<" " << theta_est_lpf(1) << " " << theta_est_lpf(2) << endl;
+    cout << "Disturbance est filtered: "<< theta_est_lpf_(0) 
+    <<" " << theta_est_lpf_(1) << " " << theta_est_lpf_(2) << endl;
 
     cout << endl;
 }

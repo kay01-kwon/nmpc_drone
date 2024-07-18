@@ -69,4 +69,6 @@ DisturbanceEstimator* disturbance_est_ptr;
 
 mat41_t rpm;
 
+double line_width, font_size;
+
 #endif

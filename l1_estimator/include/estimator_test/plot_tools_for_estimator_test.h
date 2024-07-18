@@ -52,9 +52,9 @@ inline void linewidth_setup(const int &line_width)
 
 inline void fontsize_setup(const int & font_size)
 {
-    line_keywords.insert(pair<string, string>
-    ("fontsize",to_string(font_size))
-    );
+    // line_keywords.insert(pair<string, string>
+    // ("fontsize",to_string(font_size))
+    // );
     
     label_keywords.insert(pair<string, string>
     ("fontsize",to_string(font_size))
