@@ -23,6 +23,11 @@ map<string, string> ticks_keywords;
 vector<double> x_ticks;
 vector<double> y_ticks;
 
+string y_label;
+string data1_label;
+string data2_label;
+string data3_label;
+
 void keywords_setup(const int &line_width, const int &font_size);
 
 void linewidth_setup(const int& line_width);
@@ -32,10 +37,28 @@ void fontsize_setup(const int& font_size);
 void ticks_setup(const double &Tf, const double &y_max, const double &y_min, 
 const int &x_tick_size, const int &y_tick_size);
 
-void plot_two_data(const vector<double> &time, 
+void plot_data(const vector<double> &time,
+string& y_label_,
+string& data1_label_,
+string& data2_label_,
 const vector<double> &data1,
 const vector<double> &data2);
 
+void plot_data(const vector<double> &time,
+string &data1_label_,
+string &data2_label_,
+string &data3_label_,
+const vector<double> &data1,
+const vector<double> &data2,
+const vector<double> &data3);
+
+
+/**
+ * @brief Set keywords for fontsize and linewidth
+ * 
+ * @param line_width 
+ * @param font_size 
+ */
 void keywords_setup(const int &line_width, 
 const int &font_size)
 {
@@ -43,6 +66,11 @@ const int &font_size)
     fontsize_setup(font_size);
 }
 
+/**
+ * @brief set line_width
+ * 
+ * @param line_width 
+ */
 inline void linewidth_setup(const int &line_width)
 {
     line_keywords.insert(pair<string, string>
@@ -57,6 +85,11 @@ inline void linewidth_setup(const int &line_width)
     }
 }
 
+/**
+ * @brief set font size
+ * 
+ * @param font_size 
+ */
 inline void fontsize_setup(const int & font_size)
 {   
     label_keywords.insert(pair<string, string>
@@ -79,6 +112,15 @@ inline void fontsize_setup(const int & font_size)
 
 }
 
+/**
+ * @brief set ticks for xlabel and ylabel
+ * 
+ * @param Tf 
+ * @param y_max 
+ * @param y_min 
+ * @param x_ticks_size 
+ * @param y_ticks_size 
+ */
 inline void ticks_setup(double &Tf, double y_max, double y_min, 
 int x_ticks_size, int y_ticks_size)
 {
@@ -117,31 +159,71 @@ int x_ticks_size, int y_ticks_size)
     }
 }
 
-inline void plot_two_data(const vector<double> &time, 
+/**
+ * @brief Plot data
+ * 
+ * @param time 
+ * @param data1 reference variables
+ * @param data2 state variables
+ */
+inline void plot_data(const vector<double> &time,
+string& y_label_,
+string& data1_label_,
+string& data2_label_,
 const vector<double> &data1,
 const vector<double> &data2)
 {
     plt::figure_size(3500,2000);
-    
-    line_keywords.insert(pair<string,string>
+
+    line_keywords.insert(pair<string, string>
     ("color","r"));
+    line_keywords.insert(pair<string, string>
+    ("label", data1_label_));
 
     plt::plot(time, data1, line_keywords);
 
     line_keywords.erase("color");
+    line_keywords.erase("label");
 
     line_keywords.insert(pair<string, string>
     ("color","violet"));
+    line_keywords.insert(pair<string, string>
+    ("label", data2_label_));
+
 
     line_keywords.insert(pair<string,string>
     ("linestyle","--"));
 
     plt::plot(time, data2, line_keywords);
+
+    line_keywords.erase("color");
+    line_keywords.erase("label");
     line_keywords.erase("linestyle");
+
 
     plt::xticks(x_ticks,ticks_keywords);
     plt::yticks(y_ticks,ticks_keywords);
+
+    plt::xlabel("time", label_keywords);
+    plt::ylabel(y_label_, label_keywords);
+
+    plt::legend();
+
     plt::grid(true);
+
+    x_ticks.clear();
+    y_ticks.clear();
+
+}
+
+inline void plot_data(const vector<double> &time, 
+string &data1_label_, 
+string &data2_label_, 
+string &data3_label_, 
+const vector<double> &data1, 
+const vector<double> &data2, 
+const vector<double> &data3)
+{
 }
 
 #endif

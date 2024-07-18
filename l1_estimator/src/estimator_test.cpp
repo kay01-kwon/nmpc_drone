@@ -81,7 +81,14 @@ int main(int argc, char**argv)
     keywords_setup(line_width, font_size);
     ticks_setup(Tf, 50, 0, 5, 5);
 
-    plot_two_data(simulation_time, x_ref, x_state);
+    y_label = "x";
+    data1_label = "x ref";
+    data2_label = "x state";
+    
+
+
+    plot_data(simulation_time, y_label, 
+    data1_label, data2_label ,x_ref, x_state);
     
     plt::show();
 

@@ -62,7 +62,6 @@ vector<double> theta_est_x, theta_est_y, theta_est_z;
 vector<double> theta_est_lpf_x, theta_est_lpf_y, theta_est_lpf_z;
 vector<double> theta_ext_x, theta_ext_y, theta_ext_z;
 
-
 SimulationModel* simulation_model_ptr;
 RefModel* reference_model_ptr;
 DisturbanceEstimator* disturbance_est_ptr;
