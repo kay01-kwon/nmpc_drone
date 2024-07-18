@@ -48,21 +48,35 @@ inline void linewidth_setup(const int &line_width)
     line_keywords.insert(pair<string, string>
     ("linewidth",to_string(line_width))
     );
+
+    cout << "Line width setup" << endl;
+    for(const auto& line_keyword: line_keywords)
+    {
+        cout << line_keyword.first << ": ";
+        cout << line_keyword.second << endl;
+    }
 }
 
 inline void fontsize_setup(const int & font_size)
-{
-    // line_keywords.insert(pair<string, string>
-    // ("fontsize",to_string(font_size))
-    // );
-    
+{   
     label_keywords.insert(pair<string, string>
     ("fontsize",to_string(font_size))
     );
 
+    double tick_font_size = font_size*0.8;
+
     ticks_keywords.insert(pair<string, string>
-    ("fontsize","to_string(font_size)")
+    ("fontsize",to_string(tick_font_size))
     );
+
+    cout << "Label keyword font setup" << endl;
+
+    cout << label_keywords["fontsize"] << endl;
+
+    cout << "Ticks keyword font setup" << endl;
+
+    cout << ticks_keywords["fontsize"] << endl;
+
 }
 
 inline void ticks_setup(double &Tf, double y_max, double y_min, 
@@ -107,11 +121,26 @@ inline void plot_two_data(const vector<double> &time,
 const vector<double> &data1,
 const vector<double> &data2)
 {
-    plt::plot(time, data1, line_keywords);
-    plt::plot(time, data2, line_keywords);
+    plt::figure_size(3500,2000);
+    
+    line_keywords.insert(pair<string,string>
+    ("color","r"));
 
-    // plt::xticks(x_ticks,tick_keywords);
-    // plt::yticks(y_ticks,tick_keywords);
+    plt::plot(time, data1, line_keywords);
+
+    line_keywords.erase("color");
+
+    line_keywords.insert(pair<string, string>
+    ("color","violet"));
+
+    line_keywords.insert(pair<string,string>
+    ("linestyle","--"));
+
+    plt::plot(time, data2, line_keywords);
+    line_keywords.erase("linestyle");
+
+    plt::xticks(x_ticks,ticks_keywords);
+    plt::yticks(y_ticks,ticks_keywords);
     plt::grid(true);
 }
 

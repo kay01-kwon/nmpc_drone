@@ -79,16 +79,9 @@ int main(int argc, char**argv)
 
 
     keywords_setup(line_width, font_size);
+    ticks_setup(Tf, 50, 0, 5, 5);
 
-    // ticks_setup(Tf, 50, 0, 5, 5);
-
-    for(const auto& line_keyword: line_keywords)
-    {
-        cout << line_keyword.first << endl;
-        cout << line_keyword.second << endl;
-    }
-
-    plot_two_data(simulation_time, x_state, x_ref);
+    plot_two_data(simulation_time, x_ref, x_state);
     
     plt::show();
 
