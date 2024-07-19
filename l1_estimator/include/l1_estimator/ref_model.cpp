@@ -131,11 +131,10 @@ const double &time)
     // - w_skew*(J_*w_hat_);
 
     mu_hat_ = C
-    *(mu_comp + R*theta_hat)
+    *(mu_comp + R*theta_hat - w_skew*(J_*w_hat_))
     - J_
     *skiew_sym
-    *R.transpose()*w_state
-    - w_skew*(J_*w_hat_);
+    *R.transpose()*w_state;
 
     for(size_t i = 0; i < mu_hat_.size();i++)
         assert(isnan(mu_hat_(i)) == false);

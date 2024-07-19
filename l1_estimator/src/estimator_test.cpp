@@ -40,13 +40,13 @@ int main(int argc, char**argv)
 
     for(int i = 0; i < N; i++)
     {
-        sigma_ext << 1*cos(5*simulation_time[i]),
+        sigma_ext << 5*cos(5*simulation_time[i]),
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        theta_ext << 3*cos(0.4*simulation_time[i]),
-        3*cos(0.8*simulation_time[i]),
-        4*cos(1.3*simulation_time[i]);
+        theta_ext << 1*cos(5*simulation_time[i]),
+        2*cos(0.8*simulation_time[i]),
+        3*cos(1.3*simulation_time[i]);
         
         // theta_ext << 0, 0, 1;
 
@@ -104,6 +104,9 @@ int main(int argc, char**argv)
 
     keywords_setup(line_width, font_size);
     
+    plt::figure_size(3500,2000);
+    plot_sigma_data();
+
     plt::figure_size(3500,2000);
     plot_theta_data();
 

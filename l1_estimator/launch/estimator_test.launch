@@ -13,17 +13,17 @@
         <param name="kq" type="double" value="0.0"/>
         <param name="kw" type="double" value="0.0"/>
 
-        <param name="b_sigma" type="double" value="5"/>
+        <param name="b_sigma" type="double" value="10"/>
         <param name="e_sigma" type="double" value="10"/>
         
-        <param name="b_theta" type="double" value="5"/>
+        <param name="b_theta" type="double" value="10"/>
         <param name="e_theta" type="double" value="10"/>
 
         <param name="Gamma_sigma" type="double" value="5000"/>
-        <param name="Gamma_theta" type="double" value="100"/>
+        <param name="Gamma_theta" type="double" value="200"/>
         
         <param name="tau_sigma" type="double" value="10"/>
-        <param name="tau_theta" type="double" value="2"/>
+        <param name="tau_theta" type="double" value="10"/>
 
         <param name="line_width" type="double" value="6"/>
         <param name="font_size" type="double" value="28"/>
