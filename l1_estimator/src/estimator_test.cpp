@@ -44,11 +44,11 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        theta_ext << 1*cos(5*simulation_time[i]),
-        2*cos(0.8*simulation_time[i]),
-        3*cos(1.3*simulation_time[i]);
+        // theta_ext << 1*sin(2*simulation_time[i]),
+        // 2*sin(0.8*simulation_time[i]),
+        // 3*cos(1.3*simulation_time[i]);
         
-        // theta_ext << 0, 0, 1;
+        theta_ext << 3, -3, 3;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -105,10 +105,10 @@ int main(int argc, char**argv)
     keywords_setup(line_width, font_size);
     
     plt::figure_size(3500,2000);
-    plot_sigma_data();
+    plot_theta_data();
 
     plt::figure_size(3500,2000);
-    plot_theta_data();
+    plot_sigma_data();
 
     plt::show();
 

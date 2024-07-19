@@ -98,12 +98,14 @@ const double &time)
     for(size_t i = 0; i < w_tilde.size(); i++)
         assert(isnan(w_tilde(i)) == false);
 
-
     double f1, f2;
     mat31_t Df1, Df2;
     
     convex_fn_obj_[0].get_fn_value(sigma_hat_, f1, Df1);
     convex_fn_obj_[1].get_fn_value(theta_hat_, f2, Df2);
+
+    assert(isnan(f1) == false);
+    assert(isnan(f2) == false);
 
     // Get the time derivative of translational and orientational disturbance, respectively.
     gamma_prj_obj_[0].getProjGamma(y_sigma
@@ -127,6 +129,16 @@ void DisturbanceEstimator::solve()
         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
     },
     D_, prev_time_, dt_);
+
+    // boost::numeric::odeint::integrate_const(
+    //     boost::numeric::odeint::make_dense_output<runge_kutta_dopri5<state6_t> >(1E-6, 1E-6),
+    //     [this] 
+    //     (const state6_t& D, state6_t& dDdt, const double& t)
+    //     {
+    //         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
+    //     },
+    //     D_, prev_time_, curr_time_, 0.002
+    // );
 
     for(size_t i =  0; i < 3; i++)
     {
