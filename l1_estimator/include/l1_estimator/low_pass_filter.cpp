@@ -63,5 +63,6 @@ void Lpf::solve()
         this->Lpf::system_dynamics(v, dvdt, t);
     },
     v_out_, prev_time_, dt_);
+
     prev_time_ = curr_time_;
 }

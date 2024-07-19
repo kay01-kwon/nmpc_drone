@@ -101,32 +101,18 @@ const double &time)
 
     u_hat_ = u_comp + sigma_hat;
 
-
     conjugate(q_state, q_state_conj);
     otimes(q_state_conj, q_hat_, q_tilde);
     convert_quat_to_unit_quat(q_tilde, unit_q_tilde);
 
-    cout << "q_hat : " << q_hat_.w() << " ";
-    cout << q_hat_.x() << " ";
-    cout << q_hat_.y() << " ";
-    cout << q_hat_.z();
-    cout << endl;
-
-    cout << "q_state : " << q_state.w() << " ";
-    cout << q_state.x() << " ";
-    cout << q_state.y() << " ";
-    cout << q_state.z();
-    cout << endl;
-
-    // cout << "Unit tilde_q: " << unit_q_tilde.w() << " ";
-    // cout << unit_q_tilde.x() << " ";
-    // cout << unit_q_tilde.y() << " ";
-    // cout << unit_q_tilde.z();
-    // cout << endl;
-
     // Get rotation matrix from q_tilde
     get_rotm_from_quat(unit_q_tilde, R);
     convert_quat_to_quat_vec(unit_q_tilde, q_vec);
+
+    assert(isnan(q_tilde.w()) == false);
+    assert(isnan(q_tilde.x()) == false);
+    assert(isnan(q_tilde.y()) == false);
+    assert(isnan(q_tilde.z()) == false);
 
     q_vec = signum(unit_q_tilde.w())*q_vec;
 
@@ -144,15 +130,11 @@ const double &time)
 
     convert_vec_to_skew(w_state, w_skew);
 
-    mu_hat_ = C
-    *(mu_comp + R*theta_hat - w_skew*(J_*w_state))
-    - J_
-    *skiew_sym
-    *R.transpose()*w_state;
+    mu_hat_ = C * (mu_comp - w_skew*(J_*w_state) + R*theta_hat)
+    - skiew_sym * R.transpose() * w_state;
 
-    assert(isnan(mu_hat_(0)) == false);
-    assert(isnan(mu_hat_(1)) == false);
-    assert(isnan(mu_hat_(2)) == false);
+    for(size_t i = 0; i < mu_hat_.size(); i++)
+        assert(isnan(mu_hat_(i)) == false);
 }
 
 /**
@@ -203,8 +185,14 @@ void RefModel::prediction()
     q_hat_.y() = s_hat_(8);
     q_hat_.z() = s_hat_(9);
 
-    convert_quat_to_unit_quat(q_hat_, unit_q_hat);
+    // Convert quaternion of reference into unit quaternion
+    // to guarantee stability
+    assert(isnan(q_hat_.w()) == false);
+    assert(isnan(q_hat_.x()) == false);
+    assert(isnan(q_hat_.y()) == false);
+    assert(isnan(q_hat_.z()) == false);
 
+    convert_quat_to_unit_quat(q_hat_, unit_q_hat);
     q_hat_ = unit_q_hat;
 
     for(size_t i = 0; i < w_hat_.size(); i++)
@@ -237,8 +225,6 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     q.y() = s(8);
     q.z() = s(9);
 
-    convert_quat_to_unit_quat(q, q_unit);
-
     for(size_t i = 0; i < 3; i++)
     {
         w(i) = s(i+10);
@@ -247,6 +233,8 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
     dpdt = v;
     dvdt = (1/m_)*u_hat_ + grav_;
 
+
+    convert_quat_to_unit_quat(q, q_unit);
     get_dqdt(q_unit, w, dqdt);
     dwdt = mu_hat_;
 

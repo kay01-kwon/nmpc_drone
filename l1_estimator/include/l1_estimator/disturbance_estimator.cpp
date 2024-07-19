@@ -61,7 +61,6 @@ const double &time)
     mat33_t P, P_transpose;
     mat33_t J_inv, J_inv_transpose;
     mat31_t q_vec;
-    double c = 0.0;
 
     assert(isnan(q_ref.w())== false);
     assert(isnan(q_ref.x())== false);
@@ -92,8 +91,7 @@ const double &time)
     P_transpose = P.transpose();
 
     y_sigma = - v_tilde;
-    y_theta = - P_transpose * w_tilde
-    -c*P_transpose*J_inv_transpose*q_vec;
+    y_theta = - P_transpose * w_tilde;
 
     for(size_t i = 0; i < w_tilde.size(); i++)
         assert(isnan(w_tilde(i)) == false);
@@ -106,12 +104,25 @@ const double &time)
 
     assert(isnan(f1) == false);
     assert(isnan(f2) == false);
+    assert(isnan(Df2(0)) == false);
+    assert(isnan(Df2(1)) == false);
+    assert(isnan(Df2(2)) == false);
+
 
     // Get the time derivative of translational and orientational disturbance, respectively.
     gamma_prj_obj_[0].getProjGamma(y_sigma
     , f1, Df1, dsigma_hat_);
     gamma_prj_obj_[1].getProjGamma(y_theta
     , f2, Df2, dtheta_hat_);
+
+    // for(size_t i = 0; i < dtheta_hat_.size(); i++)
+    // {
+    //     if(fabs(dtheta_hat_(i)) >= 100)
+    //         dtheta_hat_(i) = signum(dtheta_hat_(i))*100;
+    // }
+
+    for(size_t i = 0; i < dtheta_hat_.size(); i++)
+        assert(isnan(dtheta_hat_(i)) == false);
 
 }
 
@@ -129,16 +140,6 @@ void DisturbanceEstimator::solve()
         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
     },
     D_, prev_time_, dt_);
-
-    // boost::numeric::odeint::integrate_const(
-    //     boost::numeric::odeint::make_dense_output<runge_kutta_dopri5<state6_t> >(1E-6, 1E-6),
-    //     [this] 
-    //     (const state6_t& D, state6_t& dDdt, const double& t)
-    //     {
-    //         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
-    //     },
-    //     D_, prev_time_, curr_time_, 0.002
-    // );
 
     for(size_t i =  0; i < 3; i++)
     {
