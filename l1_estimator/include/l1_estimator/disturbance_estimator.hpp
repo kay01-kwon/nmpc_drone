@@ -51,7 +51,7 @@ class DisturbanceEstimator{
     GammaPrj gamma_prj_obj_[2];
     Lpf lpf_obj_[2];
 
-    runge_kutta4<state6_t> rk4;
+    runge_kutta_dopri5<state6_t> rk45;
 
     void system_dynamics(const state6_t& D, state6_t& dDdt, const double t);
 

@@ -124,14 +124,14 @@ const double &time)
 
     mat33_t w_skew;
 
-    convert_vec_to_skew(w_hat_, w_skew);
+    convert_vec_to_skew(w_state, w_skew);
 
     // mu_hat_ = C
     // *(mu_comp + theta_hat)
     // - w_skew*(J_*w_hat_);
 
     mu_hat_ = C
-    *(mu_comp + R*theta_hat - w_skew*(J_*w_hat_))
+    *(mu_comp + R*theta_hat - w_skew*(J_*w_state))
     - J_
     *skiew_sym
     *R.transpose()*w_state;
@@ -167,7 +167,7 @@ void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4.do_step([this] 
+    rk45.do_step([this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);

@@ -5,7 +5,7 @@
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/odeint/external/eigen/eigen.hpp>
 
-using boost::numeric::odeint::runge_kutta4;
+using boost::numeric::odeint::runge_kutta_dopri5;
 
 class RefModel{
 
@@ -89,8 +89,8 @@ class RefModel{
         // Time
         double curr_time_, prev_time_, dt_;
 
-        //runge kutta 4 class Declaration
-        runge_kutta4<state13_t> rk4;
+        //runge kutta 45 class Declaration
+        runge_kutta_dopri5<state13_t> rk45;
 
         void ref_dynamics(
             const state13_t& s,

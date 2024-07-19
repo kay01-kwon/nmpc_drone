@@ -92,7 +92,8 @@ const double &time)
     P_transpose = P.transpose();
 
     y_sigma = - v_tilde;
-    y_theta = - P_transpose * w_tilde;
+    y_theta = - P_transpose * w_tilde
+    -c*P_transpose*J_inv_transpose*q_vec;
 
     for(size_t i = 0; i < w_tilde.size(); i++)
         assert(isnan(w_tilde(i)) == false);
@@ -120,7 +121,7 @@ void DisturbanceEstimator::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4.do_step([this] 
+    rk45.do_step([this] 
     (const state6_t& D, state6_t& dDdt, const double& t)
     {
         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
