@@ -90,6 +90,8 @@ void param_setup(const ros::NodeHandle& nh)
     // parameter for projection operator
     mat33_t Gamma_sigma, Gamma_theta;
 
+    double Gamma_theta1, Gamma_theta2, Gamma_theta3;
+
     // parameter for low pass filter
     double tau_sigma, tau_theta;
 
@@ -126,7 +128,13 @@ void param_setup(const ros::NodeHandle& nh)
     nh.getParam("e_theta", epsilon_theta);
 
     nh.getParam("Gamma_sigma", Gamma_sigma(0));
-    nh.getParam("Gamma_theta", Gamma_theta(0));
+    nh.getParam("Gamma_theta1", Gamma_theta1);
+    nh.getParam("Gamma_theta2", Gamma_theta2);
+    nh.getParam("Gamma_theta3", Gamma_theta3);
+    Gamma_theta(0) = Gamma_theta1;
+    Gamma_theta(4) = Gamma_theta2;
+    Gamma_theta(8) = Gamma_theta3;
+
 
     nh.getParam("tau_sigma", tau_sigma);
     nh.getParam("tau_theta", tau_theta);

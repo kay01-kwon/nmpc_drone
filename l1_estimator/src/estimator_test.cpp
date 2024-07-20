@@ -44,11 +44,11 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        theta_ext << 0.4*sin(0.5*simulation_time[i]),
-        0.3*sin(0.4*simulation_time[i]),
-        0.4*cos(0.4*simulation_time[i]);
+        // theta_ext << 0.4*sin(0.5*simulation_time[i]),
+        // 0.3*sin(0.4*simulation_time[i]),
+        // 0.4*cos(0.4*simulation_time[i]);
         
-        // theta_ext << 1, 2, 1;
+        theta_ext << 1, 2, 1;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -320,7 +320,7 @@ void plot_sigma_data()
 void plot_theta_data()
 {
     plt::subplot(3,1,1);
-    ticks_setup(Tf, 0.5, -0.5, 5, 3);    
+    ticks_setup(Tf, 1, -1, 5, 3);    
     y_label = "$θ_{x}$";
     data1_label = "$θ_{x, est}$";
     data2_label = "$θ_{x, ext}$";
@@ -328,7 +328,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_x, theta_ext_x);
 
     plt::subplot(3,1,2);
-    ticks_setup(Tf, 0.5, -0.5, 5, 3);    
+    ticks_setup(Tf, 1, -1, 5, 3);    
     y_label = "$θ_{y}$";
     data1_label = "$θ_{y, est}$";
     data2_label = "$θ_{y, ext}$";
@@ -336,7 +336,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_y, theta_ext_y);
 
     plt::subplot(3,1,3);
-    ticks_setup(Tf, 0.5, -0.5, 5, 3);    
+    ticks_setup(Tf, 1, -1, 5, 3);    
     y_label = "$θ_{z}$";
     data1_label = "$θ_{z, est}$";
     data2_label = "$θ_{z, ext}$";
