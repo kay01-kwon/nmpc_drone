@@ -49,11 +49,11 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        // theta_ext << 0.4*sin(0.5*simulation_time[i]),
-        // 0.3*sin(0.4*simulation_time[i]),
-        // 0.4*cos(0.4*simulation_time[i]);
+        theta_ext << 0.4*sin(0.5*simulation_time[i]),
+        0.3*sin(0.4*simulation_time[i]),
+        0.4*cos(0.4*simulation_time[i]);
         
-        theta_ext << 0, 0, 1;
+        // theta_ext << 0, 0, 1;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
