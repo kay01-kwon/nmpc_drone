@@ -34,6 +34,11 @@ int main(int argc, char**argv)
     u_comp.setZero();
     mu_comp.setZero();
 
+    mat33_t J;
+    J << 0.07, 0, 0,
+    0, 0.07, 0,
+    0, 0, 0.12;
+
 
     assert(simulation_time.capacity() == N);
 
@@ -48,7 +53,7 @@ int main(int argc, char**argv)
         // 0.3*sin(0.4*simulation_time[i]),
         // 0.4*cos(0.4*simulation_time[i]);
         
-        theta_ext << 1, 2, 1;
+        theta_ext << 0, 0, 1;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 

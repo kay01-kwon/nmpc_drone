@@ -220,7 +220,7 @@ const double &t)
     mat31_t p,v,dpdt,dvdt;
     quat_t q, q_unit, dqdt;
     mat31_t w, dwdt;
-    mat33_t R, w_skew;
+    mat33_t R;
 
     // Get current position and velocity
     for(int i = 0; i < 3; i++)
@@ -256,8 +256,7 @@ const double &t)
     get_dqdt(q_unit, w, dqdt);
 
     // Attitude dynamics
-    convert_vec_to_skew(w, w_skew);
-    dwdt = J_.inverse()*(moment_ - w_skew*(J_*w)+ theta_ext_);
+    dwdt = J_.inverse()*(moment_ - w.cross(J_*w) + theta_ext_);
 
     // Put the rate of state
     for(int i = 0; i < 3; i++)

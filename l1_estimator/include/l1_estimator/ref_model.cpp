@@ -126,12 +126,8 @@ const double &time)
     for(size_t i = 0; i < theta_hat.size();i++)
         assert(isnan(theta_hat(i)) == false);
 
-    mat33_t w_skew;
-
-    convert_vec_to_skew(w_state, w_skew);
-
-    mu_hat_ = C * (mu_comp - w_skew*(J_*w_state) + R*theta_hat)
-    - skiew_sym * R.transpose() * w_state;
+    mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
+    - J_*w_tilde.cross(R.transpose()*w_state);
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);
