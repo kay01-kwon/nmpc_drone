@@ -118,7 +118,7 @@ const double &time)
     // Get the error of angular velocity
     w_tilde = w_hat_ - R.transpose()*w_state;
 
-    C = R.transpose() * J_.inverse();
+    C = J_*R.transpose() * J_.inverse();
 
     convert_vec_to_skew(w_tilde, skiew_sym);
 
@@ -126,7 +126,7 @@ const double &time)
         assert(isnan(theta_hat(i)) == false);
 
     mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
-    - w_tilde.cross(R.transpose()*w_state);
+    - J_*w_tilde.cross(R.transpose()*w_state);
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);
@@ -231,7 +231,7 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
 
     convert_quat_to_unit_quat(q, q_unit);
     get_dqdt(q_unit, w, dqdt);
-    dwdt = mu_hat_;
+    dwdt = J_.inverse()*mu_hat_;
 
     for(size_t i = 0; i < 3; i++)
     {

@@ -2,6 +2,9 @@
 #include <assert.h>
 #include "estimator_test/plot_tools_for_estimator_test.h"
 
+
+double magnitude = 0.001;
+
 void plot_all_data();
 
 void plot_position_data();
@@ -34,9 +37,17 @@ int main(int argc, char**argv)
     u_comp.setZero();
     mu_comp.setZero();
 
+    mat31_t p_ref_prev, v_ref_prev;
+    quat_t q_ref_prev;
+    mat31_t w_ref_prev;
+
+    p_ref_prev.setZero();
+    v_ref_prev.setZero();
+    q_ref_prev.setIdentity();
+    w_ref_prev.setZero();
+
 
     assert(simulation_time.capacity() == N);
-
 
     for(int i = 0; i < N; i++)
     {
@@ -44,9 +55,9 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        theta_ext << 4*sin(1*simulation_time[i]),
-        4*sin(2*simulation_time[i]),
-        4*cos(0.8*simulation_time[i]);
+        theta_ext << magnitude*sin(1*simulation_time[i]),
+        magnitude*sin(2*simulation_time[i]),
+        magnitude*cos(0.8*simulation_time[i]);
         
         // theta_ext << 2, -3, 1;
 
@@ -68,8 +79,9 @@ int main(int argc, char**argv)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
 
         // Set disturbance estimator
-        disturbance_est_ptr->set_state_time(p_state, p_ref, 
-        v_state, v_ref, q_state, q_ref, w_state, w_ref, simulation_time[i]);
+        disturbance_est_ptr->set_state_time(p_state_prev, p_ref_prev, 
+        v_state_prev, v_ref_prev, q_state_prev, q_ref_prev, 
+        w_state_prev, w_ref_prev, simulation_time[i]);
 
         disturbance_est_ptr->solve();
 
@@ -82,18 +94,24 @@ int main(int argc, char**argv)
         q_state_prev = q_state;
         w_state_prev = w_state;
 
+        p_ref_prev = p_ref;
+        v_ref_prev = v_ref;
+        q_ref_prev = q_ref;
+        w_ref_prev = w_ref;
+
+
         demux_simulation_state(p_state, v_state, q_state, w_state);
         demux_reference_state(p_ref, v_ref, q_ref, w_ref);
         demux_disturbance_ext(sigma_ext, theta_ext);
         demux_disturbance_est_noisy(sigma_est_noisy, theta_est_noisy);
         demux_disturbance_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        if(i <= 10)
-        {
+        // if(i <= 10)
+        // {
             print_state(simulation_time[i], p_state, v_state, q_state, w_state,
             p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
             sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
-        }
+        // }
 
     }
 
@@ -308,7 +326,7 @@ void plot_sigma_data()
 void plot_theta_data()
 {
     plt::subplot(3,1,1);
-    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
+    ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{x}$";
     data1_label = "$θ_{x, est}$";
     data2_label = "$θ_{x, ext}$";
@@ -316,7 +334,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_x, theta_ext_x);
 
     plt::subplot(3,1,2);
-    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
+    ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{y}$";
     data1_label = "$θ_{y, est}$";
     data2_label = "$θ_{y, ext}$";
@@ -324,7 +342,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_y, theta_ext_y);
 
     plt::subplot(3,1,3);
-    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
+    ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{z}$";
     data1_label = "$θ_{z, est}$";
     data2_label = "$θ_{z, ext}$";
