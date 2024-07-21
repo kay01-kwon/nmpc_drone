@@ -34,11 +34,6 @@ int main(int argc, char**argv)
     u_comp.setZero();
     mu_comp.setZero();
 
-    mat33_t J;
-    J << 0.07, 0, 0,
-    0, 0.07, 0,
-    0, 0, 0.12;
-
 
     assert(simulation_time.capacity() == N);
 
@@ -49,11 +44,11 @@ int main(int argc, char**argv)
         2*cos(1*simulation_time[i]),
         3*sin(2*simulation_time[i]);
 
-        theta_ext << 0.4*sin(0.5*simulation_time[i]),
-        0.3*sin(0.4*simulation_time[i]),
-        0.4*cos(0.4*simulation_time[i]);
+        theta_ext << 4*sin(1*simulation_time[i]),
+        4*sin(2*simulation_time[i]),
+        4*cos(0.8*simulation_time[i]);
         
-        // theta_ext << 0, 0, 1;
+        // theta_ext << 2, -3, 1;
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -69,24 +64,18 @@ int main(int argc, char**argv)
         // Integrate the reference model (Prediction step)
         reference_model_ptr->prediction();
 
-        // Set disturbance estimator
-        disturbance_est_ptr->set_state_time(p_state_prev, p_ref, 
-        v_state_prev, v_ref, q_state_prev, q_ref, w_state_prev, w_ref, simulation_time[i]);
-
         // Get state from the reference model (Prediction)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
+
+        // Set disturbance estimator
+        disturbance_est_ptr->set_state_time(p_state, p_ref, 
+        v_state, v_ref, q_state, q_ref, w_state, w_ref, simulation_time[i]);
 
         disturbance_est_ptr->solve();
 
         disturbance_est_ptr->get_est_raw(sigma_est_noisy, theta_est_noisy);
 
         disturbance_est_ptr->get_est_filtered(sigma_est_lpf, theta_est_lpf);
-
-        // for(size_t i = 0; i < theta_est_noisy.size(); i++)
-        // {
-        //     if(fabs(theta_est_noisy(i)) >= 8.0)
-        //         theta_est_noisy(i) = signum(theta_est_noisy(i))*8.0;
-        // }
 
         p_state_prev = p_state;
         v_state_prev = v_state;
@@ -114,7 +103,10 @@ int main(int argc, char**argv)
     sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
 
     keywords_setup(line_width, font_size);
-    
+
+    plt::figure_size(3500,2000);
+    plot_quaternion_data();
+
     plt::figure_size(3500,2000);
     plot_theta_data();
 
@@ -219,46 +211,38 @@ void plot_quaternion_data()
 {
     ticks_setup(Tf, 1, -1, 5, 5);
     
+    plt::subplot(1,4,1);
     y_label = "$q_{w}$";
-    data1_label = "$q_{w,state}$";
-    data2_label = "$q_{w,ref}$";
-
+    data1_label = "$q_{w,ref}$";
+    data2_label = "$q_{w,state}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label ,qw_ref , qw_state);
-    plt::show();
-
 
     ticks_setup(Tf, 1, -1, 5, 5);
-    
+    plt::subplot(1,4,2);    
     y_label = "$q_{x}$";
-    data1_label = "$q_{x,state}$";
-    data2_label = "$q_{x,ref}$";
-
+    data1_label = "$q_{x,ref}$";
+    data2_label = "$q_{x,state}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label ,qx_ref , qx_state);
-    plt::show();
 
 
     ticks_setup(Tf, 1, -1, 5, 5);
-    
+    plt::subplot(1,4,3);
     y_label = "$q_{y}$";
-    data1_label = "$q_{y,state}$";
-    data2_label = "$q_{y,ref}$";
-
+    data1_label = "$q_{y,ref}$";
+    data2_label = "$q_{y,state}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label ,qy_ref , qy_state);
-    plt::show();
 
 
     ticks_setup(Tf, 1, -1, 5, 5);
-    
+    plt::subplot(1,4,4);
     y_label = "$q_{z}$";
-    data1_label = "$q_{z,state}$";
-    data2_label = "$q_{z,ref}$";
-
+    data1_label = "$q_{z,ref}$";
+    data2_label = "$q_{z,state}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label ,qz_ref , qz_state);
-    plt::show();
 }
 
 void plot_angular_velocity_data()
@@ -290,7 +274,6 @@ void plot_angular_velocity_data()
 
     plot_data(simulation_time, y_label, 
     data1_label, data2_label ,wz_ref, wz_state);
-    plt::show();
 }
 
 void plot_sigma_data()
@@ -325,7 +308,7 @@ void plot_sigma_data()
 void plot_theta_data()
 {
     plt::subplot(3,1,1);
-    ticks_setup(Tf, 1, -1, 5, 3);    
+    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
     y_label = "$θ_{x}$";
     data1_label = "$θ_{x, est}$";
     data2_label = "$θ_{x, ext}$";
@@ -333,7 +316,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_x, theta_ext_x);
 
     plt::subplot(3,1,2);
-    ticks_setup(Tf, 1, -1, 5, 3);    
+    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
     y_label = "$θ_{y}$";
     data1_label = "$θ_{y, est}$";
     data2_label = "$θ_{y, ext}$";
@@ -341,7 +324,7 @@ void plot_theta_data()
     data1_label, data2_label ,theta_est_lpf_y, theta_ext_y);
 
     plt::subplot(3,1,3);
-    ticks_setup(Tf, 1, -1, 5, 3);    
+    ticks_setup(Tf, 0.4, -0.4, 5, 3);    
     y_label = "$θ_{z}$";
     data1_label = "$θ_{z, est}$";
     data2_label = "$θ_{z, ext}$";

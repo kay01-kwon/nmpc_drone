@@ -101,11 +101,10 @@ const double &time)
 
     u_hat_ = u_comp + sigma_hat;
 
+    // Get rotation matrix from q_tilde
     conjugate(q_state, q_state_conj);
     otimes(q_state_conj, q_hat_, q_tilde);
     convert_quat_to_unit_quat(q_tilde, unit_q_tilde);
-
-    // Get rotation matrix from q_tilde
     get_rotm_from_quat(unit_q_tilde, R);
     convert_quat_to_quat_vec(unit_q_tilde, q_vec);
 
@@ -127,7 +126,7 @@ const double &time)
         assert(isnan(theta_hat(i)) == false);
 
     mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
-    - J_*w_tilde.cross(R.transpose()*w_state);
+    - w_tilde.cross(R.transpose()*w_state);
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);

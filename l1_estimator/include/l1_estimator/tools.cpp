@@ -140,6 +140,8 @@ void convert_quat_to_unit_quat(const quat_t& q, quat_t &unit_q)
     + qy * qy
     + qz * qz);
 
+    // cout << qw << " " << qx << " " << qy << " " << qz <<endl;
+
     assert(den > 0);
 
     unit_q.w() = q.w()/den;

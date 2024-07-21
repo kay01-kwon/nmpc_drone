@@ -62,10 +62,18 @@ const double &time)
     mat33_t J_inv, J_inv_transpose;
     mat31_t q_vec;
 
-    assert(isnan(q_ref.w())== false);
-    assert(isnan(q_ref.x())== false);
-    assert(isnan(q_ref.y())== false);
-    assert(isnan(q_ref.z())== false);
+    assert(fabs(q_ref.w()) <= 1);
+    assert(fabs(q_ref.x()) <= 1);
+    assert(fabs(q_ref.y()) <= 1);
+    assert(fabs(q_ref.z()) <= 1);
+
+    assert(fabs(q_state.w()) <= 1);
+    assert(fabs(q_state.x()) <= 1);
+    assert(fabs(q_state.y()) <= 1);
+    assert(fabs(q_state.z()) <= 1);
+
+    for(size_t i = 0; i < w_ref.size(); i++)
+        assert(isnan(w_ref(i)) == false);
 
     conjugate(q_state, q_conj);
     otimes(q_conj, q_ref, q_tilde);
@@ -114,12 +122,6 @@ const double &time)
     , f1, Df1, dsigma_hat_);
     gamma_prj_obj_[1].getProjGamma(y_theta
     , f2, Df2, dtheta_hat_);
-
-    // for(size_t i = 0; i < dtheta_hat_.size(); i++)
-    // {
-    //     if(fabs(dtheta_hat_(i)) >= 100)
-    //         dtheta_hat_(i) = signum(dtheta_hat_(i))*100;
-    // }
 
     for(size_t i = 0; i < dtheta_hat_.size(); i++)
         assert(isnan(dtheta_hat_(i)) == false);
