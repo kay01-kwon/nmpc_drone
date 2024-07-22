@@ -20,8 +20,8 @@
         <param name="e_theta" type="double" value="10"/>
 
         <param name="Gamma_sigma" type="double" value="5000"/>
-        <param name="Gamma_theta1" type="double" value="50"/>
-        <param name="Gamma_theta2" type="double" value="50"/>
+        <param name="Gamma_theta1" type="double" value="100"/>
+        <param name="Gamma_theta2" type="double" value="100"/>
         <param name="Gamma_theta3" type="double" value="100"/>
         
         <param name="tau_sigma" type="double" value="20"/>

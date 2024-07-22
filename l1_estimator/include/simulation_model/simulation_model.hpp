@@ -8,6 +8,7 @@
 
 using boost::numeric::odeint::runge_kutta_dopri5;
 using boost::numeric::odeint::integrate_adaptive;
+using boost::numeric::odeint::integrate_const;
 using boost::numeric::odeint::make_dense_output;
 
 class SimulationModel{

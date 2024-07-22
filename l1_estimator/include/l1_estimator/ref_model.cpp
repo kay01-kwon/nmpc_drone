@@ -167,12 +167,12 @@ void RefModel::prediction()
     // },
     // s_hat_, prev_time_, dt_);
 
-    integrate_adaptive(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-6, 1E-3),
+    integrate_const(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-6, 1E-3),
     [this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);
-    }, s_hat_, prev_time_, curr_time_, dt_/10);
+    }, s_hat_, prev_time_, curr_time_, dt_*0.1);
 
     // Copy the state
     for(size_t i = 0; i < 3; i++)

@@ -146,12 +146,12 @@ void DisturbanceEstimator::solve()
     // },
     // D_, prev_time_, dt_);
 
-    integrate_adaptive(make_dense_output<runge_kutta_dopri5<state6_t>>(1E-6, 1E-3),
+    integrate_const(make_dense_output<runge_kutta_dopri5<state6_t>>(1E-6, 1E-3),
     [this] 
     (const state6_t& s, state6_t& dsdt, const double& t)
     {
         this->DisturbanceEstimator::system_dynamics(s, dsdt, t);
-    }, D_, prev_time_, curr_time_, dt_/10);
+    }, D_, prev_time_, curr_time_, dt_*0.1);
 
 
     for(size_t i =  0; i < 3; i++)

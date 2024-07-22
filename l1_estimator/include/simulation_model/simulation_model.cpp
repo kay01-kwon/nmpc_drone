@@ -202,12 +202,12 @@ void SimulationModel::integrate()
     //     ,s_, prev_time_, dt_
     // );
 
-    integrate_adaptive(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-6, 1E-3),
+    integrate_const(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-9, 1E-8),
     [this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->SimulationModel::quadrotor_dynamics(s, dsdt, t);
-    }, s_, prev_time_, curr_time_, dt_/10);
+    }, s_, prev_time_, curr_time_, dt_*0.1);
 
     prev_time_ = curr_time_;
 
