@@ -128,7 +128,7 @@ const double &time)
     // mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
     // - J_*w_tilde.cross(R.transpose()*w_state);
 
-    mu_hat_ = (mu_comp + theta_hat - w_state.cross(J_*w_state));
+    mu_hat_ = (mu_comp - w_state.cross(J_*w_state) + theta_hat);
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);
@@ -160,12 +160,19 @@ void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk45.do_step([this] 
+    // rk45.do_step([this] 
+    // (const state13_t& s, state13_t& dsdt, const double& t)
+    // {
+    //     this->RefModel::ref_dynamics(s, dsdt, t);
+    // },
+    // s_hat_, prev_time_, dt_);
+
+    integrate_adaptive(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-6, 1E-3),
+    [this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);
-    },
-    s_hat_, prev_time_, dt_);
+    }, s_hat_, prev_time_, curr_time_, dt_/10);
 
     // Copy the state
     for(size_t i = 0; i < 3; i++)

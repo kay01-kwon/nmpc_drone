@@ -6,7 +6,9 @@
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/odeint/external/eigen/eigen.hpp>
 
-using boost::numeric::odeint::runge_kutta4;
+using boost::numeric::odeint::runge_kutta_dopri5;
+using boost::numeric::odeint::integrate_adaptive;
+using boost::numeric::odeint::make_dense_output;
 
 class SimulationModel{
 
@@ -40,7 +42,7 @@ class SimulationModel{
         
     private:
 
-        runge_kutta4<state13_t> rk4_;
+        runge_kutta_dopri5<state13_t> rk4_;
 
         QuadModel quad_model_;
         double lift_coeff_, moment_coeff_;

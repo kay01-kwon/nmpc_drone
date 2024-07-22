@@ -5,6 +5,9 @@
 #include "gamma_proj.hpp"
 #include "low_pass_filter.hpp"
 
+using boost::numeric::odeint::integrate_adaptive;
+using boost::numeric::odeint::make_dense_output;
+
 class DisturbanceEstimator{
 
     public:

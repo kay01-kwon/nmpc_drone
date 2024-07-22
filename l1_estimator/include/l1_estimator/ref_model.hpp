@@ -6,6 +6,8 @@
 #include <boost/numeric/odeint/external/eigen/eigen.hpp>
 
 using boost::numeric::odeint::runge_kutta_dopri5;
+using boost::numeric::odeint::integrate_adaptive;
+using boost::numeric::odeint::make_dense_output;
 
 class RefModel{
 
