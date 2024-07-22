@@ -31,10 +31,11 @@ class Lpf{
     double curr_time_, prev_time_, dt_;
 
     /**
-     * Declare rk dopri5 class
+     * Declare runge kutta class
     */
-   runge_kutta4<mat31_t> rk4_;
-    runge_kutta_dopri5<mat31_t> rk45;
+    runge_kutta4_classic<mat31_t> rk4_classic_;
+    runge_kutta4<mat31_t> rk4_;
+    runge_kutta_dopri5<mat31_t> rk45_;
 
     void system_dynamics(const mat31_t& v,
         mat31_t& dvdt,

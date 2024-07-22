@@ -45,13 +45,14 @@ string& data2_label_,
 const vector<double> &data1,
 const vector<double> &data2);
 
-// void plot_data(const vector<double> &time,
-// string &data1_label_,
-// string &data2_label_,
-// string &data3_label_,
-// const vector<double> &data1,
-// const vector<double> &data2,
-// const vector<double> &data3);
+void plot_data(const vector<double> &time,
+string &y_label_,
+string &data1_label_,
+string &data2_label_,
+string &data3_label_,
+const vector<double> &data1,
+const vector<double> &data2,
+const vector<double> &data3);
 
 
 /**
@@ -220,6 +221,64 @@ const vector<double> &data2)
     x_ticks.clear();
     y_ticks.clear();
 
+}
+
+inline void plot_data(const vector<double> &time, 
+string &y_label_,
+string &data1_label_, 
+string &data2_label_, 
+string &data3_label_, 
+const vector<double> &data1, 
+const vector<double> &data2, 
+const vector<double> &data3)
+{
+    line_keywords.insert(pair<string, string>
+    ("color","r"));
+    line_keywords.insert(pair<string, string>
+    ("label", data1_label_));
+
+    plt::plot(time, data1, line_keywords);
+
+    line_keywords.erase("color");
+    line_keywords.erase("label");
+
+    line_keywords.insert(pair<string, string>
+    ("color","violet"));
+    line_keywords.insert(pair<string, string>
+    ("label", data2_label_));
+
+    line_keywords.insert(pair<string,string>
+    ("linestyle","--"));
+
+    plt::plot(time, data2, line_keywords);
+
+    line_keywords.erase("color");
+    line_keywords.erase("label");
+    line_keywords.erase("linestyle");
+
+    line_keywords.insert(pair<string, string>
+    ("color","blue"));
+    line_keywords.insert(pair<string, string>
+    ("label", data3_label_));
+
+    line_keywords.erase("color");
+    line_keywords.erase("label");
+    line_keywords.erase("linestyle");
+
+    plt::plot(time, data3, line_keywords);
+
+    plt::xticks(x_ticks,ticks_keywords);
+    plt::yticks(y_ticks,ticks_keywords);
+
+    plt::xlabel("time", label_keywords);
+    plt::ylabel(y_label_, label_keywords);
+
+    plt::legend(legend_keywords);
+
+    plt::grid(true);
+
+    x_ticks.clear();
+    y_ticks.clear();
 }
 
 #endif

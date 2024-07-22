@@ -160,7 +160,7 @@ void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4_.do_step([this] 
+    rk4_classic_.do_step([this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);

@@ -323,23 +323,29 @@ void plot_theta_data()
     y_label = "$θ_{x}$";
     data1_label = "$θ_{x, est}$";
     data2_label = "$θ_{x, ext}$";
+    data3_label = "$θ_{x, est, lpf}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,theta_est_lpf_x, theta_ext_x);
+    data1_label, data2_label, data3_label,
+    theta_est_x, theta_ext_x, theta_est_lpf_x);
 
     plt::subplot(3,1,2);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{y}$";
     data1_label = "$θ_{y, est}$";
     data2_label = "$θ_{y, ext}$";
+    data3_label = "$θ_{y, est, lpf}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,theta_est_lpf_y, theta_ext_y);
+    data1_label, data2_label, data3_label 
+    ,theta_est_y, theta_ext_y, theta_est_lpf_y);
 
     plt::subplot(3,1,3);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{z}$";
     data1_label = "$θ_{z, est}$";
     data2_label = "$θ_{z, ext}$";
+    data3_label = "$θ_{z, est, lpf}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,theta_est_lpf_z, theta_ext_z);
+    data1_label, data2_label, data3_label,
+    theta_est_z, theta_ext_z, theta_est_lpf_z);
 
 }

@@ -139,7 +139,7 @@ void DisturbanceEstimator::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4_.do_step([this] 
+    rk4_classic_.do_step([this] 
     (const state6_t& D, state6_t& dDdt, const double& t)
     {
         this->DisturbanceEstimator::system_dynamics(D, dDdt, t);

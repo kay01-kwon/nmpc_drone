@@ -86,8 +86,9 @@ class RefModel{
         double curr_time_, prev_time_, dt_;
 
         //runge kutta 45 class Declaration
+        runge_kutta4_classic<state13_t> rk4_classic_;
         runge_kutta4<state13_t> rk4_;
-        runge_kutta_dopri5<state13_t> rk45;
+        runge_kutta_dopri5<state13_t> rk45_;
 
         void ref_dynamics(
             const state13_t& s,

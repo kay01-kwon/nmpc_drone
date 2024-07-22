@@ -5,6 +5,7 @@
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/odeint/external/eigen/eigen.hpp>
 
+using boost::numeric::odeint::runge_kutta4_classic;
 using boost::numeric::odeint::runge_kutta4;
 using boost::numeric::odeint::runge_kutta_dopri5;
 using boost::numeric::odeint::runge_kutta_cash_karp54;

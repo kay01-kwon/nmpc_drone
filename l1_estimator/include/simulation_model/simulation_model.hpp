@@ -36,6 +36,7 @@ class SimulationModel{
         
     private:
 
+        runge_kutta4_classic<state13_t> rk4_classic_;
         runge_kutta4<state13_t> rk4_;
         runge_kutta_dopri5<state13_t> rk45_;
 
