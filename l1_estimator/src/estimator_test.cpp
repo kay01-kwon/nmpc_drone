@@ -3,7 +3,7 @@
 #include "estimator_test/plot_tools_for_estimator_test.h"
 
 
-double magnitude = 0.001;
+double magnitude = 2;
 
 void plot_all_data();
 
@@ -56,10 +56,9 @@ int main(int argc, char**argv)
         3*sin(2*simulation_time[i]);
 
         theta_ext << magnitude*sin(1*simulation_time[i]),
-        magnitude*sin(2*simulation_time[i]),
-        magnitude*cos(0.8*simulation_time[i]);
-        
-        // theta_ext << 2, -3, 1;
+        magnitude*cos(1*simulation_time[i]),
+        magnitude*cos(1*simulation_time[i]);
+
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
 
@@ -79,9 +78,9 @@ int main(int argc, char**argv)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
 
         // Set disturbance estimator
-        disturbance_est_ptr->set_state_time(p_state_prev, p_ref_prev, 
-        v_state_prev, v_ref_prev, q_state_prev, q_ref_prev, 
-        w_state_prev, w_ref_prev, simulation_time[i]);
+        disturbance_est_ptr->set_state_time(p_state, p_ref, 
+        v_state, v_ref, q_state, q_ref, 
+        w_state, w_ref, simulation_time[i]);
 
         disturbance_est_ptr->solve();
 
@@ -93,12 +92,6 @@ int main(int argc, char**argv)
         v_state_prev = v_state;
         q_state_prev = q_state;
         w_state_prev = w_state;
-
-        p_ref_prev = p_ref;
-        v_ref_prev = v_ref;
-        q_ref_prev = q_ref;
-        w_ref_prev = w_ref;
-
 
         demux_simulation_state(p_state, v_state, q_state, w_state);
         demux_reference_state(p_ref, v_ref, q_ref, w_ref);

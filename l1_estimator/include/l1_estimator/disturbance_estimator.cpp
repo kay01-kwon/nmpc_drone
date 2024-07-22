@@ -75,31 +75,34 @@ const double &time)
     for(size_t i = 0; i < w_ref.size(); i++)
         assert(isnan(w_ref(i)) == false);
 
-    conjugate(q_state, q_conj);
-    otimes(q_conj, q_ref, q_tilde);
-    convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
-    get_rotm_from_quat(q_tilde_unit,R);
+    // conjugate(q_state, q_conj);
+    // otimes(q_conj, q_ref, q_tilde);
+    // convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
+    // get_rotm_from_quat(q_tilde_unit,R);
     
-    w_tilde = w_ref - R.transpose()*w_state;
+    // w_tilde = w_ref - R.transpose()*w_state;
 
     v_tilde = v_ref - v_state;
 
+    w_tilde = w_ref - w_state;
+
     curr_time_ = time;
 
-    J_inv = J_.inverse();
-    J_inv_transpose = J_inv.transpose();
+    // J_inv = J_.inverse();
+    // J_inv_transpose = J_inv.transpose();
 
-    q_vec = signum(q_tilde.w()) * q_vec;
+    // q_vec = signum(q_tilde.w()) * q_vec;
 
-    P = J_ 
-    * R.transpose() 
-    * J_.inverse()
-    * R;
+    // P = J_ 
+    // * R.transpose() 
+    // * J_.inverse()
+    // * R;
 
-    P_transpose = P.transpose();
+    // P_transpose = P.transpose();
 
     y_sigma = - v_tilde;
-    y_theta = - P_transpose * w_tilde;
+    // y_theta = - P_transpose * w_tilde;
+    y_theta = - w_tilde;
 
     for(size_t i = 0; i < w_tilde.size(); i++)
         assert(isnan(w_tilde(i)) == false);

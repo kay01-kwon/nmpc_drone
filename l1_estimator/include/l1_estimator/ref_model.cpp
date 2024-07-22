@@ -102,31 +102,33 @@ const double &time)
     u_hat_ = u_comp + sigma_hat;
 
     // Get rotation matrix from q_tilde
-    conjugate(q_state, q_state_conj);
-    otimes(q_state_conj, q_hat_, q_tilde);
-    convert_quat_to_unit_quat(q_tilde, unit_q_tilde);
-    get_rotm_from_quat(unit_q_tilde, R);
-    convert_quat_to_quat_vec(unit_q_tilde, q_vec);
+    // conjugate(q_state, q_state_conj);
+    // otimes(q_state_conj, q_hat_, q_tilde);
+    // convert_quat_to_unit_quat(q_tilde, unit_q_tilde);
+    // get_rotm_from_quat(unit_q_tilde, R);
+    // convert_quat_to_quat_vec(unit_q_tilde, q_vec);
 
     assert(isnan(q_tilde.w()) == false);
     assert(isnan(q_tilde.x()) == false);
     assert(isnan(q_tilde.y()) == false);
     assert(isnan(q_tilde.z()) == false);
 
-    q_vec = signum(unit_q_tilde.w())*q_vec;
+    // q_vec = signum(unit_q_tilde.w())*q_vec;
 
-    // Get the error of angular velocity
-    w_tilde = w_hat_ - R.transpose()*w_state;
+    // // Get the error of angular velocity
+    // w_tilde = w_hat_ - R.transpose()*w_state;
 
-    C = J_*R.transpose() * J_.inverse();
+    // C = J_*R.transpose() * J_.inverse();
 
-    convert_vec_to_skew(w_tilde, skiew_sym);
+    // convert_vec_to_skew(w_tilde, skiew_sym);
 
     for(size_t i = 0; i < theta_hat.size();i++)
         assert(isnan(theta_hat(i)) == false);
 
-    mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
-    - J_*w_tilde.cross(R.transpose()*w_state);
+    // mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
+    // - J_*w_tilde.cross(R.transpose()*w_state);
+
+    mu_hat_ = (mu_comp + theta_hat - w_state.cross(J_*w_state));
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);
