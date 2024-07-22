@@ -139,20 +139,33 @@ void DisturbanceEstimator::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    // rk45.do_step([this] 
-    // (const state6_t& D, state6_t& dDdt, const double& t)
-    // {
-    //     this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
-    // },
-    // D_, prev_time_, dt_);
-
-    integrate_const(make_dense_output<runge_kutta_dopri5<state6_t>>(1E-6, 1E-3),
-    [this] 
-    (const state6_t& s, state6_t& dsdt, const double& t)
+    rk45.do_step([this] 
+    (const state6_t& D, state6_t& dDdt, const double& t)
     {
-        this->DisturbanceEstimator::system_dynamics(s, dsdt, t);
-    }, D_, prev_time_, curr_time_, dt_*0.1);
+        this->DisturbanceEstimator::system_dynamics(D, dDdt, t);
+    },
+    D_, prev_time_, dt_);
 
+    // integrate_const(make_dense_output<runge_kutta_dopri5<state6_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const state6_t& s, state6_t& dsdt, const double& t)
+    // {
+    //     this->DisturbanceEstimator::system_dynamics(s, dsdt, t);
+    // }, D_, prev_time_, curr_time_, dt_*0.1);
+
+    // integrate_adaptive(make_controlled<runge_kutta_cash_karp54<state6_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const state6_t& s, state6_t& dsdt, const double& t)
+    // {
+    //     this->DisturbanceEstimator::system_dynamics(s, dsdt, t);
+    // }, D_, prev_time_, curr_time_, dt_*0.01);
+
+    // integrate_adaptive(make_controlled<runge_kutta_fehlberg78<state6_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const state6_t& s, state6_t& dsdt, const double& t)
+    // {
+    //     this->DisturbanceEstimator::system_dynamics(s, dsdt, t);
+    // }, D_, prev_time_, curr_time_, dt_*0.01);
 
     for(size_t i =  0; i < 3; i++)
     {

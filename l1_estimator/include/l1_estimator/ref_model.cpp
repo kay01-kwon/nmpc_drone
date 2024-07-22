@@ -160,19 +160,33 @@ void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
-    // rk45.do_step([this] 
-    // (const state13_t& s, state13_t& dsdt, const double& t)
-    // {
-    //     this->RefModel::ref_dynamics(s, dsdt, t);
-    // },
-    // s_hat_, prev_time_, dt_);
-
-    integrate_const(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-6, 1E-3),
-    [this] 
+    rk45.do_step([this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);
-    }, s_hat_, prev_time_, curr_time_, dt_*0.1);
+    },
+    s_hat_, prev_time_, dt_);
+
+    // integrate_const(make_dense_output<runge_kutta_dopri5<state13_t>>(1E-12, 1E-9),
+    // [this] 
+    // (const state13_t& s, state13_t& dsdt, const double& t)
+    // {
+    //     this->RefModel::ref_dynamics(s, dsdt, t);
+    // }, s_hat_, prev_time_, curr_time_, dt_*0.1);
+
+    // integrate_adaptive(make_controlled<runge_kutta_cash_karp54<state13_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const state13_t& s, state13_t& dsdt, const double& t)
+    // {
+    //     this->RefModel::ref_dynamics(s, dsdt, t);
+    // }, s_hat_, prev_time_, curr_time_, dt_*0.01);
+
+    // integrate_adaptive(make_controlled<runge_kutta_fehlberg78<state13_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const state13_t& s, state13_t& dsdt, const double& t)
+    // {
+    //     this->RefModel::ref_dynamics(s, dsdt, t);
+    // }, s_hat_, prev_time_, curr_time_, dt_*0.01);
 
     // Copy the state
     for(size_t i = 0; i < 3; i++)

@@ -57,7 +57,7 @@ int main(int argc, char**argv)
 
         theta_ext << magnitude*sin(1*simulation_time[i]),
         magnitude*cos(1*simulation_time[i]),
-        magnitude*cos(1*simulation_time[i]);
+        -magnitude*cos(1*simulation_time[i]);
 
 
         play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
@@ -115,8 +115,8 @@ int main(int argc, char**argv)
 
     keywords_setup(line_width, font_size);
 
-    plt::figure_size(3500,2000);
-    plot_quaternion_data();
+    // plt::figure_size(3500,2000);
+    // plot_quaternion_data();
 
     plt::figure_size(3500,2000);
     plot_theta_data();

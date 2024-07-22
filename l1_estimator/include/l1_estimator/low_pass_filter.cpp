@@ -57,19 +57,33 @@ void Lpf::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    // rk45.do_step([this] 
-    // (const mat31_t& v, mat31_t& dvdt, const double& t)
-    // {
-    //     this->Lpf::system_dynamics(v, dvdt, t);
-    // },
-    // v_out_, prev_time_, dt_);
-
-    integrate_const(make_dense_output<runge_kutta_dopri5<mat31_t>>(1E-6, 1E-3),
-    [this] 
+    rk45.do_step([this] 
     (const mat31_t& v, mat31_t& dvdt, const double& t)
     {
         this->Lpf::system_dynamics(v, dvdt, t);
-    }, v_out_, prev_time_, curr_time_, dt_*0.1);
+    },
+    v_out_, prev_time_, dt_);
+
+    // integrate_const(make_dense_output<runge_kutta_dopri5<mat31_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const mat31_t& v, mat31_t& dvdt, const double& t)
+    // {
+    //     this->Lpf::system_dynamics(v, dvdt, t);
+    // }, v_out_, prev_time_, curr_time_, dt_*0.1);
+
+    // integrate_adaptive(make_controlled<runge_kutta_cash_karp54<mat31_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const mat31_t& v, mat31_t& dvdt, const double& t)
+    // {
+    //     this->Lpf::system_dynamics(v, dvdt, t);
+    // }, v_out_, prev_time_, curr_time_, dt_*0.01);
+
+    // integrate_adaptive(make_controlled<runge_kutta_fehlberg78<mat31_t>>(1E-6, 1E-3),
+    // [this] 
+    // (const mat31_t& v, mat31_t& dvdt, const double& t)
+    // {
+    //     this->Lpf::system_dynamics(v, dvdt, t);
+    // }, v_out_, prev_time_, curr_time_, dt_*0.01);
 
 
     prev_time_ = curr_time_;
