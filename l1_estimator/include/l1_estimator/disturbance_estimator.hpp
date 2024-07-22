@@ -5,13 +5,6 @@
 #include "gamma_proj.hpp"
 #include "low_pass_filter.hpp"
 
-using boost::numeric::odeint::integrate_adaptive;
-using boost::numeric::odeint::integrate_const;
-using boost::numeric::odeint::make_dense_output;
-using boost::numeric::odeint::runge_kutta_cash_karp54;
-using boost::numeric::odeint::make_controlled;
-using boost::numeric::odeint::runge_kutta_fehlberg78;
-
 class DisturbanceEstimator{
 
     public:
@@ -57,6 +50,8 @@ class DisturbanceEstimator{
     Convex_fn convex_fn_obj_[2];
     GammaPrj gamma_prj_obj_[2];
     Lpf lpf_obj_[2];
+
+    runge_kutta4<state6_t> rk4_;
 
     runge_kutta_dopri5<state6_t> rk45;
 

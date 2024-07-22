@@ -25,7 +25,7 @@
         <param name="Gamma_theta3" type="double" value="100"/>
         
         <param name="tau_sigma" type="double" value="20"/>
-        <param name="tau_theta" type="double" value="2"/>
+        <param name="tau_theta" type="double" value="10"/>
 
         <param name="line_width" type="double" value="6"/>
         <param name="font_size" type="double" value="32"/>

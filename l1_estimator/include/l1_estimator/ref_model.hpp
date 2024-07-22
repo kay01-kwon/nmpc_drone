@@ -1,17 +1,7 @@
 #ifndef REF_MODEL_HPP_
 #define REF_MODEL_HPP_
 #include "tools.hpp"
-#include <boost/lambda/lambda.hpp>
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/odeint/external/eigen/eigen.hpp>
-
-using boost::numeric::odeint::runge_kutta_dopri5;
-using boost::numeric::odeint::integrate_adaptive;
-using boost::numeric::odeint::integrate_const;
-using boost::numeric::odeint::make_dense_output;
-using boost::numeric::odeint::runge_kutta_cash_karp54;
-using boost::numeric::odeint::make_controlled;
-using boost::numeric::odeint::runge_kutta_fehlberg78;
+#include "ode_solver/ode_include.h"
 
 class RefModel{
 
@@ -96,6 +86,7 @@ class RefModel{
         double curr_time_, prev_time_, dt_;
 
         //runge kutta 45 class Declaration
+        runge_kutta4<state13_t> rk4_;
         runge_kutta_dopri5<state13_t> rk45;
 
         void ref_dynamics(

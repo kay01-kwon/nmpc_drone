@@ -1,17 +1,7 @@
 #ifndef LOW_PASS_FILTER_HPP_
 #define LOW_PASS_FILTER_HPP_
 #include "tools.hpp"
-#include <boost/lambda/lambda.hpp>
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/odeint/external/eigen/eigen.hpp>
-
-using boost::numeric::odeint::runge_kutta_dopri5;
-using boost::numeric::odeint::integrate_adaptive;
-using boost::numeric::odeint::integrate_const;
-using boost::numeric::odeint::make_dense_output;
-using boost::numeric::odeint::runge_kutta_cash_karp54;
-using boost::numeric::odeint::make_controlled;
-using boost::numeric::odeint::runge_kutta_fehlberg78;
+#include "ode_solver/ode_include.h"
 
 class Lpf{
 
@@ -43,6 +33,7 @@ class Lpf{
     /**
      * Declare rk dopri5 class
     */
+   runge_kutta4<mat31_t> rk4_;
     runge_kutta_dopri5<mat31_t> rk45;
 
     void system_dynamics(const mat31_t& v,

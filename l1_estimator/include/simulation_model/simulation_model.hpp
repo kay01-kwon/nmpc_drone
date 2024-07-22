@@ -2,17 +2,7 @@
 #define SIMULATION_MODEL_HPP_
 
 #include "l1_estimator/tools.hpp"
-#include <boost/lambda/lambda.hpp>
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/odeint/external/eigen/eigen.hpp>
-
-using boost::numeric::odeint::runge_kutta_dopri5;
-using boost::numeric::odeint::integrate_adaptive;
-using boost::numeric::odeint::integrate_const;
-using boost::numeric::odeint::make_dense_output;
-using boost::numeric::odeint::runge_kutta_cash_karp54;
-using boost::numeric::odeint::make_controlled;
-using boost::numeric::odeint::runge_kutta_fehlberg78;
+#include "ode_solver/ode_include.h"
 
 class SimulationModel{
 
@@ -46,7 +36,8 @@ class SimulationModel{
         
     private:
 
-        runge_kutta_dopri5<state13_t> rk4_;
+        runge_kutta4<state13_t> rk4_;
+        runge_kutta_dopri5<state13_t> rk45_;
 
         QuadModel quad_model_;
         double lift_coeff_, moment_coeff_;

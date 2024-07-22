@@ -57,7 +57,7 @@ void Lpf::solve()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk45.do_step([this] 
+    rk4_.do_step([this] 
     (const mat31_t& v, mat31_t& dvdt, const double& t)
     {
         this->Lpf::system_dynamics(v, dvdt, t);
