@@ -284,7 +284,7 @@ void plot_sigma_data()
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{x}$";
     data1_label = "$σ_{x, est}$";
-    data2_label = "σ_{x, est, lpf}$";
+    data2_label = "$σ_{x, est, lpf}$";
     data3_label = "$σ_{x, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
@@ -296,7 +296,7 @@ void plot_sigma_data()
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{y}$";
     data1_label = "$σ_{y, est}$";
-    data2_label = "σ_{y, est, lpf}$";
+    data2_label = "$σ_{y, est, lpf}$";
     data3_label = "$σ_{y, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
@@ -307,7 +307,7 @@ void plot_sigma_data()
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{z}$";
     data1_label = "$σ_{z, est}$";
-    data2_label = "σ_{z, est, lpf}$";
+    data2_label = "$σ_{z, est, lpf}$";
     data3_label = "$σ_{z, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
