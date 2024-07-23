@@ -182,7 +182,7 @@ void param_setup(const ros::NodeHandle& nh)
 
     simulation_time.reserve(N);
 
-    for(size_t i = 0; i < N - 1; i++)
+    for(size_t i = 0; i < N; i++)
     {
         simulation_time.push_back(i*dt);
     }

@@ -28,20 +28,12 @@ int main(int argc, char**argv)
 
     param_setup(nh);
 
-    rpm << 0, 0, 0, 0;
+    rpm.setZero();
 
     mat31_t u_comp, mu_comp;
     u_comp.setZero();
     mu_comp.setZero();
 
-    mat31_t p_ref_prev, v_ref_prev;
-    quat_t q_ref_prev;
-    mat31_t w_ref_prev;
-
-    p_ref_prev.setZero();
-    v_ref_prev.setZero();
-    q_ref_prev.setIdentity();
-    w_ref_prev.setZero();
 
 
     assert(simulation_time.capacity() == N);
@@ -97,7 +89,7 @@ int main(int argc, char**argv)
         demux_disturbance_est_noisy(sigma_est_noisy, theta_est_noisy);
         demux_disturbance_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        if(i <= 10)
+        if(i <= 100)
         {
             print_state(simulation_time[i+1], p_state, v_state, q_state, w_state,
             p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
@@ -107,7 +99,7 @@ int main(int argc, char**argv)
     }
 
     cout << "At final time step" << endl;
-    print_state(simulation_time[N-3], p_state, v_state, q_state, w_state,
+    print_state(simulation_time[N-1], p_state, v_state, q_state, w_state,
     p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
     sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
 

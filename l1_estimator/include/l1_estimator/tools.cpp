@@ -36,27 +36,39 @@ void get_dqdt(const quat_t &q, const mat31_t &w, quat_t &dqdt)
  */
 void otimes(const quat_t &q1, const quat_t &q2, quat_t &q_res)
 {
-    double real;
-    mat31_t q1_vec, q2_vec;
-    mat33_t q1_skew_sym_mat;
-    mat31_t q_res_vec;
 
-    convert_quat_to_quat_vec(q1, q1_vec);
-    convert_quat_to_quat_vec(q2, q2_vec);
+    mat44_t Lambda;
+    mat41_t q2_temp, q_res_temp;
+
+    double q1w, q1x, q1y, q1z;
+    double q2w, q2x, q2y, q2z;
+
+    q1w = q1.w();
+    q1x = q1.x();
+    q1y = q1.y();
+    q1z = q1.z();
+
+
+    q2w = q2.w();
+    q2x = q2.x();
+    q2y = q2.y();
+    q2z = q2.z();
     
-    real = q1.w()*q2.w()
-    -q1_vec.transpose()*q2_vec;
+    Lambda <<   q1w, -q1x, -q1y, -q1z,
+                q1x, q1w, -q1z, q1y,
+                q1y, q1z, q1w, -q1x,
+                q1z, -q1y, q1x, q1w;
 
-    convert_vec_to_skew(q1_vec, q1_skew_sym_mat);
+    q2_temp << q2w, q2x, q2y, q2z;
 
-    q_res_vec = q1.w()*q2_vec
-    + q2.w()*q1_vec
-    + q1_skew_sym_mat*q2_vec;
+    q_res_temp = Lambda*q2_temp;
 
-    q_res.w() = real;
-    q_res.x() = q_res_vec(0);
-    q_res.y() = q_res_vec(1);
-    q_res.z() = q_res_vec(2);
+    q_res.w() = q_res_temp(0);
+    q_res.x() = q_res_temp(1);
+    q_res.y() = q_res_temp(2);
+    q_res.z() = q_res_temp(3);
+
+
 }
 
 /**
