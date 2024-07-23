@@ -261,10 +261,6 @@ const vector<double> &data3)
     line_keywords.insert(pair<string, string>
     ("label", data3_label_));
 
-    line_keywords.erase("color");
-    line_keywords.erase("label");
-    line_keywords.erase("linestyle");
-
     plt::plot(time, data3, line_keywords);
 
     plt::xticks(x_ticks,ticks_keywords);
@@ -276,6 +272,10 @@ const vector<double> &data3)
     plt::legend(legend_keywords);
 
     plt::grid(true);
+
+    line_keywords.erase("color");
+    line_keywords.erase("label");
+    line_keywords.erase("linestyle");
 
     x_ticks.clear();
     y_ticks.clear();
