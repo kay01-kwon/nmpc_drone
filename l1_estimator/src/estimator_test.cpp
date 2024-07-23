@@ -284,25 +284,31 @@ void plot_sigma_data()
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{x}$";
     data1_label = "$σ_{x, est}$";
-    data2_label = "$σ_{x, ext}$";
+    data2_label = "σ_{x, est, lpf}$";
+    data3_label = "$σ_{x, ext}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,sigma_est_lpf_x, sigma_ext_x);
+    data1_label, data2_label, data3_label,
+    sigma_est_x, sigma_est_lpf_x, sigma_ext_x);
 
     plt::subplot(3,1,2);
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{y}$";
     data1_label = "$σ_{y, est}$";
-    data2_label = "$σ_{y, ext}$";
+    data2_label = "σ_{y, est, lpf}$";
+    data3_label = "$σ_{y, ext}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,sigma_est_lpf_y, sigma_ext_y);
+    data1_label, data2_label, data3_label,
+    sigma_est_y, sigma_est_lpf_y, sigma_ext_y);
 
     plt::subplot(3,1,3);
     ticks_setup(Tf, 4, -4, 5, 5);    
     y_label = "$σ_{z}$";
     data1_label = "$σ_{z, est}$";
-    data2_label = "$σ_{z, ext}$";
+    data2_label = "σ_{z, est, lpf}$";
+    data3_label = "$σ_{z, ext}$";
     plot_data(simulation_time, y_label, 
-    data1_label, data2_label ,sigma_est_lpf_z, sigma_ext_z);
+    data1_label, data2_label, data3_label,
+    sigma_est_z, sigma_est_lpf_z, sigma_ext_z);
 
 }
 
@@ -312,30 +318,30 @@ void plot_theta_data()
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{x}$";
     data1_label = "$θ_{x, est}$";
-    data2_label = "$θ_{x, ext}$";
-    data3_label = "$θ_{x, est, lpf}$";
+    data2_label = "$θ_{x, est, lpf}$";
+    data3_label = "$θ_{x, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
-    theta_est_x, theta_ext_x, theta_est_lpf_x);
+    theta_est_x, theta_est_lpf_x, theta_ext_x);
 
     plt::subplot(3,1,2);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{y}$";
     data1_label = "$θ_{y, est}$";
-    data2_label = "$θ_{y, ext}$";
-    data3_label = "$θ_{y, est, lpf}$";
+    data2_label = "$θ_{y, est, lpf}$";
+    data3_label = "$θ_{y, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label 
-    ,theta_est_y, theta_ext_y, theta_est_lpf_y);
+    ,theta_est_y, theta_est_lpf_y, theta_ext_y);
 
     plt::subplot(3,1,3);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
     y_label = "$θ_{z}$";
     data1_label = "$θ_{z, est}$";
-    data2_label = "$θ_{z, ext}$";
-    data3_label = "$θ_{z, est, lpf}$";
+    data2_label = "$θ_{z, est, lpf}$";
+    data3_label = "$θ_{z, ext}$";
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
-    theta_est_z, theta_ext_z, theta_est_lpf_z);
+    theta_est_z, theta_est_lpf_z, theta_ext_z);
 
 }

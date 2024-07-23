@@ -232,8 +232,9 @@ const vector<double> &data1,
 const vector<double> &data2, 
 const vector<double> &data3)
 {
+
     line_keywords.insert(pair<string, string>
-    ("color","r"));
+    ("color","orangered"));
     line_keywords.insert(pair<string, string>
     ("label", data1_label_));
 
@@ -243,23 +244,22 @@ const vector<double> &data3)
     line_keywords.erase("label");
 
     line_keywords.insert(pair<string, string>
-    ("color","violet"));
+    ("color","deepskyblue"));
     line_keywords.insert(pair<string, string>
     ("label", data2_label_));
-
-    line_keywords.insert(pair<string,string>
-    ("linestyle","--"));
 
     plt::plot(time, data2, line_keywords);
 
     line_keywords.erase("color");
     line_keywords.erase("label");
-    line_keywords.erase("linestyle");
+
 
     line_keywords.insert(pair<string, string>
-    ("color","blue"));
+    ("color","limegreen"));
     line_keywords.insert(pair<string, string>
     ("label", data3_label_));
+    line_keywords.insert(pair<string,string>
+    ("linestyle","--"));
 
     plt::plot(time, data3, line_keywords);
 

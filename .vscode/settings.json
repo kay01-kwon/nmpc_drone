@@ -81,7 +81,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "*.ipp": "cpp"
     },
     "cmake.sourceDirectory": "/home/kay/catkin_ws/src/research/l1_estimator"
 }
