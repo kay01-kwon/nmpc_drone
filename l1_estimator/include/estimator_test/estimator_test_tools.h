@@ -184,7 +184,7 @@ void param_setup(const ros::NodeHandle& nh)
 
     for(size_t i = 0; i < N; i++)
     {
-        simulation_time.push_back(i*dt);
+        simulation_time.push_back((i+1)*dt);
     }
 
     assert(dt > std::numeric_limits<double>::min());
@@ -355,21 +355,38 @@ inline void variable_capacity_reserve(const int &N_)
     y_state.reserve(N_);
     z_state.reserve(N_);
 
+    x_state.push_back(0);
+    y_state.push_back(0);
+    z_state.push_back(0);
+
     // State velocity variables
     vx_state.reserve(N_);
     vy_state.reserve(N_);
     vz_state.reserve(N_);
 
+    vx_state.push_back(0);
+    vy_state.push_back(0);
+    vz_state.push_back(0);
+    
     // State quaternion variables
     qw_state.reserve(N_);
     qx_state.reserve(N_);
     qy_state.reserve(N_);
     qz_state.reserve(N_);
 
+    qw_state.push_back(1);
+    qx_state.push_back(0);
+    qy_state.push_back(0);
+    qz_state.push_back(0);
+
     // State angular velocity variables
     wx_state.reserve(N_);
     wy_state.reserve(N_);
     wz_state.reserve(N_);
+
+    wx_state.push_back(0);
+    wy_state.push_back(0);
+    wz_state.push_back(0);
 
     // ************************************************
     // Reference model state
@@ -378,22 +395,39 @@ inline void variable_capacity_reserve(const int &N_)
     y_ref.reserve(N_);
     z_ref.reserve(N_);
 
+    x_ref.push_back(0);
+    y_ref.push_back(0);
+    z_ref.push_back(0);
+
     // Reference velocity variables
     vx_ref.reserve(N_);
     vy_ref.reserve(N_);
     vz_ref.reserve(N_);
 
+    vx_ref.push_back(0);
+    vy_ref.push_back(0);
+    vz_ref.push_back(0);
+    
     // REference quaternion variables
     qw_ref.reserve(N_);
     qx_ref.reserve(N_);
     qy_ref.reserve(N_);
     qz_ref.reserve(N_);
 
+    qw_ref.push_back(1);
+    qx_ref.push_back(0);
+    qy_ref.push_back(0);
+    qz_ref.push_back(0);
+
     // Reference angular velocity variables
     wx_ref.reserve(N_);
     wy_ref.reserve(N_);
-    wz_ref.reserve(N_);    
+    wz_ref.reserve(N_);
 
+    wx_ref.push_back(0);
+    wy_ref.push_back(0);
+    wz_ref.push_back(0);
+     
     // ************************************************
     // Disturbance terms
 
@@ -401,25 +435,49 @@ inline void variable_capacity_reserve(const int &N_)
     sigma_ext_y.reserve(N_);
     sigma_ext_z.reserve(N_);
 
+    sigma_ext_x.push_back(0);
+    sigma_ext_y.push_back(0);
+    sigma_ext_z.push_back(0);
+    
     sigma_est_x.reserve(N_);
     sigma_est_y.reserve(N_);
     sigma_est_z.reserve(N_);
 
+    sigma_est_x.push_back(0);
+    sigma_est_y.push_back(0);
+    sigma_est_z.push_back(0);
+    
     sigma_est_lpf_x.reserve(N_);
     sigma_est_lpf_y.reserve(N_);
     sigma_est_lpf_z.reserve(N_);
 
+    sigma_est_lpf_x.push_back(0);
+    sigma_est_lpf_y.push_back(0);
+    sigma_est_lpf_z.push_back(0);
+    
     theta_ext_x.reserve(N_);
     theta_ext_y.reserve(N_);
     theta_ext_z.reserve(N_);
+
+    theta_ext_x.push_back(0);
+    theta_ext_y.push_back(0);
+    theta_ext_z.push_back(0);
 
     theta_est_x.reserve(N_);
     theta_est_y.reserve(N_);
     theta_est_z.reserve(N_);
 
+    theta_est_x.push_back(0);
+    theta_est_y.push_back(0);
+    theta_est_z.push_back(0);
+
     theta_est_lpf_x.reserve(N_);
     theta_est_lpf_y.reserve(N_);
     theta_est_lpf_z.reserve(N_);
+
+    theta_est_lpf_x.push_back(0);
+    theta_est_lpf_y.push_back(0);
+    theta_est_lpf_z.push_back(0);
 
 }
 
