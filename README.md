@@ -48,7 +48,7 @@ Continuous low pass filter result is shown below.
 
 ## Reference model
 
-- [ ] Establish theory on attitude dynamics again.
+- [x] Establish theory on attitude dynamics again.
 
 - [ ] Set the previous posterior state except disturbance and integrate. Herein, do not use the state computed by the reference model but the previous posterior obtained by measurement update.
 
@@ -60,7 +60,6 @@ Continuous low pass filter result is shown below.
 
 - [x] Test the estimator code.
 
-- [ ] Compare combination of kalman filter and reference model with simple thing.
 
 ### Translational disturbance estimation result
 
