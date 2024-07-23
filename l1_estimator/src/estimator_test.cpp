@@ -289,6 +289,8 @@ void plot_sigma_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
     sigma_est_x, sigma_est_lpf_x, sigma_ext_x);
+    plt::title("$σ_{x}$ - t", label_keywords);
+
 
     plt::subplot(3,1,2);
     ticks_setup(Tf, 4, -4, 5, 5);    
@@ -299,6 +301,7 @@ void plot_sigma_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
     sigma_est_y, sigma_est_lpf_y, sigma_ext_y);
+    plt::title("$σ_{y}$ - t", label_keywords);
 
     plt::subplot(3,1,3);
     ticks_setup(Tf, 4, -4, 5, 5);    
@@ -309,6 +312,7 @@ void plot_sigma_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
     sigma_est_z, sigma_est_lpf_z, sigma_ext_z);
+    plt::title("$σ_{z}$ - t", label_keywords);
 
 }
 
@@ -323,6 +327,7 @@ void plot_theta_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
     theta_est_x, theta_est_lpf_x, theta_ext_x);
+    plt::title("$θ_{x}$ - t", label_keywords);
 
     plt::subplot(3,1,2);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
@@ -333,6 +338,7 @@ void plot_theta_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label 
     ,theta_est_y, theta_est_lpf_y, theta_ext_y);
+    plt::title("$θ_{y}$ - t", label_keywords);
 
     plt::subplot(3,1,3);
     ticks_setup(Tf, magnitude, -magnitude, 5, 3);    
@@ -343,5 +349,6 @@ void plot_theta_data()
     plot_data(simulation_time, y_label, 
     data1_label, data2_label, data3_label,
     theta_est_z, theta_est_lpf_z, theta_ext_z);
+    plt::title("$θ_{z}$ - t", label_keywords);
 
 }
