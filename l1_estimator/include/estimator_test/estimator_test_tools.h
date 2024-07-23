@@ -182,9 +182,9 @@ void param_setup(const ros::NodeHandle& nh)
 
     simulation_time.reserve(N);
 
-    for(size_t i = 0; i < N; i++)
+    for(size_t i = 0; i < N - 1; i++)
     {
-        simulation_time.push_back((i+1)*dt);
+        simulation_time.push_back(i*dt);
     }
 
     assert(dt > std::numeric_limits<double>::min());

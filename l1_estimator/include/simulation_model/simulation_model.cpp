@@ -165,7 +165,6 @@ mat31_t &w) const
     {
         p(i) = s_(i);
         v(i) = s_(i+3);
-        w(i) = s_(i+10);
     }
     
     q.w() = s_(6);
@@ -173,6 +172,10 @@ mat31_t &w) const
     q.y() = s_(8);
     q.z() = s_(9);
 
+    q.normalize();
+
+    for(size_t i = 0; i < 3; i++)
+        w(i) = s_(i+10);
 }
 
 /**
@@ -193,7 +196,7 @@ void SimulationModel::integrate()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4_classic_.do_step(
+    rk4_.do_step(
         [this]
         (const state13_t& s, state13_t& dsdt, const double& t)
         {
@@ -258,7 +261,7 @@ const double &t)
     q.z() = s(9);
 
     // Get current angular velocity
-    for(int i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; i++)
     {
         w(i) = s(i+10);
     }
@@ -276,6 +279,7 @@ const double &t)
 
     // Attitude kinematics
     get_dqdt(q_unit, w, dqdt);
+
 
     // Attitude dynamics
     dwdt = J_.inverse()*(moment_ - w.cross(J_*w) + theta_ext_);

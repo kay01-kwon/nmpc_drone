@@ -43,14 +43,8 @@ void RefModel::initialize_state_variables()
     s_hat_(6) = 1.0;
 
     p_hat_.setZero();
-
     v_hat_.setZero();
-
-    q_hat_.w() = 1;
-    q_hat_.x() = 0;
-    q_hat_.y() = 0;
-    q_hat_.z() = 0;
-
+    q_hat_.setIdentity();
     w_hat_.setZero();
 
     grav_.setZero();
@@ -87,48 +81,17 @@ const double &time)
     // Set time
     curr_time_ = time;
 
-    for(size_t i = 0; i < 3; i++)
-    {
-        s_hat_(i) = p_state(i);
-        s_hat_(i+3) = v_state(i);
-        s_hat_(i+10) = w_state(i);
-    }
-
-    s_hat_(6) = q_state.w();
-    s_hat_(7) = q_state.x();
-    s_hat_(8) = q_state.y();
-    s_hat_(9) = q_state.z();
+    p_hat_ = p_state;
+    v_hat_ = v_state;
+    q_hat_ = q_state;
+    w_hat_ = w_state;
 
     u_hat_ = u_comp + sigma_hat;
 
-    // Get rotation matrix from q_tilde
-    // conjugate(q_state, q_state_conj);
-    // otimes(q_state_conj, q_hat_, q_tilde);
-    // convert_quat_to_unit_quat(q_tilde, unit_q_tilde);
-    // get_rotm_from_quat(unit_q_tilde, R);
-    // convert_quat_to_quat_vec(unit_q_tilde, q_vec);
-
-    assert(isnan(q_tilde.w()) == false);
-    assert(isnan(q_tilde.x()) == false);
-    assert(isnan(q_tilde.y()) == false);
-    assert(isnan(q_tilde.z()) == false);
-
-    // q_vec = signum(unit_q_tilde.w())*q_vec;
-
-    // // Get the error of angular velocity
-    // w_tilde = w_hat_ - R.transpose()*w_state;
-
-    // C = J_*R.transpose() * J_.inverse();
-
-    // convert_vec_to_skew(w_tilde, skiew_sym);
+    mu_hat_ = mu_comp + theta_hat;
 
     for(size_t i = 0; i < theta_hat.size();i++)
         assert(isnan(theta_hat(i)) == false);
-
-    // mu_hat_ = C*(mu_comp + R*theta_hat + w_state.cross(J_*w_state))
-    // - J_*w_tilde.cross(R.transpose()*w_state);
-
-    mu_hat_ = (mu_comp - w_state.cross(J_*w_state) + theta_hat);
 
     for(size_t i = 0; i < mu_hat_.size(); i++)
         assert(isnan(mu_hat_(i)) == false);
@@ -160,7 +123,24 @@ void RefModel::prediction()
 {
     dt_ = curr_time_ - prev_time_;
 
-    rk4_classic_.do_step([this] 
+    for(size_t i = 0; i < 3; i++)
+    {
+        s_hat_(i) = p_hat_(i);
+        s_hat_(i+3) = v_hat_(i);
+    }
+
+    s_hat_(6) = q_hat_.w();
+    s_hat_(7) = q_hat_.x();
+    s_hat_(8) = q_hat_.y();
+    s_hat_(9) = q_hat_.z();
+
+    for(size_t i = 0; i < 3; i++)
+    {
+        s_hat_(i+10) = w_hat_(i);
+    }
+    
+
+    rk4_.do_step([this] 
     (const state13_t& s, state13_t& dsdt, const double& t)
     {
         this->RefModel::ref_dynamics(s, dsdt, t);
@@ -193,7 +173,6 @@ void RefModel::prediction()
     {
         p_hat_(i) = s_hat_(i);
         v_hat_(i) = s_hat_(i+3);
-        w_hat_(i) = s_hat_(i+10);
     }
 
     quat_t unit_q_hat;
@@ -202,6 +181,9 @@ void RefModel::prediction()
     q_hat_.x() = s_hat_(7);
     q_hat_.y() = s_hat_(8);
     q_hat_.z() = s_hat_(9);
+
+    for(size_t i = 0; i < 3; i++)
+        w_hat_(i) = s_hat_(i+10);
 
     // Convert quaternion of reference into unit quaternion
     // to guarantee stability
@@ -254,18 +236,20 @@ void RefModel::ref_dynamics(const state13_t &s, state13_t &dsdt, const double &t
 
     convert_quat_to_unit_quat(q, q_unit);
     get_dqdt(q_unit, w, dqdt);
-    dwdt = J_.inverse()*mu_hat_;
+    dwdt = J_.inverse()*(mu_hat_ - w.cross(J_*w));
 
     for(size_t i = 0; i < 3; i++)
     {
         dsdt(i) = dpdt(i);
         dsdt(i+3) = dvdt(i);
-        dsdt(i+10) = dwdt(i);
     }
 
     dsdt(6) = dqdt.w();
     dsdt(7) = dqdt.x();
     dsdt(8) = dqdt.y();
     dsdt(9) = dqdt.z();
+
+    for(size_t i = 0; i < 3; i++)
+        dsdt(i+10) = dwdt(i);
 
 }

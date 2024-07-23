@@ -30,9 +30,6 @@ int main(int argc, char**argv)
 
     rpm << 0, 0, 0, 0;
 
-    // sigma_ext << 1, 2, 0;
-    // theta_ext << 1, 0, 0;
-
     mat31_t u_comp, mu_comp;
     u_comp.setZero();
     mu_comp.setZero();
@@ -49,7 +46,7 @@ int main(int argc, char**argv)
 
     assert(simulation_time.capacity() == N);
 
-    for(int i = 0; i < N; i++)
+    for(size_t i = 0; i < N - 1; i++)
     {
         sigma_ext << 5*cos(3*simulation_time[i]),
         2*cos(1*simulation_time[i]),
@@ -60,7 +57,7 @@ int main(int argc, char**argv)
         -magnitude*cos(1*simulation_time[i]);
 
 
-        play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i]);
+        play_simulation_model(rpm, sigma_ext, theta_ext, simulation_time[i+1]);
 
         // Get state from the simulator model.
         simulation_model_ptr->get_state(p_state, v_state, 
@@ -69,7 +66,7 @@ int main(int argc, char**argv)
         // Set control input, measured state, disturbance and simulation time
         reference_model_ptr->set_input_state_disturbance_time(u_comp, mu_comp,
         p_state_prev, v_state_prev, q_state_prev, w_state_prev,
-        sigma_est_noisy, theta_est_noisy, simulation_time[i]);
+        sigma_est_noisy, theta_est_noisy, simulation_time[i+1]);
 
         // Integrate the reference model (Prediction step)
         reference_model_ptr->prediction();
@@ -77,10 +74,15 @@ int main(int argc, char**argv)
         // Get state from the reference model (Prediction)
         reference_model_ptr->get_state_from_ref_model(p_ref, v_ref, q_ref, w_ref);
 
+        p_state_prev = p_state;
+        v_state_prev = v_state;
+        q_state_prev = q_state;
+        w_state_prev = w_state;
+
         // Set disturbance estimator
         disturbance_est_ptr->set_state_time(p_state, p_ref, 
         v_state, v_ref, q_state, q_ref, 
-        w_state, w_ref, simulation_time[i]);
+        w_state, w_ref, simulation_time[i+1]);
 
         disturbance_est_ptr->solve();
 
@@ -88,10 +90,6 @@ int main(int argc, char**argv)
 
         disturbance_est_ptr->get_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        p_state_prev = p_state;
-        v_state_prev = v_state;
-        q_state_prev = q_state;
-        w_state_prev = w_state;
 
         demux_simulation_state(p_state, v_state, q_state, w_state);
         demux_reference_state(p_ref, v_ref, q_ref, w_ref);
@@ -99,17 +97,17 @@ int main(int argc, char**argv)
         demux_disturbance_est_noisy(sigma_est_noisy, theta_est_noisy);
         demux_disturbance_est_filtered(sigma_est_lpf, theta_est_lpf);
 
-        // if(i <= 10)
-        // {
-            print_state(simulation_time[i], p_state, v_state, q_state, w_state,
+        if(i <= 10)
+        {
+            print_state(simulation_time[i+1], p_state, v_state, q_state, w_state,
             p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
             sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
-        // }
+        }
 
     }
 
     cout << "At final time step" << endl;
-    print_state(simulation_time[N-1], p_state, v_state, q_state, w_state,
+    print_state(simulation_time[N-3], p_state, v_state, q_state, w_state,
     p_ref, v_ref, q_ref, w_ref, theta_ext, sigma_ext, theta_est_lpf,
     sigma_est_lpf, theta_est_noisy, sigma_est_noisy);
 
