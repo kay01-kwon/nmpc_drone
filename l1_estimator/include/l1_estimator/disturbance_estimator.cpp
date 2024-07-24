@@ -53,55 +53,16 @@ const quat_t &q_state, const quat_t &q_ref,
 const mat31_t &w_state, const mat31_t &w_ref, 
 const double &time)
 {
-    mat31_t v_tilde;
-    quat_t q_conj, q_tilde, q_tilde_unit;
-    mat33_t R;
-    mat31_t w_tilde;
+    curr_time_ = time;
+    mat31_t v_tilde, w_tilde;
     mat31_t y_sigma, y_theta;
-    mat33_t P, P_transpose;
-    mat33_t J_inv, J_inv_transpose;
-    mat31_t q_vec;
-
-    assert(fabs(q_ref.w()) <= 1);
-    assert(fabs(q_ref.x()) <= 1);
-    assert(fabs(q_ref.y()) <= 1);
-    assert(fabs(q_ref.z()) <= 1);
-
-    assert(fabs(q_state.w()) <= 1);
-    assert(fabs(q_state.x()) <= 1);
-    assert(fabs(q_state.y()) <= 1);
-    assert(fabs(q_state.z()) <= 1);
-
-    for(size_t i = 0; i < w_ref.size(); i++)
-        assert(isnan(w_ref(i)) == false);
-
-    // conjugate(q_state, q_conj);
-    // otimes(q_conj, q_ref, q_tilde);
-    // convert_quat_to_unit_quat(q_tilde, q_tilde_unit);
-    // get_rotm_from_quat(q_tilde_unit,R);
-    
-    // w_tilde = w_ref - R.transpose()*w_state;
 
     v_tilde = v_ref - v_state;
 
     w_tilde = w_ref - w_state;
 
-    curr_time_ = time;
-
-    // J_inv = J_.inverse();
-    // J_inv_transpose = J_inv.transpose();
-
-    // q_vec = signum(q_tilde.w()) * q_vec;
-
-    // P = J_ 
-    // * R.transpose() 
-    // * J_.inverse()
-    // * R;
-
-    // P_transpose = P.transpose();
 
     y_sigma = - v_tilde;
-    // y_theta = - P_transpose * w_tilde;
     y_theta = - w_tilde;
 
     for(size_t i = 0; i < w_tilde.size(); i++)

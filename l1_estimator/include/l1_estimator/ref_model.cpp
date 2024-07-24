@@ -72,12 +72,6 @@ const mat31_t &sigma_hat, const mat31_t &theta_hat,
 const double &time)
 {
 
-    // Get the position and velocity error, respectively.
-    mat31_t v_tilde, w_tilde;
-    mat33_t C, R, skiew_sym;
-    mat31_t q_vec;
-    quat_t q_state_conj, q_tilde, unit_q_tilde;
-
     // Set time
     curr_time_ = time;
 
