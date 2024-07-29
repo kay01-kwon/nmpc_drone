@@ -64,7 +64,7 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 ## To do list
 
-- [ ] Construct rotational dynamics.
+- [x] Construct rotational dynamics for simulation.
 
 - [ ] Program the derivative of runge kutta 4th order with respect to $\theta_{est}$.
 
@@ -96,4 +96,4 @@ q_{2,w} \\
 q_{2,x} \\
 q_{2,y} \\
 q_{2,z}
-\end{bmatrix}`$
+\end{bmatrix}`$.
