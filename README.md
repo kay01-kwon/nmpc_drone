@@ -62,19 +62,12 @@ $\dot{b_{\omega}}$ ~ $\mathcal{N}(0,R)$.
 
 Thus, quaternion should be used to estimate the disturbance perfectly.
 
-## Simulation model
+## To do list
 
-To do list
+- [ ] Construct rotational dynamics.
 
-- [x] Construct simulation model to test l1 estimator.
+- [ ] Program the derivative of runge kutta 4th order with respect to $\theta_{est}$.
 
+- [ ] Program newton's method to estimate the orientational disturbance.
 
-## Source code to test
-
-To do list
-
-- [x] Employ matplotlib to plot data.
-
-- [x] Fix the nan problem on quaternion and $\theta_{est}$.
-
-- [x] Make the plot tools in the estimator_test_tool folder.
+- [ ] Make the test code and then check the time that it takes to compute the iteration.
