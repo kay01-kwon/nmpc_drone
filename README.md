@@ -74,17 +74,17 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 ## Rotational kinematics and dynamics
 
-$\frac{dq}{dt} = \frac{1}{2} q \otimes 
+$`\frac{dq}{dt} = \frac{1}{2} q \otimes 
 \begin{bmatrix}
 0 \\
 \omega
-\end{bmatrix} \in \mathbb{C}$
+\end{bmatrix} \in \mathbb{C}`$
 
 $\frac{d\omega}{dt} = J^{-1}\left(M - \omega\times J\omega + \theta\right)$
 
 The quaternion multiplication is the following
 
-$ q_{1} \otimes q_{2}
+$`q_{1} \otimes q_{2}
 = \begin{bmatrix}
 q_{1,w} & -q_{1,x} & -q_{1,y} & -q_{1,z} \\
 q_{1,x} & q_{1,w} & -q_{1,z} & q_{1,y} \\
@@ -96,4 +96,4 @@ q_{2,w} \\
 q_{2,x} \\
 q_{2,y} \\
 q_{2,z}
-\end{bmatrix}$
+\end{bmatrix}`$
