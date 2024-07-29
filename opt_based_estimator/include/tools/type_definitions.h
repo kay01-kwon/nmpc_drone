@@ -13,6 +13,9 @@ using Eigen::Quaternion;
 
 typedef Matrix<double, 4, 3> mat34_t;
 typedef Matrix<double, 3, 3> mat33_t;
+typedef Matrix<double, 4, 1> mat41_t;
+typedef Matrix<double, 4, 4> mat44_t;
+
 typedef Matrix<double, 3, 1> vector_t;
 
 typedef Quaternion<double> quaternion_t;

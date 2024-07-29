@@ -1,4 +1,5 @@
 #include "tools.hpp"
+#include "tools.h"
 
 /**
  * @brief Get the rate of quaternion from current 
@@ -221,6 +222,4 @@ mat31_t &moment)
     }
 
     moment(2) = moment_coeff*(thrust(0) - thrust(1) + thrust(2) - thrust(3));
-    
-
 }
