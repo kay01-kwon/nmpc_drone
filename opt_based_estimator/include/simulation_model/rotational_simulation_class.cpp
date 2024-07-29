@@ -31,6 +31,7 @@ void RotationalSimulation::do_simulation()
 quaternion_t RotationalSimulation::get_quaternion() const
 {
     quaternion_t q;
+    // s_(0) ~ s_(3): qw, qx ,qy ,qz
     q.w() = s_(0);
     q.x() = s_(1);
     q.y() = s_(2);
@@ -42,6 +43,7 @@ quaternion_t RotationalSimulation::get_quaternion() const
 vector_t RotationalSimulation::get_angular_velocity() const
 {
     vector_t w;
+    // s_(4) ~ s_(6): wx, wy, wz represented in the body frame
     w(0) = s_(4);
     w(1) = s_(5);
     w(2) = s_(6);
@@ -67,6 +69,7 @@ const vector_t &M, const vector_t theta)
     q.y() = s(2);
     q.z() = s(3);
 
+    // Convert the quaternion into unit quaternion
     q.normalize();
     
     w(0) = s(4);
@@ -80,6 +83,7 @@ const vector_t &M, const vector_t theta)
     
     q_temp = otimes(q, w_quaternion_form);
 
+    // dqdt = 0.5 * q otimes [0;w]
     dqdt.w() = 0.5*q_temp.w();
     dqdt.x() = 0.5*q_temp.x();
     dqdt.y() = 0.5*q_temp.y();
