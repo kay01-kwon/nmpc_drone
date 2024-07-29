@@ -18,6 +18,8 @@ typedef Matrix<double, 4, 4> mat44_t;
 
 typedef Matrix<double, 3, 1> vector_t;
 
+typedef Matrix<double, 7, 1> rotational_state_t;
+
 typedef Quaternion<double> quaternion_t;
 
 #endif
