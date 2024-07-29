@@ -1,7 +1,7 @@
 #ifndef ROTATIONAL_SIMULATION_CLASS_HPP
 #define ROTATIONAL_SIMULAITON_CLASS_HPP
 #include "tools/quaternion_math_tools.h"
-
+#include "ode_solver/ode_solver_include.h"
 class RotationalSimulation{
 
     public:
@@ -22,6 +22,8 @@ class RotationalSimulation{
 
     private:
 
+    runge_kutta4<rotational_state_t> rk4;
+
     rotational_state_t s_;
 
     mat33_t J_;
@@ -30,8 +32,8 @@ class RotationalSimulation{
 
     double curr_time_, prev_time_, dt_;
 
-    void rotational_dynamics(rotational_state_t& dsdt,
-    const rotational_state_t& s, const double time, 
+    void rotational_dynamics(const rotational_state_t& s,
+    rotational_state_t& dsdt, const double &time, 
     const vector_t& M, const vector_t theta);
 
 };

@@ -15,7 +15,15 @@ void RotationalSimulation::setInput(const vector_t &M, const vector_t &theta)
 
 void RotationalSimulation::do_simulation()
 {
+    rk4.do_step(
+        [this]
+        (const rotational_state_t &s, rotational_state_t &dsdt, const double& t)
+        {
+            this->RotationalSimulation::rotational_dynamics(s, dsdt, t, M_, theta_);
+        }, s_, prev_time_, dt_
+    );
 
+    curr_time_ = prev_time_ + dt_;
 }
 
 quaternion_t RotationalSimulation::get_quaternion() const
@@ -44,9 +52,9 @@ double RotationalSimulation::get_time() const
     return curr_time_;
 }
 
-void RotationalSimulation::rotational_dynamics(rotational_state_t &dsdt, 
-const rotational_state_t &s, 
-const double time, 
+void RotationalSimulation::rotational_dynamics(const rotational_state_t &s, 
+rotational_state_t &dsdt, 
+const double &time, 
 const vector_t &M, const vector_t theta)
 {
     quaternion_t q, w_quaternion_form, q_temp, dqdt;
