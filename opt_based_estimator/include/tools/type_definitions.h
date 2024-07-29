@@ -1,5 +1,5 @@
-#ifndef TYPES_DEFINITIONS_H_
-#define TYPES_DEFINITIONS_H_
+#ifndef TYPE_DEFINITIONS_H_
+#define TYPE_DEFINITIONS_H_
 #include <iostream>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
