@@ -46,27 +46,22 @@ Continuous low pass filter result is shown below.
 
 <img src='l1_estimator/figures/ros_low_pass_filter_test_result.png'>
 
-## Reference model
 
-- [x] Establish theory on attitude dynamics again.
-
-- [ ] Set the previous posterior state except disturbance and integrate. Herein, do not use the state computed by the reference model but the previous posterior obtained by measurement update.
-
-- [ ] Implement measurement update.
-
-## Disturbance estimator
-
-- [x] Program the disturbance estimator which utilizes Gamma projection, convex function, and low pass filter.
-
-- [x] Test the estimator code.
-
-
-### Translational disturbance estimation result
+### Translational disturbance estimation result through L1 estimator
 
 <img src='l1_estimator/figures/disturbance_estimation_result(trans).png'>
 
-### Rotational disturbance estimation result
+### Rotational disturbance estimation result through L1 estimator
 <img src='l1_estimator/figures/disturbance_estimation_result(orien).png'>
+
+But, it is problematic since it only utilizes angular velocity data which is susceptible to bias.
+
+$\omega_{meas} = \omega + \eta_{\omega} + b_{\omega}$
+
+where $\eta_{\omega}$ ~ $\mathcal{N}(0,Q)$ and 
+$\dot{b_{\omega}}$ ~ $\mathcal{N}(0,R)$.
+
+Thus, quaternion should be used to estimate the disturbance perfectly.
 
 ## Simulation model
 
@@ -74,7 +69,6 @@ To do list
 
 - [x] Construct simulation model to test l1 estimator.
 
-- [ ] Construct temporary simple cascaded controller.
 
 ## Source code to test
 
