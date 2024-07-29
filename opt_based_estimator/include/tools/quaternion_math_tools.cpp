@@ -16,19 +16,32 @@ mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right)
                 ql_x, ql_w, -ql_z, ql_y,
                 ql_y, ql_z, ql_w, -ql_x,
                 ql_z, -ql_y, ql_x, ql_w;
-    
 
-    qr << q_right(0), q_right(1), q_right(2), q_right(3);
-
-    return Lambda*qr;
+    return Lambda*q_right;
 }
 
-mat34_t otimes(const mat41_t &q_left, const mat34_t &q_right)
+mat43_t otimes(const mat41_t &q_left, const mat43_t &q_right)
 {
-    return mat34_t();
+    mat43_t columns;
+    for(size_t i = 0; i < 3; i++)
+    {
+        mat41_t q_temp = q_right.col(i);
+
+        columns.col(i) = otimes(q_left, q_temp);
+    }
+
+    return columns;
 }
 
-mat34_t otimes(const mat34_t &q_left, const mat41_t &q_right)
+mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right)
 {
-    return mat34_t();
+    mat43_t columns;
+    for(size_t i = 0; i < 3; i++)
+    {
+        mat41_t q_temp = q_left.col(i);
+
+        columns.col(i) = otimes(q_temp, q_right);
+    }
+
+    return columns;
 }

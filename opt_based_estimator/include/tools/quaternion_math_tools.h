@@ -19,9 +19,9 @@ mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right);
  * @return mat34_t 
  */
 
-mat34_t otimes(const mat41_t &q_left, const mat34_t &q_right);
+mat43_t otimes(const mat41_t &q_left, const mat43_t &q_right);
 
-mat34_t otimes(const mat34_t &q_left, const mat41_t &q_right);
+mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right);
 
 
 #endif
