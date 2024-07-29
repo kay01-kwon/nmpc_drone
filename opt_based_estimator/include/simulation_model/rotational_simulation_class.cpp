@@ -15,6 +15,7 @@ void RotationalSimulation::setInput(const vector_t &M, const vector_t &theta)
 
 void RotationalSimulation::do_simulation()
 {
+    // Integrate the ode function
     rk4.do_step(
         [this]
         (const rotational_state_t &s, rotational_state_t &dsdt, const double& t)
@@ -23,6 +24,7 @@ void RotationalSimulation::do_simulation()
         }, s_, prev_time_, dt_
     );
 
+    // Update time
     curr_time_ = prev_time_ + dt_;
 }
 
