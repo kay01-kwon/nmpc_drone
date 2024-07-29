@@ -24,7 +24,8 @@
                 "/home/kay/voxfield_ws/src/voxfield/voxblox_ros/include/**",
                 "/home/kay/voxfield_ws/src/voxfield/voxblox_rviz_plugin/include/**",
                 "/usr/include/**",
-                "${workspaceFolder}/l1_estimator/include"
+                "${workspaceFolder}/l1_estimator/include",
+                "${workspaceFolder}/opt_based_estimator/include"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
