@@ -14,11 +14,11 @@ class RotationalSimulation{
 
     void do_simulation();
 
-    quaternion_t *get_quaternion() const;
+    quaternion_t get_quaternion() const;
 
-    vector_t *get_angular_velocity() const;
+    vector_t get_angular_velocity() const;
 
-    double *get_time() const;
+    double get_time() const;
 
     private:
 
