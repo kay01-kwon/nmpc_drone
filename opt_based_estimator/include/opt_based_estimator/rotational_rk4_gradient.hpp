@@ -10,9 +10,9 @@ class RotRK4Grad{
 
     RotRK4Grad(const mat33_t& J);
 
-    void set_time(const double& curr_time);
+    void set_time_difference(const double& dt);
 
-    void set_meas_state(const quaternion_t &q_init, const vector_t& w_init);
+    void set_initial_state(const quaternion_t &q_init, const vector_t& w_init);
 
     void set_input_disturbance(const vector_t &M_init, const vector_t &theta_init);
 
@@ -26,12 +26,12 @@ class RotRK4Grad{
     
     vector_t M_, theta_;
 
-    mat41_t q_init_, q_m1_, q_m2_, q_f_;
-    vector_t w_init_, w_m1_, w_m2_, w_f_;
+    mat41_t q_init_;
+    vector_t w_init_;
 
-    mat73_t DK1, DK2, DK3, DK4;
+    mat73_t DK1_;
     
-    double curr_time_, prev_time_, dt_;
+    double dt_;
 
 };
 
