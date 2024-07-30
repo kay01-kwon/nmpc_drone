@@ -39,7 +39,7 @@ void RotDistEst::solve()
 void RotDistEst::nominal_dynamics(const rotational_state_t &s, rotational_state_t &dsdt, 
 const double &time, const vector_t &M, const vector_t &theta)
 {
-    quaternion_t q, w_quaternion_form, q_temp, dqdt;
+    quaternion_t q, q_mul, dqdt;
     vector_t w, dwdt;
 
     q.w() = s(0);
@@ -54,13 +54,13 @@ const double &time, const vector_t &M, const vector_t &theta)
     w(1) = s(5);
     w(2) = s(6);
     
-    q_temp = otimes(q, w);
+    q_mul = otimes(q, w);
 
     // dqdt = 0.5 * q otimes [0;w]
-    dqdt.w() = 0.5*q_temp.w();
-    dqdt.x() = 0.5*q_temp.x();
-    dqdt.y() = 0.5*q_temp.y();
-    dqdt.z() = 0.5*q_temp.z();
+    dqdt.w() = 0.5*q_mul.w();
+    dqdt.x() = 0.5*q_mul.x();
+    dqdt.y() = 0.5*q_mul.y();
+    dqdt.z() = 0.5*q_mul.z();
 
     dwdt = J_nom_.inverse()  * (M - w.cross(J_nom_*w) + theta);
 }
