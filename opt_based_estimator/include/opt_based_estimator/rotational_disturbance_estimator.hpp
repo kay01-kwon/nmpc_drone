@@ -13,6 +13,9 @@ class RotDistEst{
     const double &term_error = 1E-3, const uint8_t &iter_max = 30);
 
     void set_time(const double &curr_time);
+    void set_meas_state(const quaternion_t &q_meas, const vector_t &w_meas);
+
+    void solve();
 
     private:
 
@@ -23,10 +26,11 @@ class RotDistEst{
 
     // Object to solve runge kutta 4th order 
     // and its gradient w.r.t disturbance
-    OdeRK4Custom<rotational_state_t> rk4_solver;
-    RotRK4Grad rot_rk4_grad;
+    OdeRK4Custom<rotational_state_t> rk4_solver_obj_;
+    RotRK4Grad rot_rk4_grad_obj_;
 
-    rotational_state_t s_rk4;
+    rotational_state_t s_rk4_;
+    rotational_state_t s_meas_;
 
     void nominal_dynamics(const rotational_state_t &s,
     rotational_state_t &dsdt, const double &time,
