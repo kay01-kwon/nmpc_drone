@@ -23,10 +23,15 @@ class RotRK4Grad{
     double a1_, a2_, a3_, a4_;
 
     mat33_t J_, J_x_;
-    mat41_t q_m1_, q_m2_, q_f_;
-    vector_t w_m1_, w_m2_, w_f_;
+    
+    vector_t M_, theta_;
+
+    mat41_t q_init_, q_m1_, q_m2_, q_f_;
+    vector_t w_init_, w_m1_, w_m2_, w_f_;
+
     mat73_t DK1, DK2, DK3, DK4;
     
+    double curr_time_, prev_time_, dt_;
 
 };
 

@@ -44,6 +44,13 @@ mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right)
     return Lambda*q_right;
 }
 
+mat41_t otimes(const mat41_t &q_left, const vector_t &w)
+{
+    mat41_t w_quat;
+    w_quat << 0, w(0), w(1), w(2);
+    return otimes(q_left, w_quat);
+}
+
 mat43_t otimes(const mat41_t &q_left, const mat43_t &q_right)
 {
     mat43_t columns;

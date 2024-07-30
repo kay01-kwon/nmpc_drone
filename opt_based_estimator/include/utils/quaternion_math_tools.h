@@ -21,6 +21,16 @@ quaternion_t otimes(const quaternion_t &q_left, const quaternion_t &q_right);
 mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right);
 
 /**
+ * @brief Arg - quaternion and angualar velocity
+ * 
+ * @param q_left 
+ * @param w 
+ * @return mat41_t 
+ */
+mat41_t otimes(const mat41_t &q_left, const vector_t &w);
+
+
+/**
  * @brief Arg - Matrix form, Output - Matrix form
  * 
  * @param q_left 4 by 1 (w, x, y, z)
