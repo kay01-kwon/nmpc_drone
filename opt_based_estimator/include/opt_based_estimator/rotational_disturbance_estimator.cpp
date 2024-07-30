@@ -69,7 +69,7 @@ void RotDistEst::solve()
         rk4_solver_obj_.do_step(
             [this](const rotational_state_t &s, rotational_state_t &dsdt, const double &t)
             {
-                this->RotDistEst::nominal_dynamics(s,dsdt,t,M_, theta_k_);
+                this->RotDistEst::nominal_dynamics(s, dsdt, t, M_, theta_k_);
             }, s_rk4_, prev_time_, dt_
         );
 

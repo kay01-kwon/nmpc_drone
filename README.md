@@ -57,8 +57,8 @@ But, it is problematic since it only utilizes angular velocity data which is sus
 
 $\omega_{meas} = \omega + \eta_{\omega} + b_{\omega}$
 
-where $\eta_{\omega}$ ~ $\mathcal{N}(0,Q)$ and 
-$\dot{b_{\omega}}$ ~ $\mathcal{N}(0,R)$.
+where $\eta_{\omega}$ ~ $\mathcal{N}(0,\sigma_{\eta_{\omega}}^{2})$ and 
+$\dot{b_{\omega}}$ ~ $\mathcal{N}(0,\sigma_{b_{\omega}}^2)$.
 
 Thus, quaternion should be used to estimate the disturbance perfectly.
 
@@ -66,9 +66,9 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 - [x] Construct rotational dynamics for simulation.
 
-- [ ] Program the derivative of runge kutta 4th order with respect to $\theta_{est}$.
+- [x] Implement the derivative of runge kutta 4th order with respect to $\theta_{est}$.
 
-- [ ] Program newton's method to estimate the orientational disturbance.
+- [x] Implement newton's method to estimate the orientational disturbance.
 
 - [ ] Make the test code and then check the time that it takes to compute the iteration.
 
