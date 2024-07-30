@@ -22,7 +22,7 @@ class RotRK4Grad{
 
     double a1_, a2_, a3_, a4_;
 
-    mat33_t J_, J_x_;
+    mat33_t J_, J_x_, Eye_;
     
     vector_t M_, theta_;
 

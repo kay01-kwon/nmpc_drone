@@ -6,7 +6,8 @@ a1_(static_cast<double>(1.0)),
 a2_(static_cast<double>(2.0)),
 a3_(static_cast<double>(2.0)),
 a4_(static_cast<double>(1.0)),
-dt_(0.01)
+dt_(0.01),
+Eye_(Eye_.setIdentity())
 {
     double Jxx, Jyy, Jzz;
     Jxx = J_(0);
@@ -41,12 +42,31 @@ void RotRK4Grad::set_input_disturbance(const vector_t &M_init, const vector_t &t
 
 mat73_t RotRK4Grad::getRK4Grad() const
 {
+    mat41_t q_temp;
+    vector_t w_temp;
 
-    mat41_t q_m1;
-    vector_t w_m1;
+    // Compute q_m1 and w_m1
+    q_temp = q_init_ + dt_/2.0*1/2.0*otimes(q_init_, w_init_);
+    w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_init_.cross(J_*w_init_) + theta_);
 
-    q_m1 = q_init_ + dt_/2.0*1/2.0*otimes(q_init_, w_init_);
-    w_m1 = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_init_.cross(J_*w_init_) + theta_);
+    mat43_t dq_temp;
+    mat33_t dw_temp;
+
+    // Compute dq_m1 and dw_m1
+    dq_temp.setZero();
+    dw_temp = dt_/2.0*J_.inverse();
+
+    mat73_t DK2;
+    DK2.block(0, 0, 3, 2) = 1/2.0 * otimes(q_temp, dw_temp);
+    DK2.block(4, 0, 6, 2) = J_.inverse()*(-J_x_*dw_temp + Eye_);
+
+    // Compute q_m2 and w_m2
+    q_temp = q_init_ + dt_/2.0*1/2.0*otimes(q_temp, w_temp);
+    w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_temp.cross(J_*w_temp) + theta_);
+
+    // Compute dq_m2 and dw_m2
+    
+
 
 
 
