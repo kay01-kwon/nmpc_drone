@@ -95,3 +95,8 @@ mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right)
 
     return columns;
 }
+
+double signum(const double &qw)
+{
+    return qw >=0?1:-1;
+}

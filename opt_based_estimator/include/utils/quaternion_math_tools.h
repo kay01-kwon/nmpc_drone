@@ -75,4 +75,12 @@ mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right);
  */
 mat43_t otimes(const mat43_t &q_left, const vector_t &w);
 
+/**
+ * @brief Signum function
+ * 
+ * @param qw 
+ * @return double 
+ */
+double signum(const double &qw);
+
 #endif

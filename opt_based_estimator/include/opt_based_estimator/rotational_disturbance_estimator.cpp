@@ -44,6 +44,21 @@ void RotDistEst::solve()
     dt_ = curr_time_ - prev_time_;
     double error = 1;
     uint8_t iter = 0;
+
+    quaternion_t q_rk4_temp_conj, q_meas, q_tilde;
+
+    rotational_state_t s_tilde;
+
+    mat73_t RK_grad;
+
+    double sign;
+
+    q_meas.w() = s_meas_(0);
+    q_meas.x() = s_meas_(1);
+    q_meas.y() = s_meas_(2);
+    q_meas.z() = s_meas_(3);
+
+
     while(fabs(error) > term_error_)
     {
         rk4_solver_obj_.do_step(
@@ -52,6 +67,26 @@ void RotDistEst::solve()
                 this->RotDistEst::nominal_dynamics(s,dsdt,t,M_, theta_k_);
             }, s_rk4_, prev_time_, dt_
         );
+
+        q_rk4_temp_conj.w() = s_rk4_(0);
+        q_rk4_temp_conj.x() = -s_rk4_(1);
+        q_rk4_temp_conj.y() = -s_rk4_(2);
+        q_rk4_temp_conj.z() = -s_rk4_(3);
+
+        q_tilde = otimes(q_rk4_temp_conj, q_meas);
+
+        s_tilde(0) = q_tilde.w();
+
+        sign = signum(q_tilde.w());
+
+        s_tilde(1) = sign * q_tilde.x();
+        s_tilde(2) = sign * q_tilde.y();
+        s_tilde(3) = sign * q_tilde.z();
+        
+        for(size_t i = 0; i < 3; i++)
+            s_tilde(i+4) = s_meas_(i+4) - s_rk4_(i+4);
+        
+        RK_grad = rot_rk4_grad_obj_.getRK4Grad();
 
 
         s_rk4_ = s_init_;

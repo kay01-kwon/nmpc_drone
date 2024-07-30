@@ -34,6 +34,15 @@ void RotRK4Grad::set_initial_state(const quaternion_t &q_init, const vector_t &w
     w_init_ = w_init;
 }
 
+void RotRK4Grad::set_initial_state(const rotational_state_t &s_init)
+{
+    for(size_t i = 0; i < 4; i++)
+        q_init_(i) = s_init(i);
+    
+    for(size_t i = 0; i < 3; i++)
+        w_init_(i) = s_init(i+4);
+}
+
 void RotRK4Grad::set_input_disturbance(const vector_t &M_init, const vector_t &theta_init)
 {
     M_ = M_init;

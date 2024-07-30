@@ -14,6 +14,8 @@ class RotRK4Grad{
 
     void set_initial_state(const quaternion_t &q_init, const vector_t& w_init);
 
+    void set_initial_state(const rotational_state_t &s_init);
+
     void set_input_disturbance(const vector_t &M_init, const vector_t &theta_init);
 
     mat73_t getRK4Grad() const;
