@@ -3,7 +3,8 @@
 RotDistEst::RotDistEst(const mat33_t &J, const mat77_t &Q, 
 const double &term_error, const uint8_t &iter_max)
 :J_nom_(J), Q_(Q), term_error_(term_error), iter_max_(iter_max),
-rot_rk4_grad_obj_(J_nom_), curr_time_(0), prev_time_(0), dt_(0)
+rot_rk4_grad_obj_(J_nom_), curr_time_(0), prev_time_(0), dt_(0),
+theta_k_(theta_k_.setZero()), M_(M_.setZero())
 {
     s_init_.setZero();
     s_meas_.setZero();
@@ -32,9 +33,34 @@ void RotDistEst::set_meas_state(const quaternion_t &q_meas, const vector_t &w_me
     
 }
 
+void RotDistEst::set_input(const vector_t &M, const vector_t &theta)
+{
+    M_ = M;
+    theta_k_ = theta;
+}
+
 void RotDistEst::solve()
 {
+    dt_ = curr_time_ - prev_time_;
+    double error = 1;
+    uint8_t iter = 0;
+    while(fabs(error) > term_error_)
+    {
+        rk4_solver_obj_.do_step(
+            [this](const rotational_state_t &s, rotational_state_t &dsdt, const double &t)
+            {
+                this->RotDistEst::nominal_dynamics(s,dsdt,t,M_, theta_k_);
+            }, s_rk4_, prev_time_, dt_
+        );
 
+
+        s_rk4_ = s_init_;
+
+        if(iter >= iter_max_)
+        {
+            break;
+        }
+    }
 
     // Iteration is finished
     // Set the initial state as measured one.

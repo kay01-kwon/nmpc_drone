@@ -14,6 +14,7 @@ class RotDistEst{
 
     void set_time(const double &curr_time);
     void set_meas_state(const quaternion_t &q_meas, const vector_t &w_meas);
+    void set_input(const vector_t &M, const vector_t &theta);
 
     void solve();
 
@@ -37,7 +38,7 @@ class RotDistEst{
     rotational_state_t &dsdt, const double &time,
     const vector_t &M, const vector_t &theta);
 
-    vector_t theta_k_;
+    vector_t M_, theta_k_;
 
     double curr_time_, prev_time_, dt_;
 
