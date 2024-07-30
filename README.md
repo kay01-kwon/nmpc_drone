@@ -70,7 +70,9 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 - [x] Implement newton's method to estimate the orientational disturbance.
 
-- [ ] Make the test code and then check the time that it takes to compute the iteration.
+- [ ] Make the test code, check the error and then fix it.
+
+- [ ] Finally check the time that it takes to compute the iteration.
 
 ## Rotational kinematics and dynamics
 
