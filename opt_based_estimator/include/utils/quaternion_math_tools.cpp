@@ -24,6 +24,17 @@ quaternion_t otimes(const quaternion_t &q_left, const quaternion_t &q_right)
     return q_res;
 }
 
+quaternion_t otimes(const quaternion_t &q_left, const vector_t &w)
+{
+    quaternion_t w_quat_form;
+    w_quat_form.w() = 0;
+    w_quat_form.x() = w(0);
+    w_quat_form.y() = w(1);
+    w_quat_form.z() = w(2);
+
+    return otimes(q_left, w_quat_form);
+}
+
 mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right)
 {
     mat44_t Lambda;

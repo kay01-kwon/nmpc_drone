@@ -31,6 +31,7 @@ class RotDistEst{
 
     rotational_state_t s_rk4_;
     rotational_state_t s_meas_;
+    rotational_state_t s_init_;
 
     void nominal_dynamics(const rotational_state_t &s,
     rotational_state_t &dsdt, const double &time,

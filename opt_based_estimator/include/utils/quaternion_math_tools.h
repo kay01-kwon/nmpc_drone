@@ -12,6 +12,15 @@
 quaternion_t otimes(const quaternion_t &q_left, const quaternion_t &q_right);
 
 /**
+ * @brief quaternion otimes 3x1 angular velocity
+ * 
+ * @param q_left 
+ * @param w 
+ * @return quaternion_t 
+ */
+quaternion_t otimes(const quaternion_t &q_left, const vector_t &w);
+
+/**
  * @brief 4x1 quaternion otimes 4x1 quaternion
  * 
  * @param q_left 4 by 1 (w, x, y, z)
