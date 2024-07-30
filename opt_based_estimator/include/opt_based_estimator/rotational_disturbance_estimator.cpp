@@ -49,15 +49,20 @@ void RotDistEst::solve()
 
     rotational_state_t s_tilde;
 
-    mat73_t RK_grad;
-
     double sign;
+
+    mat73_t RK_grad;
+    mat37_t gradient_f;
+    mat33_t Hessian_f;
 
     q_meas.w() = s_meas_(0);
     q_meas.x() = s_meas_(1);
     q_meas.y() = s_meas_(2);
     q_meas.z() = s_meas_(3);
 
+    rot_rk4_grad_obj_.set_time_difference(dt_);
+    rot_rk4_grad_obj_.set_initial_state(s_init_);
+    rot_rk4_grad_obj_.set_input_disturbance(M_, theta_k_);
 
     while(fabs(error) > term_error_)
     {
@@ -88,6 +93,11 @@ void RotDistEst::solve()
         
         RK_grad = rot_rk4_grad_obj_.getRK4Grad();
 
+        gradient_f = - dt_/6.0 * RK_grad.transpose() * Q_ * s_tilde;
+
+        Hessian_f = dt_*dt_/36.0 * RK_grad.transpose() * Q_ * RK_grad;
+
+        theta_k_ = theta_k_ - Hessian_f.inverse() * gradient_f;
 
         s_rk4_ = s_init_;
 
