@@ -45,10 +45,6 @@ mat73_t RotRK4Grad::getRK4Grad() const
     mat41_t q_temp;
     vector_t w_temp;
 
-    // Compute q_m1 and w_m1
-    q_temp = q_init_ + dt_/2.0*1/2.0*otimes(q_init_, w_init_);
-    w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_init_.cross(J_*w_init_) + theta_);
-
     mat43_t dq_temp;
     mat33_t dw_temp;
 
@@ -56,19 +52,39 @@ mat73_t RotRK4Grad::getRK4Grad() const
     dq_temp.setZero();
     dw_temp = dt_/2.0*J_.inverse();
 
+    // Compute q_m1 and w_m1
+    q_temp = q_init_ + dt_/2.0*1/2.0*otimes(q_init_, w_init_);
+    w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_init_.cross(J_*w_init_) + theta_);
+
     mat73_t DK2;
     DK2.block(0, 0, 3, 2) = 1/2.0 * otimes(q_temp, dw_temp);
     DK2.block(4, 0, 6, 2) = J_.inverse()*(-J_x_*dw_temp + Eye_);
+
+    // Compute dq_m2 and dw_m2
+    dq_temp = dt_/2.0 * 1/2.0 * otimes(q_temp, dw_temp);
+    dw_temp = dt_/2.0 * J_.inverse() *(-J_x_*dw_temp + Eye_);
 
     // Compute q_m2 and w_m2
     q_temp = q_init_ + dt_/2.0*1/2.0*otimes(q_temp, w_temp);
     w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_temp.cross(J_*w_temp) + theta_);
 
-    // Compute dq_m2 and dw_m2
+    mat73_t DK3;
+    DK3.block(0, 0, 3, 2) = 1/2.0* otimes(dq_temp, w_temp)
+    + 1/2.0 * otimes(q_temp, dw_temp);
+    DK3.block(4, 0, 6, 2)  = J_.inverse()*(-J_x_*dw_temp + Eye_);
+
+    // Compute dq_f and dw_f
+    dq_temp = dt_*1/2.0*(otimes(dq_temp, w_temp) + otimes(q_temp,dw_temp));
+    dw_temp = dt_*J_.inverse()*(-J_x_*dw_temp + Eye_);
+
+    // Compute q_f and w_f
+    q_temp = q_init_ + dt_*(1/2.0*otimes(q_temp, w_temp));
+    w_temp = w_init_ + dt_*J_.inverse()*(M_ - w_temp.cross(J_*w_temp) + theta_);
+
+    mat73_t DK4;
+    DK4.block(0, 0, 3, 2) = 0.5*(otimes(dq_temp, w_temp) + otimes(q_temp, dw_temp));
+    DK4.block(4, 0, 6, 2) = J_.inverse()*(-J_x_*dw_temp + Eye_);
     
 
-
-
-
-    return mat73_t();
+    return a1_*DK1_ + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }

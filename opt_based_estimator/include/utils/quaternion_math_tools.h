@@ -3,7 +3,7 @@
 #include "type_definitions.h"
 
 /**
- * @brief Arg - quaternion form, output - quaternion form
+ * @brief quaternion otimes quaternion
  * 
  * @param q_left q.w(), q.y() ,q.x() ,q.z()
  * @param q_right q.w(), q.y() ,q.x() ,q.z()
@@ -12,7 +12,7 @@
 quaternion_t otimes(const quaternion_t &q_left, const quaternion_t &q_right);
 
 /**
- * @brief Arg - matrix form, Output - matrix form
+ * @brief 4x1 quaternion otimes 4x1 quaternion
  * 
  * @param q_left 4 by 1 (w, x, y, z)
  * @param q_right 4 by 1 (w, x, y, z)
@@ -21,7 +21,7 @@ quaternion_t otimes(const quaternion_t &q_left, const quaternion_t &q_right);
 mat41_t otimes(const mat41_t &q_left, const mat41_t &q_right);
 
 /**
- * @brief Arg - quaternion and angualar velocity
+ * @brief 4x1 quaternion otimes 3x1 angular velocity
  * 
  * @param q_left 
  * @param w 
@@ -31,7 +31,7 @@ mat41_t otimes(const mat41_t &q_left, const vector_t &w);
 
 
 /**
- * @brief Arg - Matrix form, Output - Matrix form
+ * @brief 4x1 quaternion otimes 4x3 quaternion
  * 
  * @param q_left 4 by 1 (w, x, y, z)
  * @param q_right 4 by 3
@@ -39,10 +39,17 @@ mat41_t otimes(const mat41_t &q_left, const vector_t &w);
  */
 mat43_t otimes(const mat41_t &q_left, const mat43_t &q_right);
 
+/**
+ * @brief 4x1 quaternion otimes 3x3 angular velocity
+ * 
+ * @param q_left 
+ * @param w 
+ * @return mat43_t 
+ */
 mat43_t otimes(const mat41_t &q_left, const mat33_t &w);
 
 /**
- * @brief Arg - matrix form, Output - matrix form
+ * @brief 4x3 quaternion otimes 4x1 quaternion
  * 
  * @param q_left Three quaternions with four elements (w, x, y, z) 
  * @param q_right (w, x, y, z)
@@ -50,5 +57,13 @@ mat43_t otimes(const mat41_t &q_left, const mat33_t &w);
  */
 mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right);
 
+/**
+ * @brief 4x3 quaternions otimes 3x1 angular velocity
+ * 
+ * @param q_left 
+ * @param w 
+ * @return mat43_t 
+ */
+mat43_t otimes(const mat43_t &q_left, const vector_t &w);
 
 #endif
