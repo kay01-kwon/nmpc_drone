@@ -61,7 +61,7 @@ rotational_state_t &dsdt,
 const double &time, 
 const vector_t &M, const vector_t &theta)
 {
-    quaternion_t q, w_quaternion_form, q_temp, dqdt;
+    quaternion_t q, q_mul, dqdt;
     vector_t w, dwdt;
 
     q.w() = s(0);
@@ -75,19 +75,14 @@ const vector_t &M, const vector_t &theta)
     w(0) = s(4);
     w(1) = s(5);
     w(2) = s(6);
-
-    w_quaternion_form.w() = 0;
-    w_quaternion_form.x() = w(0);
-    w_quaternion_form.y() = w(1);
-    w_quaternion_form.z() = w(2);
     
-    q_temp = otimes(q, w_quaternion_form);
+    q_mul = otimes(q, w);
 
     // dqdt = 0.5 * q otimes [0;w]
-    dqdt.w() = 0.5*q_temp.w();
-    dqdt.x() = 0.5*q_temp.x();
-    dqdt.y() = 0.5*q_temp.y();
-    dqdt.z() = 0.5*q_temp.z();
+    dqdt.w() = 0.5*q_mul.w();
+    dqdt.x() = 0.5*q_mul.x();
+    dqdt.y() = 0.5*q_mul.y();
+    dqdt.z() = 0.5*q_mul.z();
 
     dwdt = J_.inverse()  * (M - w.cross(J_*w) + theta);
 
