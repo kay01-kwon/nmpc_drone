@@ -34,6 +34,14 @@ void RotDistEst::set_meas_state(const quaternion_t &q_meas, const vector_t &w_me
 
 void RotDistEst::solve()
 {
+
+
+    // Iteration is finished
+    // Set the initial state as measured one.
+    s_init_ = s_meas_;
+    // Set the previous time as current time
+    prev_time_ = curr_time_;
+
 }
 
 void RotDistEst::nominal_dynamics(const rotational_state_t &s, rotational_state_t &dsdt, 
