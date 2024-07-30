@@ -66,7 +66,7 @@ class RotationalSimulation{
 
     void rotational_dynamics(const rotational_state_t& s,
     rotational_state_t& dsdt, const double &time, 
-    const vector_t& M, const vector_t theta);
+    const vector_t& M, const vector_t &theta);
 
 };
 

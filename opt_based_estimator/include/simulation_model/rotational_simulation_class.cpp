@@ -59,7 +59,7 @@ double RotationalSimulation::get_time() const
 void RotationalSimulation::rotational_dynamics(const rotational_state_t &s, 
 rotational_state_t &dsdt, 
 const double &time, 
-const vector_t &M, const vector_t theta)
+const vector_t &M, const vector_t &theta)
 {
     quaternion_t q, w_quaternion_form, q_temp, dqdt;
     vector_t w, dwdt;
