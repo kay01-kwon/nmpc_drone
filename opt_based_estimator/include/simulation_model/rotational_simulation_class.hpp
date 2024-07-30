@@ -1,6 +1,6 @@
 #ifndef ROTATIONAL_SIMULATION_CLASS_HPP
 #define ROTATIONAL_SIMULAITON_CLASS_HPP
-#include "tools/quaternion_math_tools.h"
+#include "utils/quaternion_math_tools.h"
 #include "ode_solver/ode_solver_include.h"
 class RotationalSimulation{
 
