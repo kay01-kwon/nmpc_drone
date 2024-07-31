@@ -24,9 +24,12 @@ class PlotTool{
 
     void set_keywords(const int &line_width, const int &label_font_size, const int &tick_font_size);
 
+    void set_ticks_size(const int &x_tick_size, const int &y_tick_size);
+
     void add_data(const double &time, const vector_t &true_data, const vector_t &est_data);
 
-    void plot_data(const string &y_label, const string &data1_label, const string &data2_label);
+    void plot_data(const string &title_name, const string &y_label_name, 
+    const string &data1_name, const string &data2_name);
 
     private:
     
@@ -34,15 +37,23 @@ class PlotTool{
 
     void set_font_size(const int &font_size);
 
-    void set_ticks(const int &x_tick_size, const int &y_tick_size);
+    void push_back_ticks();
+
+    void store_min_data(const vector_t &data);
+
+    void store_max_data(const vector_t &data);
 
     map<string, string> line_keywords_;
     map<string, string> label_keywords_;
     map<string, string> tick_keywords_;
     map<string, string> legend_keywords_;
 
-    vector<double> theta_x_est_, theta_y_est_, theta_z_est_;
-    vector<double> theta_x_exg_, theta_y_exg_, theta_z_exg_;
+    vector<double> data_x_est_, data_y_est_, data_z_est_;
+    vector<double> data_x_exg_, data_y_exg_, data_z_exg_;
+
+    double data_x_max_, data_x_min_;
+    double data_y_max_, data_y_min_;
+    double data_z_max_, data_z_min_;
 
     vector<double> x_tick_vec_;
     vector<double> y_tick_vec_;
