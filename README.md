@@ -70,7 +70,7 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 - [x] Implement newton's method to estimate the orientational disturbance.
 
-- [ ] Differentiation of inerital term with respect to $\theta_{est}$.
+- [x] Differentiation of inerital term with respect to $\theta_{est}$.
 
 - [ ] Make the test code, check the error and then fix it.
 
