@@ -20,11 +20,9 @@ class PlotTool{
 
     PlotTool();
 
-    PlotTool(const size_t &size_of_data);
+    PlotTool(const size_t &data_size, const int &x_tick_size, const int &y_tick_size);
 
     void set_keywords(const int &line_width, const int &label_font_size, const int &tick_font_size);
-
-    void set_ticks_size(const int &x_tick_size, const int &y_tick_size);
 
     void add_data(const double &time, const vector_t &true_data, const vector_t &est_data);
 
@@ -51,14 +49,12 @@ class PlotTool{
     vector<double> data_x_est_, data_y_est_, data_z_est_;
     vector<double> data_x_exg_, data_y_exg_, data_z_exg_;
 
-    double data_x_max_, data_x_min_;
-    double data_y_max_, data_y_min_;
-    double data_z_max_, data_z_min_;
-
     vector<double> x_tick_vec_;
     vector<double> y_tick_vec_;
 
-    size_t data_size_;
+    double data_x_max_, data_x_min_;
+    double data_y_max_, data_y_min_;
+    double data_z_max_, data_z_min_;
 
 };
 
