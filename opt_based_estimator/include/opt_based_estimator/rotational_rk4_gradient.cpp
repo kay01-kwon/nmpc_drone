@@ -97,3 +97,13 @@ mat73_t RotRK4Grad::getRK4Grad() const
 
     return a1_*DK1_ + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }
+
+mat33_t RotRK4Grad::DiffInertial(const vector_t &w, const mat33_t &dw)
+{
+    mat33_t temp;
+
+    temp << dw(1,0)*w(2)+w(1)*dw(2,0), dw(1,1)*w(2)+w(1)*dw(2,1), dw(1,2)*w(2)+w(1)*dw(2,2),
+    dw(0,0)*w(2)+w(0)*dw(2,0), dw(0,1)*w(2)+w(0)*dw(2,1), dw(0,2)*w(2)+w(0)*dw(2,2),
+    dw(0,0)*w(1)+w(0)*dw(1,0), dw(0,1)*w(1)+w(0)*dw(1,1), dw(0,2)*w(1)+w(0)*dw(1,2);
+    return mat33_t();
+}

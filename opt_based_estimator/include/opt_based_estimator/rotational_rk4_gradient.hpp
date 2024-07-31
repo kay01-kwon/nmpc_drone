@@ -22,6 +22,8 @@ class RotRK4Grad{
 
     private:
 
+    mat33_t DiffInertial(const vector_t &w, const mat33_t &dw);
+
     double a1_, a2_, a3_, a4_;
 
     mat33_t J_, J_x_, Eye_;
