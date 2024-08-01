@@ -71,15 +71,17 @@ const size_t &x_tick_size, const size_t &y_tick_size)
     true_data_.reserve(dim);
     est_data_.reserve(dim);
 
-    x_tick_vec_.reserve(dim);
+    data_max_.reserve(dim);
+    data_min_.reserve(dim);
+
+    x_tick_vec_.reserve(x_tick_size);
+
     y_tick_vec_.reserve(dim);
 
     for(size_t i = 0; i < true_data_.capacity(); i++)
     {
         true_data_[i].reserve(data_size);
         est_data_[i].reserve(data_size);
-
-        x_tick_vec_[i].reserve(x_tick_size);
         y_tick_vec_[i].reserve(y_tick_size);
     }
 
@@ -99,29 +101,17 @@ void PlotTool::set_font_size(map<string, string> &keywords, const double &font_s
     );
 }
 
-void PlotTool::push_back_ticks(const double &y_min, const double &y_max)
+void PlotTool::push_back_ticks()
 {
-    double gap;
+    double gap[3];
 
-    // if(y_min != 0)
-    // {
-    //     y_min = y_min < 0 ? 1.2*y_min : 0.8*y_min;
-    // }
-    // else
-    // {
-    //     y_min = -0.2;
-    // }
+    for(size_t i = 0; i < est_data_.capacity(); i++)
+    {
+        compute_boundary(data_min_[i], data_max_[i]);
 
-    // if(y_max != 0)
-    // {
-    //     y_max = y_max < 0 ? 0.8*y_max : 1.2*y_max;
-    // }
-    // else
-    // {
-    //     y_max = 0.2;
-    // }
+        gap[i] = data_max_[i] - data_min_[i];
+    }
 
-    gap = y_max - y_min;
 }
 
 void PlotTool::store_min_vec(const vector_t &vec)
@@ -146,4 +136,25 @@ void PlotTool::set_min_data(const double &data, double &min_data)
 {
     if(min_data > data)
         min_data = data;
+}
+
+void PlotTool::compute_boundary(double &y_min, double &y_max)
+{
+    if(y_min != 0)
+    {
+        y_min = y_min < 0 ? 1.2*y_min : 0.8*y_min;
+    }
+    else
+    {
+        y_min = -0.2;
+    }
+
+    if(y_max != 0)
+    {
+        y_max = y_max < 0 ? 0.8*y_max : 1.2*y_max;
+    }
+    else
+    {
+        y_max = 0.2;
+    }
 }

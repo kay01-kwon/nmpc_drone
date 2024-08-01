@@ -37,7 +37,7 @@ class PlotTool{
 
     void set_font_size(map<string, string> &keywords, const double &font_size);
 
-    void push_back_ticks(const double &y_min, const double &y_max);
+    void push_back_ticks();
 
     void store_min_vec(const vector_t &vec);
 
@@ -46,6 +46,8 @@ class PlotTool{
     void set_min_data(const double& data, double &min_data);
 
     void set_max_data(const double& data, double &max_data);
+
+    void compute_boundary(double &y_min, double &y_max);
 
     map<string, string> line_keywords_;
     map<string, string> label_keywords_;
@@ -56,10 +58,10 @@ class PlotTool{
     vector< vector<double> > true_data_;
     vector< vector<double> > est_data_;
 
-    vector< vector<double> > x_tick_vec_;
+    vector<double> x_tick_vec_;
     vector< vector<double> > y_tick_vec_;
 
-    double data_max_[3], data_min_[3];
+    vector<double> data_max_, data_min_;
 
 };
 
