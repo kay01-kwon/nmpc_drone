@@ -4,24 +4,29 @@
 
 PlotTool::PlotTool()
 {
-    size_t data_size;
+    size_t dim, data_size;
     int x_tick_size, y_tick_size;
+    dim = 3;
     data_size = 1000;
     x_tick_size = 5;
     y_tick_size = 4;
     
-    set_data_size(data_size, x_tick_size, y_tick_size);
+    set_data_size(dim, data_size, x_tick_size, y_tick_size);
 }
 
-PlotTool::PlotTool(const size_t &data_size, 
-const int &x_tick_size, const int &y_tick_size)
+PlotTool::PlotTool(const size_t &dim, const size_t &data_size, 
+const size_t &x_tick_size, const size_t &y_tick_size)
 {
-    set_data_size(data_size, x_tick_size, y_tick_size);
+    set_data_size(dim, data_size, x_tick_size, y_tick_size);
 }
 
 void PlotTool::set_keywords(const double &line_width, 
 const double &label_font_size, const double &tick_font_size)
 {
+    assert(line_width > 0);
+    assert(label_font_size > 0);
+    assert(tick_font_size > 0);
+
     set_line_width(line_width);
 
     set_font_size(label_keywords_, label_font_size);
@@ -33,8 +38,18 @@ void PlotTool::add_data(const double &time,
 const vector_t &true_data, const vector_t &est_data)
 {
     time_vec_.push_back(time);
-    demux_and_push_back(true_data, true_data_x_, true_data_y_, true_data_z_);
-    demux_and_push_back(est_data, est_data_x_, est_data_y_, est_data_z_);
+
+    size_t true_data_dim = true_data_.capacity();
+    size_t est_data_dim = est_data_.capacity();
+
+    assert(true_data_dim == est_data_dim);
+
+    for(size_t i = 0; i < true_data_dim; i++)
+    {
+        true_data_[i].push_back(true_data(i));
+        est_data_[i].push_back(est_data(i));
+    }
+
 }
 
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 
@@ -42,20 +57,28 @@ const string &data1_name, const string &data2_name)
 {
 }
 
-void PlotTool::set_data_size(const int &data_size, const int &x_tick_size, const int &y_tick_size)
+void PlotTool::set_data_size(const size_t &dim, const size_t &data_size, 
+const size_t &x_tick_size, const size_t &y_tick_size)
 {
+    assert(dim != 0);
+    assert(data_size != 0);
+    
     time_vec_.reserve(data_size);
 
-    true_data_x_.reserve(data_size);
-    true_data_y_.reserve(data_size);
-    true_data_z_.reserve(data_size);
+    true_data_.reserve(dim);
+    est_data_.reserve(dim);
 
-    est_data_x_.reserve(data_size);
-    est_data_y_.reserve(data_size);
-    est_data_z_.reserve(data_size);
+    x_tick_vec_.reserve(dim);
+    y_tick_vec_.reserve(dim);
 
-    x_tick_vec_.reserve(x_tick_size);
-    y_tick_vec_.reserve(y_tick_size);
+    for(size_t i = 0; i < true_data_.capacity(); i++)
+    {
+        true_data_[i].reserve(data_size);
+        est_data_[i].reserve(data_size);
+
+        x_tick_vec_[i].reserve(x_tick_size);
+        y_tick_vec_[i].reserve(y_tick_size);
+    }
 
 }
 
@@ -73,16 +96,29 @@ void PlotTool::set_font_size(map<string, string> &keywords, const double &font_s
     );
 }
 
-void PlotTool::push_back_ticks()
+void PlotTool::push_back_ticks(const double &y_min, const double &y_max)
 {
-}
+    double gap;
 
-void PlotTool::demux_and_push_back(const vector_t &data_vec, 
-vector<double> &data_x, vector<double> &data_y, vector<double> &data_z)
-{
-    data_x.push_back(data_vec(0));
-    data_y.push_back(data_vec(1));
-    data_z.push_back(data_vec(2));
+    // if(y_min != 0)
+    // {
+    //     y_min = y_min < 0 ? 1.2*y_min : 0.8*y_min;
+    // }
+    // else
+    // {
+    //     y_min = -0.2;
+    // }
+
+    // if(y_max != 0)
+    // {
+    //     y_max = y_max < 0 ? 0.8*y_max : 1.2*y_max;
+    // }
+    // else
+    // {
+    //     y_max = 0.2;
+    // }
+
+    gap = y_max - y_min;
 }
 
 void PlotTool::store_min_vec(const vector_t &vec)

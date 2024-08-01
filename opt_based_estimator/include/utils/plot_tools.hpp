@@ -18,7 +18,8 @@ class PlotTool{
 
     PlotTool();
 
-    PlotTool(const size_t &data_size, const int &x_tick_size, const int &y_tick_size);
+    PlotTool(const size_t &dim, const size_t &data_size, 
+    const size_t &x_tick_size, const size_t &y_tick_size);
 
     void set_keywords(const double &line_width, const double &label_font_size, const double &tick_font_size);
 
@@ -29,17 +30,14 @@ class PlotTool{
 
     private:
     
-    void set_data_size(const int &data_size, 
-    const int &x_tick_size, const int &y_tick_size);
+    void set_data_size(const size_t & dim, const size_t &data_size, 
+    const size_t &x_tick_size, const size_t &y_tick_size);
 
     void set_line_width(const double &line_width);
 
     void set_font_size(map<string, string> &keywords, const double &font_size);
 
-    void push_back_ticks();
-
-    void demux_and_push_back(const vector_t& data_vec, 
-    vector<double> &data_x, vector<double> &data_y, vector<double> &data_z);
+    void push_back_ticks(const double &y_min, const double &y_max);
 
     void store_min_vec(const vector_t &vec);
 
@@ -55,11 +53,11 @@ class PlotTool{
     map<string, string> legend_keywords_;
 
     vector<double> time_vec_;
-    vector<double> true_data_x_, true_data_y_, true_data_z_;
-    vector<double> est_data_x_, est_data_y_, est_data_z_;
+    vector< vector<double> > true_data_;
+    vector< vector<double> > est_data_;
 
-    vector<double> x_tick_vec_;
-    vector<double> y_tick_vec_;
+    vector< vector<double> > x_tick_vec_;
+    vector< vector<double> > y_tick_vec_;
 
     double data_max_[3], data_min_[3];
 
