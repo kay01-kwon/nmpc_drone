@@ -96,6 +96,18 @@ mat43_t otimes(const mat43_t &q_left, const mat41_t &q_right)
     return columns;
 }
 
+mat43_t otimes(const mat43_t &q_left, const vector_t &w)
+{
+    mat41_t w_quat_form;
+    
+    w_quat_form(0) = 0;
+    w_quat_form(1) = w(0);
+    w_quat_form(2) = w(2);
+    w_quat_form(3) = w(3);
+    
+    return otimes(q_left, w_quat_form);
+}
+
 double signum(const double &qw)
 {
     return qw >=0?1:-1;
