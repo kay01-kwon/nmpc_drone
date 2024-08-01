@@ -8,9 +8,9 @@ int main(int argc, char** argv)
 {
     mat33_t J;
 
-    J << 0.007, 0, 0,
-    0, 0.007, 0,
-    0, 0, 0.0012;
+    J << 1, 0, 0,
+    0, 1, 0,
+    0, 0, 1;
 
 
     // PlotTool plot_tool_obj;
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     vector_t M, theta_exg;
 
     M << 1, 0, 0;
-    theta_exg << 1, 0, 0;
+    theta_exg << 0, 0, 0;
 
     size_t N = (int) Tf*100;
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 
     for(size_t i = 0; i < N; i++)
     {
-        rot_sim_obj.setInput(M,theta_exg);
+        rot_sim_obj.setInput(M, theta_exg);
         rot_sim_obj.do_simulation();
 
         q_obs = rot_sim_obj.get_quaternion();
@@ -61,10 +61,10 @@ int main(int argc, char** argv)
         w_obs_vec[0].push_back(w_obs(0));
         w_obs_vec[1].push_back(w_obs(1));
         w_obs_vec[2].push_back(w_obs(2));
-
-        cout<<time_vec[i]<< endl;
         
     }
+
+    plt::figure_size(1280,780);
     
     plt::subplot(3,1,1);
     plt::plot(time_vec, w_obs_vec[0]);

@@ -1,10 +1,13 @@
 #include "rotational_simulation_class.hpp"
 
 RotationalSimulation::RotationalSimulation(const mat33_t &J, double dt)
-:J_(J), M_(M_.setZero()), theta_(theta_.setZero()),
-s_(s_.setZero()), curr_time_(0), prev_time_(0), dt_(dt)
+:J_(J), curr_time_(0), prev_time_(0), dt_(dt)
 {
+    s_.setZero();
     s_(0) = 1.0;
+    M_.setZero();
+    theta_.setZero();
+
 }
 
 void RotationalSimulation::setInput(const vector_t &M, const vector_t &theta)
@@ -15,7 +18,7 @@ void RotationalSimulation::setInput(const vector_t &M, const vector_t &theta)
 
 void RotationalSimulation::do_simulation()
 {
-    curr_time_ += dt_;
+    curr_time_ = curr_time_ + dt_;
     // Integrate the ode function
     rk4.do_step(
         [this]
@@ -27,6 +30,7 @@ void RotationalSimulation::do_simulation()
 
     // Update time
     prev_time_ = curr_time_;
+
 }
 
 quaternion_t RotationalSimulation::get_quaternion() const
@@ -85,6 +89,14 @@ const vector_t &M, const vector_t &theta)
     dqdt.y() = 0.5*q_mul.y();
     dqdt.z() = 0.5*q_mul.z();
 
-    dwdt = J_.inverse()  * (M - w.cross(J_*w) + theta);
+    dwdt = J_.inverse()  * ( M - w.cross(J_*w) + theta );
+
+    dsdt(0) = dqdt.w();
+    dsdt(1) = dqdt.x();
+    dsdt(2) = dqdt.y();
+    dsdt(3) = dqdt.z();
+
+    for(size_t i = 0; i < 3; i++)
+        dsdt(i+4) = dwdt(i);
 
 }
