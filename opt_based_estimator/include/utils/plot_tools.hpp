@@ -26,7 +26,7 @@ class PlotTool{
     void add_data(const double &time, const vector_t &true_data, const vector_t &est_data);
 
     void plot_data(const string &title_name, const string &y_label_name, 
-    const string &data1_name, const string &data2_name);
+    const string &data1_name, const string &data2_name, const size_t index);
 
     private:
     

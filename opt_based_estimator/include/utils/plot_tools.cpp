@@ -1,6 +1,6 @@
 #include "plot_tools.hpp"
-// #include "matplotlibcpp.h"
-// namespace plt = matplotlibcpp;
+#include "matplotlibcpp.h"
+namespace plt = matplotlibcpp;
 
 PlotTool::PlotTool()
 {
@@ -56,8 +56,42 @@ const vector_t &true_data, const vector_t &est_data)
 }
 
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 
-const string &data1_name, const string &data2_name)
+const string &data1_name, const string &data2_name, const size_t &index)
 {
+    push_back_ticks();
+
+    // 1. Insert the first data graph color and the name of it.
+    line_keywords_.insert(pair<string, string>
+    ("color","orangered"));
+
+    line_keywords_.insert(pair<string, string>
+    ("label", data1_name));
+
+    plt::plot(time_vec_, est_data_[index], line_keywords_);
+
+    // After plot the first data, erase color and label keywords from the line_keywords
+    line_keywords_.erase("color");
+    line_keywords_.erase("label");
+
+
+    // 2. Insert the second data graph color, name and its linestyle
+    line_keywords_.insert(pair<string, string>
+    ("color","limegreen"));
+
+    line_keywords_.insert(pair<string, string>
+    ("label", data2_name));
+
+    line_keywords_.insert(pair<string,string>
+    ("linestyle","--"));
+
+    plt::plot(time_vec_, true_data_[index], line_keywords_);
+
+    plt::grid(true);
+
+    line_keywords_.erase("color");
+    line_keywords_.erase("label");
+    line_keywords_.erase("linestyle");
+
 }
 
 void PlotTool::set_data_size(const size_t &dim, const size_t &data_size, 
