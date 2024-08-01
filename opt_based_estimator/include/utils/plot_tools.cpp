@@ -7,6 +7,7 @@ PlotTool::PlotTool()
 PlotTool::PlotTool(const size_t &data_size, c
 onst int &x_tick_size, const int &y_tick_size)
 {
+    
 }
 
 void PlotTool::set_keywords(const int &line_width, 

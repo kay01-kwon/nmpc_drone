@@ -46,15 +46,13 @@ class PlotTool{
     map<string, string> tick_keywords_;
     map<string, string> legend_keywords_;
 
-    vector<double> data_x_est_, data_y_est_, data_z_est_;
-    vector<double> data_x_exg_, data_y_exg_, data_z_exg_;
+    vector<double> data_est_;
+    vector<double> data_exg_;
 
     vector<double> x_tick_vec_;
     vector<double> y_tick_vec_;
 
-    double data_x_max_, data_x_min_;
-    double data_y_max_, data_y_min_;
-    double data_z_max_, data_z_min_;
+    double data_max_, data_min_;
 
 };
 
