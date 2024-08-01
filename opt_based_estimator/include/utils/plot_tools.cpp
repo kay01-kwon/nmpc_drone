@@ -50,6 +50,9 @@ const vector_t &true_data, const vector_t &est_data)
         est_data_[i].push_back(est_data(i));
     }
 
+    store_max_vec(est_data);
+    store_min_vec(est_data);
+
 }
 
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 
