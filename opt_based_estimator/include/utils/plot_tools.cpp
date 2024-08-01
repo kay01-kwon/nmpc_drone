@@ -3,6 +3,7 @@
 namespace plt = matplotlibcpp;
 
 PlotTool::PlotTool()
+:is_tick_pushed_back(false)
 {
     size_t dim, data_size;
     int x_tick_size, y_tick_size;
@@ -16,6 +17,7 @@ PlotTool::PlotTool()
 
 PlotTool::PlotTool(const size_t &dim, const size_t &data_size, 
 const size_t &x_tick_size, const size_t &y_tick_size)
+:is_tick_pushed_back(false)
 {
     set_data_size(dim, data_size, x_tick_size, y_tick_size);
 }
@@ -58,7 +60,12 @@ const vector_t &true_data, const vector_t &est_data)
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 
 const string &data1_name, const string &data2_name, const size_t &index)
 {
-    push_back_ticks();
+    if(is_tick_pushed_back == false)
+    {
+        push_back_ticks();
+        is_tick_pushed_back = true;
+    }
+
 
     // 1. Insert the first data graph color and the name of it.
     line_keywords_.insert(pair<string, string>

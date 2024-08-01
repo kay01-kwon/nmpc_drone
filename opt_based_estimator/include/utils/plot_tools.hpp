@@ -63,6 +63,8 @@ class PlotTool{
 
     vector<double> data_max_, data_min_;
 
+    bool is_tick_pushed_back;
+
 };
 
 
