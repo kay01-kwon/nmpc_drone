@@ -39,6 +39,9 @@ class PlotTool{
 
     void push_back_ticks();
 
+    void demux_and_push_back(const vector_t& data_vec, 
+    vector<double> &data_x, vector<double> &data_y, vector<double> &data_z);
+
     void store_min_data(const vector_t &data);
 
     void store_max_data(const vector_t &data);

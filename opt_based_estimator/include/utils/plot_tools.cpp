@@ -45,7 +45,8 @@ void PlotTool::add_data(const double &time,
 const vector_t &true_data, const vector_t &est_data)
 {
     time_vec_.push_back(time);
-    
+    demux_and_push_back(true_data, true_data_x_, true_data_y_, true_data_z_);
+    demux_and_push_back(est_data, est_data_x_, est_data_y_, est_data_z_);
 }
 
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 
@@ -63,6 +64,14 @@ void PlotTool::set_font_size(const int &font_size)
 
 void PlotTool::push_back_ticks()
 {
+}
+
+void PlotTool::demux_and_push_back(const vector_t &data_vec, 
+vector<double> &data_x, vector<double> &data_y, vector<double> &data_z)
+{
+    data_x.push_back(data_vec(0));
+    data_y.push_back(data_vec(1));
+    data_z.push_back(data_vec(2));
 }
 
 void PlotTool::store_min_data(const vector_t &data)
