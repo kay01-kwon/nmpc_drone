@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <vector>
-// #include "matplotlibcpp.h"
 #include "type_definitions.h"
 
 using std::map;
@@ -12,9 +11,6 @@ using std::string;
 using std::pair;
 using std::to_string;
 using std::vector;
-
-
-// namespace plt = matplotlibcpp;
 
 class PlotTool{
 
@@ -24,7 +20,7 @@ class PlotTool{
 
     PlotTool(const size_t &data_size, const int &x_tick_size, const int &y_tick_size);
 
-    void set_keywords(const int &line_width, const int &label_font_size, const int &tick_font_size);
+    void set_keywords(const double &line_width, const double &label_font_size, const double &tick_font_size);
 
     void add_data(const double &time, const vector_t &true_data, const vector_t &est_data);
 
@@ -36,9 +32,9 @@ class PlotTool{
     void set_data_size(const int &data_size, 
     const int &x_tick_size, const int &y_tick_size);
 
-    void set_line_width(const int &line_width);
+    void set_line_width(const double &line_width);
 
-    void set_font_size(const int &font_size);
+    void set_font_size(const double &font_size);
 
     void push_back_ticks();
 
