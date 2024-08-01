@@ -20,12 +20,23 @@ const int &x_tick_size, const int &y_tick_size)
 void PlotTool::set_keywords(const int &line_width, 
 const int &label_font_size, const int &tick_font_size)
 {
-    
+    set_line_width(line_width);
+    set_font_size(label_font_size);
+    set_font_size(tick_font_size);
 }
 
 void PlotTool::set_data_size(const int &data_size, const int &x_tick_size, const int &y_tick_size)
 {
-    data_est_.reserve(data_size);
+    time_vec_.reserve(data_size);
+
+    true_data_x_.reserve(data_size);
+    true_data_y_.reserve(data_size);
+    true_data_z_.reserve(data_size);
+
+    est_data_x_.reserve(data_size);
+    est_data_y_.reserve(data_size);
+    est_data_z_.reserve(data_size);
+
     x_tick_vec_.reserve(x_tick_size);
     y_tick_vec_.reserve(y_tick_size);
 }
@@ -33,6 +44,8 @@ void PlotTool::set_data_size(const int &data_size, const int &x_tick_size, const
 void PlotTool::add_data(const double &time, 
 const vector_t &true_data, const vector_t &est_data)
 {
+    time_vec_.push_back(time);
+    
 }
 
 void PlotTool::plot_data(const string &title_name, const string &y_label_name, 

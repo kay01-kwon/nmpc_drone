@@ -48,8 +48,9 @@ class PlotTool{
     map<string, string> tick_keywords_;
     map<string, string> legend_keywords_;
 
-    vector<double> data_est_;
-    vector<double> data_exg_;
+    vector<double> time_vec_;
+    vector<double> true_data_x_, true_data_y_, true_data_z_;
+    vector<double> est_data_x_, est_data_y_, est_data_z_;
 
     vector<double> x_tick_vec_;
     vector<double> y_tick_vec_;
