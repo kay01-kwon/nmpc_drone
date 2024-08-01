@@ -23,8 +23,10 @@ void PlotTool::set_keywords(const double &line_width,
 const double &label_font_size, const double &tick_font_size)
 {
     set_line_width(line_width);
-    set_font_size(label_font_size);
-    set_font_size(tick_font_size);
+
+    set_font_size(label_keywords_, label_font_size);
+
+    set_font_size(tick_keywords_, tick_font_size);
 }
 
 void PlotTool::add_data(const double &time, 
@@ -62,18 +64,11 @@ void PlotTool::set_line_width(const double &line_width)
     line_keywords_.insert(pair<string, string>
     ("linewidth",to_string(line_width))
     );
-
-    // Print out line width information
-    for(const auto& line_keyword: line_keywords_)
-    {
-        cout << line_keyword.first << ": ";
-        cout << line_keyword.second << endl;
-    }
 }
 
-void PlotTool::set_font_size(const double &font_size)
+void PlotTool::set_font_size(map<string, string> &keywords, const double &font_size)
 {
-    label_keywords_.insert(pair<string, string>
+    keywords.insert(pair<string, string>
     ("fontsize",to_string(font_size))
     );
 }

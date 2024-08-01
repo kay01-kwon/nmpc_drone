@@ -34,7 +34,7 @@ class PlotTool{
 
     void set_line_width(const double &line_width);
 
-    void set_font_size(const double &font_size);
+    void set_font_size(map<string, string> &keywords, const double &font_size);
 
     void push_back_ticks();
 
