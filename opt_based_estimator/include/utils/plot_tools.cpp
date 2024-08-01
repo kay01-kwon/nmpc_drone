@@ -112,6 +112,23 @@ void PlotTool::push_back_ticks()
         gap[i] = data_max_[i] - data_min_[i];
     }
 
+    double Tf;
+
+    Tf = x_tick_vec_.back();
+
+    for(size_t i = 0; i < x_tick_vec_.capacity(); i++)
+    {
+        x_tick_vec_.push_back(i*Tf/(x_tick_vec_.capacity()-1));
+    }
+
+    for(size_t i = 0; i < y_tick_vec_.capacity(); i++)
+    {
+        for(size_t j = 0; j < y_tick_vec_[i].capacity(); j++)
+        {
+            y_tick_vec_[i].push_back(data_min_[i] + gap[i]*j/(y_tick_vec_.capacity()-1));
+        }
+    }
+
 }
 
 void PlotTool::store_min_vec(const vector_t &vec)
