@@ -1,18 +1,20 @@
 #ifndef PLOT_TOOLS_HPP
 #define PLOT_TOOLS_HPP
-#include "type_definitions.h"
+
 #include <string>
 #include <map>
 #include <vector>
-#include <matplotlibcpp.h>
+// #include "matplotlibcpp.h"
+#include "type_definitions.h"
 
-using std::string;
-using std::to_string;
 using std::map;
+using std::string;
 using std::pair;
+using std::to_string;
 using std::vector;
 
-namespace plt = matplotlibcpp;
+
+// namespace plt = matplotlibcpp;
 
 class PlotTool{
 
@@ -43,9 +45,13 @@ class PlotTool{
     void demux_and_push_back(const vector_t& data_vec, 
     vector<double> &data_x, vector<double> &data_y, vector<double> &data_z);
 
-    void store_min_data(const vector_t &data);
+    void store_min_vec(const vector_t &vec);
 
-    void store_max_data(const vector_t &data);
+    void store_max_vec(const vector_t &vec);
+
+    void set_min_data(const double& data, double &min_data);
+
+    void set_max_data(const double& data, double &max_data);
 
     map<string, string> line_keywords_;
     map<string, string> label_keywords_;
@@ -59,7 +65,7 @@ class PlotTool{
     vector<double> x_tick_vec_;
     vector<double> y_tick_vec_;
 
-    double data_max_, data_min_;
+    double data_max_[3], data_min_[3];
 
 };
 

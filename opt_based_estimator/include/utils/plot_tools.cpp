@@ -52,6 +52,7 @@ void PlotTool::set_data_size(const int &data_size, const int &x_tick_size, const
 
     x_tick_vec_.reserve(x_tick_size);
     y_tick_vec_.reserve(y_tick_size);
+
 }
 
 void PlotTool::set_line_width(const int &line_width)
@@ -74,10 +75,26 @@ vector<double> &data_x, vector<double> &data_y, vector<double> &data_z)
     data_z.push_back(data_vec(2));
 }
 
-void PlotTool::store_min_data(const vector_t &data)
+void PlotTool::store_min_vec(const vector_t &vec)
 {
+    for(size_t i = 0; i < 3; i++)
+        set_min_data(vec(i), data_max_[i]);
 }
 
-void PlotTool::store_max_data(const vector_t &data)
+void PlotTool::store_max_vec(const vector_t &vec)
 {
+    for(size_t i = 0; i < 3; i++)
+        set_max_data(vec(i), data_min_[i]);
+}
+
+void PlotTool::set_max_data(const double &data, double &max_data)
+{
+    if(max_data < data)
+        max_data = data;
+}
+
+void PlotTool::set_min_data(const double &data, double &min_data)
+{
+    if(min_data > data)
+        min_data = data;
 }
