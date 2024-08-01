@@ -1,0 +1,5 @@
+<launch>
+
+    <node pkg = "opt_based_estimator" type = "test_dist_est" name = "test_dist_est" output="screen"/>
+
+</launch>

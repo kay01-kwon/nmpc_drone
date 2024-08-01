@@ -8,8 +8,9 @@
             "name": "ROS: Launch",
             "type": "ros",
             "request": "launch",
-            "target": "/home/kay/catkin_ws/src/research/l1_estimator/launch/estimator_test.launch",
-            "preLaunchTask": ""
+            // "target": "/home/kay/catkin_ws/src/research/l1_estimator/launch/estimator_test.launch",
+            "target": "/home/kay/catkin_ws/src/research/opt_based_estimator/launch/opt_est_test.launch",
+            "preLaunchTask": "catkin_make: build",
         }
 
     ]
