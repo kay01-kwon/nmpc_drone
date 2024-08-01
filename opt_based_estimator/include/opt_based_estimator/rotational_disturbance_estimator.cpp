@@ -52,7 +52,7 @@ void RotDistEst::solve()
     double sign;
 
     mat73_t RK_grad;
-    mat37_t gradient_f;
+    vector_t gradient_f;
     mat33_t Hessian_f;
 
     q_meas.w() = s_meas_(0);
