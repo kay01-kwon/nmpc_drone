@@ -60,7 +60,7 @@ mat73_t RotRK4Grad::getRK4Grad() const
     mat73_t DK1;
 
     DK1.setZero();
-    DK1.block(4, 0, 6, 2) = J_.inverse();
+    DK1.block(4, 0, 3, 3) = J_.inverse();
 
     // Compute dq_m1 and dw_m1
     dq_temp.setZero();
