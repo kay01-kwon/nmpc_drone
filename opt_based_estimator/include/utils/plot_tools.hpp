@@ -24,8 +24,6 @@ class PlotTool{
 
     void set_keywords(const int &line_width, const int &label_font_size, const int &tick_font_size);
 
-    void set_data_size(const int &data_size, const int &x_tick_size, const int &y_tick_size);
-
     void add_data(const double &time, const vector_t &true_data, const vector_t &est_data);
 
     void plot_data(const string &title_name, const string &y_label_name, 
@@ -33,6 +31,9 @@ class PlotTool{
 
     private:
     
+    void set_data_size(const int &data_size, 
+    const int &x_tick_size, const int &y_tick_size);
+
     void set_line_width(const int &line_width);
 
     void set_font_size(const int &font_size);
