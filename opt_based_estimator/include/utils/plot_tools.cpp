@@ -1,6 +1,4 @@
 #include "plot_tools.hpp"
-#include "matplotlibcpp.h"
-namespace plt = matplotlibcpp;
 
 PlotTool::PlotTool()
 :is_tick_pushed_back(false)

@@ -1,5 +1,4 @@
 #include "tools.hpp"
-#include "tools.h"
 
 /**
  * @brief Get the rate of quaternion from current 

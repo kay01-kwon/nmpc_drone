@@ -5,12 +5,15 @@
 #include <map>
 #include <vector>
 #include "type_definitions.h"
+#include "matplotlibcpp.h"
 
 using std::map;
 using std::string;
 using std::pair;
 using std::to_string;
 using std::vector;
+
+namespace plt = matplotlibcpp;
 
 class PlotTool{
 
