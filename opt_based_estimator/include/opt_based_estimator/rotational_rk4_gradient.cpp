@@ -15,8 +15,6 @@ Eye_(Eye_.setIdentity())
     Jzz = J_(2,2);
     J_x_ << (Jzz-Jyy), (Jxx-Jzz), (Jyy-Jxx);
 
-    DK1_.setZero();
-    DK1_.block(4,0,4,1) = J_.inverse();
 }
 
 void RotRK4Grad::set_time_difference(const double &dt)
@@ -58,6 +56,11 @@ mat73_t RotRK4Grad::getRK4Grad() const
     mat33_t dw_temp;
 
     mat33_t diff_inertial_temp;
+
+    mat73_t DK1;
+
+    DK1.setZero();
+    DK1.block(4, 0, 6, 2) = J_.inverse();
 
     // Compute dq_m1 and dw_m1
     dq_temp.setZero();
@@ -105,7 +108,7 @@ mat73_t RotRK4Grad::getRK4Grad() const
     DK4.block(4, 0, 6, 2) = J_.inverse()*(-diff_inertial_temp + Eye_);
     
 
-    return a1_*DK1_ + a2_*DK2 + a3_*DK3 + a4_*DK4;
+    return a1_*DK1 + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }
 
 mat33_t RotRK4Grad::DiffInertial(const vector_t &w, const mat33_t &dw) const

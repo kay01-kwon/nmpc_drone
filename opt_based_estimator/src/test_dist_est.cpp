@@ -1,8 +1,13 @@
 #include <ros/ros.h>
-#include "opt_based_estimator/rotational_disturbance_estimator.hpp"
+// #include "opt_based_estimator/rotational_disturbance_estimator.hpp"
 #include "simulation_model/rotational_simulation_class.hpp"
 #include "utils/plot_tools.hpp"
+#include <vector>
+#include "matplotlibcpp.h"
 
+// using std::vector;
+
+// namespace plt = matplotlibcpp;
 
 int main(int argc, char** argv)
 {
@@ -13,16 +18,16 @@ int main(int argc, char** argv)
     0, 0, 0.0012;
 
 
-    PlotTool plot_tool_obj;
+    // PlotTool plot_tool_obj;
     RotationalSimulation rot_sim_obj(J);
 
     double Tf = 10;
     double rate = 100;
 
-    mat33_t M, theta_exg;
+    vector_t M, theta_exg;
 
     M << 0, 0, 0;
-    theta_exg << 0.1, 0, 0;
+    theta_exg << 1, 0, 0;
 
     size_t N = (int) Tf*100;
 
@@ -61,19 +66,21 @@ int main(int argc, char** argv)
         w_obs_vec[0].push_back(w_obs(0));
         w_obs_vec[1].push_back(w_obs(1));
         w_obs_vec[2].push_back(w_obs(2));
+
+        cout<<time_vec[i]<< endl;
         
     }
     
-    plt::subplot(4,1,1)    
+    plt::subplot(4,1,1);
     plt::plot(time_vec, q_obs_vec[0]);
 
-    plt::subplot(4,1,2)    
+    plt::subplot(4,1,2);
     plt::plot(time_vec, q_obs_vec[1]);
 
-    plt::subplot(4,1,3)    
+    plt::subplot(4,1,3);
     plt::plot(time_vec, q_obs_vec[2]);
 
-    plt::subplot(4,1,4)    
+    plt::subplot(4,1,4);
     plt::plot(time_vec, q_obs_vec[3]);
 
     plt::show();

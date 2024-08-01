@@ -66,5 +66,17 @@ src/test_dist_est.cpp
 include/utils/quaternion_math_tools.cpp
 include/utils/plot_tools.cpp
 include/simulation_model/rotational_simulation_class.cpp
-include/opt_based_estimator/rotational_disturbance_estimator.cpp
-include/opt_based_estimator/rotational_rk4_gradient.cpp)
+# include/opt_based_estimator/rotational_disturbance_estimator.cpp
+# include/opt_based_estimator/rotational_rk4_gradient.cpp
+)
+
+target_include_directories(test_dist_est
+PRIVATE
+${Python3_INCLUDE_DIRS}
+)
+
+target_link_libraries(test_dist_est
+# ${YAML_CPP_LIBRARIES}
+${catkin_LIBRARIES}
+${Python3_LIBRARIES} 
+)

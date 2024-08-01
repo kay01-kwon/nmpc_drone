@@ -1,6 +1,6 @@
 #include "rotational_simulation_class.hpp"
 
-RotationalSimulation::RotationalSimulation(const mat33_t &J, double dt = 0.01)
+RotationalSimulation::RotationalSimulation(const mat33_t &J, double dt)
 :J_(J), M_(M_.setZero()), theta_(theta_.setZero()),
 s_(s_.setZero()), curr_time_(0), prev_time_(0), dt_(dt)
 {
@@ -15,6 +15,7 @@ void RotationalSimulation::setInput(const vector_t &M, const vector_t &theta)
 
 void RotationalSimulation::do_simulation()
 {
+    curr_time_ += dt_;
     // Integrate the ode function
     rk4.do_step(
         [this]
@@ -25,7 +26,7 @@ void RotationalSimulation::do_simulation()
     );
 
     // Update time
-    curr_time_ = prev_time_ + dt_;
+    prev_time_ = curr_time_;
 }
 
 quaternion_t RotationalSimulation::get_quaternion() const

@@ -32,8 +32,6 @@ class RotRK4Grad{
 
     mat41_t q_init_;
     vector_t w_init_;
-
-    mat73_t DK1_;
     
     double dt_;
 

@@ -46,13 +46,13 @@ const double &dt)
     system_dynamics(s, K1, prev_time);
 
     s_temp = s + 0.5*dt*K1;
-    system_dynamics(s2, K2 ,prev_time + 0.5*dt);
+    system_dynamics(s_temp, K2 ,prev_time + 0.5*dt);
 
     s_temp = s + 0.5*dt*K2;
-    system_dynamics(s3, K3, prev_time + 0.5*dt);
+    system_dynamics(s_temp, K3, prev_time + 0.5*dt);
 
     s_temp = s + dt*K3;
-    system_dynamics(s4, K4, prev_time + dt);
+    system_dynamics(s_temp, K4, prev_time + dt);
 
     s += (K1*a1 + K2*a2 + K3*a3 + K4*a4)/static_cast<double>(6) * dt;
 }
