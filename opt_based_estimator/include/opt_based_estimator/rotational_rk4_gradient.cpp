@@ -86,7 +86,7 @@ mat73_t RotRK4Grad::getRK4Grad() const
     w_temp = w_init_ + dt_/2.0*J_.inverse()*(M_ - w_temp.cross(J_*w_temp) + theta_);
 
     mat73_t DK3;
-    DK3.block(0, 0, 4, 3) = 1/2.0* otimes(dq_temp, w_temp)
+    DK3.block(0, 0, 4, 3) = 1/2.0 * otimes(dq_temp, w_temp)
     + 1/2.0 * otimes(q_temp, dw_temp);
     // diff_inertial_temp = D(w_m2 x J*w_m2)
     diff_inertial_temp = DiffInertial(w_temp, dw_temp);

@@ -66,7 +66,7 @@ mat43_t otimes(const mat41_t &q_left, const mat33_t &w)
 {
     mat43_t w_quat;
     w_quat.setZero();
-    w_quat.block(1, 0, 3, 2) = w;
+    w_quat.block(1, 0, 3, 3) = w;
     return otimes(q_left, w_quat);
 }
 
