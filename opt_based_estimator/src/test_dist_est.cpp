@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-// #include "opt_based_estimator/rotational_disturbance_estimator.hpp"
+#include "opt_based_estimator/rotational_disturbance_estimator.hpp"
 #include "simulation_model/rotational_simulation_class.hpp"
 #include "utils/plot_tools.hpp"
 #include <vector>
@@ -21,8 +21,8 @@ int main(int argc, char** argv)
 
     vector_t M, theta_exg;
 
-    M << 1, 0, 0;
-    theta_exg << 0, 0, 0;
+    M << 0, 0, 0;
+    theta_exg << 0, 0, 1;
 
     size_t N = (int) Tf*100;
 
@@ -66,17 +66,17 @@ int main(int argc, char** argv)
 
     plt::figure_size(1280,780);
     
-    plt::subplot(3,1,1);
-    plt::plot(time_vec, w_obs_vec[0]);
+    plt::subplot(4,1,1);
+    plt::plot(time_vec, q_obs_vec[0]);
 
-    plt::subplot(3,1,2);
-    plt::plot(time_vec, w_obs_vec[1]);
+    plt::subplot(4,1,2);
+    plt::plot(time_vec, q_obs_vec[1]);
 
-    plt::subplot(3,1,3);
-    plt::plot(time_vec, w_obs_vec[2]);
+    plt::subplot(4,1,3);
+    plt::plot(time_vec, q_obs_vec[2]);
 
-    // plt::subplot(4,1,4);
-    // plt::plot(time_vec, q_obs_vec[3]);
+    plt::subplot(4,1,4);
+    plt::plot(time_vec, q_obs_vec[3]);
 
     plt::show();
 
