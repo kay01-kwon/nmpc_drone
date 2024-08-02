@@ -1,7 +1,7 @@
 #include "rotational_disturbance_estimator.hpp"
 
 RotDistEst::RotDistEst(const mat33_t &J, const mat77_t &Q, 
-const double &term_error, const uint8_t &iter_max)
+const double &term_error, const int &iter_max)
 :J_nom_(J), Q_(Q), term_error_(term_error), iter_max_(iter_max),
 rot_rk4_grad_obj_(J_nom_), curr_time_(0), prev_time_(0), dt_(0),
 theta_k_(theta_k_.setZero()), M_(M_.setZero())
@@ -13,6 +13,9 @@ theta_k_(theta_k_.setZero()), M_(M_.setZero())
     s_init_(0) = 1.0;
     s_meas_(0) = 1.0;
     s_rk4_(0) = 1.0;
+
+    assert(term_error > 0);
+    assert(iter_max > 0);
 }
 
 void RotDistEst::set_time(const double &curr_time)

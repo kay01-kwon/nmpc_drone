@@ -10,7 +10,7 @@ class RotDistEst{
     RotDistEst() = delete;
 
     RotDistEst(const mat33_t& J, const mat77_t &Q,
-    const double &term_error = 1E-3, const uint8_t &iter_max = 30);
+    const double &term_error = 1E-3, const int &iter_max = 30);
 
     void set_time(const double &curr_time);
     void set_meas_state(const quaternion_t &q_meas, const vector_t &w_meas);

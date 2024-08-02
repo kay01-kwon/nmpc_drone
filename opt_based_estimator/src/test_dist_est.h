@@ -6,12 +6,18 @@
 // #include "utils/plot_tools.hpp"
 #include <vector>
 
+#define QUATERNION_T_DIM    4
+#define VECTOR_T_DIM        3
+
 using ros::NodeHandle;
 using std::vector;
 
 void set_parameter(const NodeHandle &nh);
 
-void reserve_vec_data(const int &N_);
+void reserve_vec_data(const size_t &N_, vector<double> &data_);
+
+void reserve_vec_data(const size_t &N_, const size_t &dim_,
+vector< vector<double> > &data_);
 
 mat33_t J;
 
@@ -90,13 +96,30 @@ void set_parameter(const NodeHandle &nh)
 
     assert(iter_max > 0);
 
-    rot_sim_ptr = new RotationalSimulation(J, 1/rate);
+    double dt = 1/rate;
+
+    rot_sim_ptr = new RotationalSimulation(J, dt);
+
+    // Reserve time vector, obs state variable and estimated disturbacne data
+    reserve_vec_data(N, time_vec);
+    reserve_vec_data(N, QUATERNION_T_DIM, q_obs_vec);
+    reserve_vec_data(N, VECTOR_T_DIM, w_obs_vec);
+    reserve_vec_data(N, VECTOR_T_DIM, theta_est_vec);
+
     
 }
 
-void reserve_vec_data(const int &N)
+void reserve_vec_data(const size_t &N_, vector<double> &data_)
 {
+    data_.reserve(N_);
+}
 
+void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<double> > &data_)
+{
+    data_.reserve(dim_);
+
+    for(size_t i = 0; i < dim_; i++)
+        data_[i].reserve(N_);
 }
 
 #endif
