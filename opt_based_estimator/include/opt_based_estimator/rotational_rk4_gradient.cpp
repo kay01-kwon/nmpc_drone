@@ -6,8 +6,7 @@ a1_(static_cast<double>(1.0)),
 a2_(static_cast<double>(2.0)),
 a3_(static_cast<double>(2.0)),
 a4_(static_cast<double>(1.0)),
-dt_(0.01),
-Eye_(Eye_.setIdentity())
+dt_(0.01)
 {
     double Jxx, Jyy, Jzz;
     Jxx = J_(0,0);
@@ -15,6 +14,7 @@ Eye_(Eye_.setIdentity())
     Jzz = J_(2,2);
     J_x_ << (Jzz-Jyy), (Jxx-Jzz), (Jyy-Jxx);
 
+    Eye_.setIdentity();
 }
 
 void RotRK4Grad::set_time_difference(const double &dt)
@@ -113,6 +113,23 @@ mat73_t RotRK4Grad::getRK4Grad() const
     // diff_inertial_temp = D(w_f x J*w_f)
     diff_inertial_temp = DiffInertial(w_temp, dw_temp);
     DK4.block(4, 0, 3, 3) = J_.inverse()*(-diff_inertial_temp + Eye_);
+
+    // cout << "DK 1" << endl;
+    // cout << DK1 << endl;
+    // cout << endl;
+
+    // cout << "DK 2" << endl;
+    // cout << DK2 << endl;
+    // cout << endl;
+
+    // cout << "DK 3" << endl;
+    // cout << DK3 << endl;
+    // cout << endl;
+
+    // cout << "DK 4" << endl;
+    // cout << DK4 << endl;
+    // cout << endl;
+
     
     return a1_*DK1 + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }

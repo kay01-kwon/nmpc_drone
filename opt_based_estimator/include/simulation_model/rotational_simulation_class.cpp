@@ -41,6 +41,8 @@ quaternion_t RotationalSimulation::get_quaternion() const
     q.x() = s_(1);
     q.y() = s_(2);
     q.z() = s_(3);
+
+    q.normalize();
     
     return q;
 }

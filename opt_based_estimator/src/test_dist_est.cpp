@@ -47,23 +47,23 @@ int main(int argc, char** argv)
         push_back_vector(theta_exg, theta_true_vec);
         push_back_vector(theta_est, theta_est_vec);
 
-        cout << theta_est << endl;
-        cout << endl;
     }
 
     plt::figure_size(3500,2000);
 
     plt::subplot(3,1,1);
-    plt::plot(time_vec, theta_est_vec[0]);
     plt::plot(time_vec, theta_true_vec[0]);
+    plt::plot(time_vec, theta_est_vec[0]);
 
-    // plt::subplot(3,1,2);
-    // plt::plot(time_vec, theta_est_vec[1]);
-    // plt::plot(time_vec, theta_true_vec[1]);
 
-    // plt::subplot(3,1,3);
-    // plt::plot(time_vec, theta_est_vec[2]);
-    // plt::plot(time_vec, theta_true_vec[2]);
+    plt::subplot(3,1,2);
+    plt::plot(time_vec, theta_true_vec[1]);
+    plt::plot(time_vec, theta_est_vec[1]);
+
+
+    plt::subplot(3,1,3);
+    plt::plot(time_vec, theta_true_vec[2]);
+    plt::plot(time_vec, theta_est_vec[2]);
 
     plt::show();
 
