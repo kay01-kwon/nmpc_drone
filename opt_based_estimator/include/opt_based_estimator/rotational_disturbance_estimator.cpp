@@ -1,5 +1,5 @@
 #include "rotational_disturbance_estimator.hpp"
-
+#include <math.h>
 RotDistEst::RotDistEst(const mat33_t &J, const mat77_t &Q, 
 const double &term_error, const int &iter_max)
 :J_nom_(J), Q_(Q), term_error_(term_error), iter_max_(iter_max),
@@ -101,13 +101,21 @@ void RotDistEst::solve()
         
         RK_grad = rot_rk4_grad_obj_.getRK4Grad();
 
-        gradient_f = - dt_/3.0 * RK_grad.transpose() * Q_ * s_tilde;
+        cout << RK_grad << endl;
+
+        gradient_f = -dt_/3.0 * RK_grad.transpose() * Q_ * s_tilde;
+
+        cout << gradient_f << endl;
 
         Hessian_f = dt_*dt_/18.0 * RK_grad.transpose() * Q_ * RK_grad;
+
+        cout << Hessian_f << endl;
 
         theta_k_ = theta_k_ - Hessian_f.inverse() * gradient_f;
 
         s_rk4_ = s_init_;
+
+        error = s_tilde.transpose() * s_tilde;
 
         if(iter >= iter_max_)
         {

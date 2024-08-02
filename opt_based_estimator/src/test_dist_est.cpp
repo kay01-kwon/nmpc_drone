@@ -13,6 +13,8 @@ int main(int argc, char** argv)
 
     set_parameter(nh);
 
+    theta_est.setZero();
+
 
     for(size_t i = 0; i < N; i++)
     {
@@ -31,7 +33,7 @@ int main(int argc, char** argv)
 
         rot_dist_est_ptr->set_input(M, theta_est);
         rot_dist_est_ptr->set_meas_state(q_obs, w_obs);
-        rot_dist_est_ptr->set_time(prev_time);
+        rot_dist_est_ptr->set_time(curr_time);
 
         rot_dist_est_ptr->solve();
 
