@@ -39,15 +39,15 @@ const vector_t &true_data, const vector_t &est_data)
 {
     time_vec_.push_back(time);
 
-    size_t true_data_dim = true_data_.capacity();
-    size_t est_data_dim = est_data_.capacity();
+    size_t true_data_dim = true_vec_.capacity();
+    size_t est_data_dim = est_vec_.capacity();
 
     assert(true_data_dim == est_data_dim);
 
     for(size_t i = 0; i < true_data_dim; i++)
     {
-        true_data_[i].push_back(true_data(i));
-        est_data_[i].push_back(est_data(i));
+        true_vec_[i].push_back(true_data(i));
+        est_vec_[i].push_back(est_data(i));
     }
 
     store_max_vec(est_data);
@@ -64,7 +64,6 @@ const string &data1_name, const string &data2_name, const size_t &index)
         is_tick_pushed_back = true;
     }
 
-
     // 1. Insert the first data graph color and the name of it.
     line_keywords_.insert(pair<string, string>
     ("color","orangered"));
@@ -72,9 +71,9 @@ const string &data1_name, const string &data2_name, const size_t &index)
     line_keywords_.insert(pair<string, string>
     ("label", data1_name));
 
-    vector<double> &ref = est_data_[index];
+    vector<double> &ref = est_vec_[index];
 
-    plt::plot(time_vec_, ref);
+    plt::plot(this->time_vec_, ref, this->line_keywords_);
 
     // After plot the first data, erase color and label keywords from the line_keywords
     line_keywords_.erase("color");
@@ -91,9 +90,9 @@ const string &data1_name, const string &data2_name, const size_t &index)
     line_keywords_.insert(pair<string,string>
     ("linestyle","--"));
 
-    ref = true_data_[index];
+    ref = true_vec_[index];
 
-    plt::plot(time_vec_, ref);
+    plt::plot(this->time_vec_, ref, this->line_keywords_);
 
     plt::grid(true);
 
@@ -111,27 +110,34 @@ const size_t &x_tick_size, const size_t &y_tick_size)
     
     time_vec_.reserve(data_size);
 
-    true_data_.reserve(dim);
-    est_data_.reserve(dim);
-
-    data_max_.reserve(dim);
-    data_min_.reserve(dim);
+    true_vec_.reserve(dim);
+    est_vec_.reserve(dim);
 
     x_tick_vec_.reserve(x_tick_size);
 
     y_tick_vec_.reserve(dim);
 
-    for(size_t i = 0; i < true_data_.capacity(); i++)
+    for(size_t i = 0; i < true_vec_.capacity(); i++)
     {
-        true_data_.push_back(vector<double>());
-        est_data_.push_back(vector<double>());
+        true_vec_.push_back(vector<double>());
+        est_vec_.push_back(vector<double>());
         y_tick_vec_.push_back(vector<double>());
 
-        true_data_[i].reserve(data_size);
-        est_data_[i].reserve(data_size);
+        true_vec_[i].reserve(data_size);
+        est_vec_[i].reserve(data_size);
         y_tick_vec_[i].reserve(y_tick_size);
-
     }
+
+    data_max_.reserve(dim);
+    data_min_.reserve(dim);
+
+    // time_vec_ = vector<double>(data_size);
+
+    // true_vec_ = vector< vector<double> >(dim, vector<double>(data_size));
+    // est_vec_ = vector< vector<double> >(dim, vector<double>(data_size));
+
+    // x_tick_vec_.reserve(x_tick_size);
+    // y_tick_vec_ = vector< vector<double> >(dim, vector<double>(y_tick_size));
 
 }
 
@@ -153,7 +159,7 @@ void PlotTool::push_back_ticks()
 {
     double gap[3];
 
-    for(size_t i = 0; i < est_data_.capacity(); i++)
+    for(size_t i = 0; i < est_vec_.size(); i++)
     {
         compute_boundary(data_min_[i], data_max_[i]);
 
@@ -164,16 +170,17 @@ void PlotTool::push_back_ticks()
 
     Tf = time_vec_.back();
 
-    for(size_t i = 0; i < x_tick_vec_.capacity(); i++)
+    for(size_t i = 0; i < x_tick_vec_.size(); i++)
     {
-        x_tick_vec_.push_back(i*Tf/(x_tick_vec_.capacity()-1));
+        x_tick_vec_.push_back(i*Tf/(x_tick_vec_.size()-1));
     }
 
-    for(size_t i = 0; i < y_tick_vec_.capacity(); i++)
+    for(size_t i = 0; i < y_tick_vec_.size(); i++)
     {
-        for(size_t j = 0; j < y_tick_vec_[i].capacity(); j++)
+        size_t m = y_tick_vec_[i].size();
+        for(size_t j = 0; j < m; j++)
         {
-            y_tick_vec_[i].push_back(data_min_[i] + gap[i]*j/(y_tick_vec_.capacity()-1));
+            y_tick_vec_[i].push_back(data_min_[i] + gap[i]*j/(y_tick_vec_.size()-1));
         }
     }
 
@@ -182,25 +189,25 @@ void PlotTool::push_back_ticks()
 void PlotTool::store_min_vec(const vector_t &vec)
 {
     for(size_t i = 0; i < 3; i++)
-        set_min_data(vec(i), data_max_[i]);
+        set_min_data(vec(i), data_min_[i]);
 }
 
 void PlotTool::store_max_vec(const vector_t &vec)
 {
     for(size_t i = 0; i < 3; i++)
-        set_max_data(vec(i), data_min_[i]);
-}
-
-void PlotTool::set_max_data(const double &data, double &max_data)
-{
-    if(max_data < data)
-        max_data = data;
+        set_max_data(vec(i), data_max_[i]);
 }
 
 void PlotTool::set_min_data(const double &data, double &min_data)
 {
     if(min_data > data)
         min_data = data;
+}
+
+void PlotTool::set_max_data(const double &data, double &max_data)
+{
+    if(max_data < data)
+        max_data = data;
 }
 
 void PlotTool::compute_boundary(double &y_min, double &y_max)

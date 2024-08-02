@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.12)
 project(opt_based_estimator)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS system)
 
-find_package(Python3 3.8 EXACT COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
 
 ## Generate messages in the 'msg' folder
 # add_message_files(

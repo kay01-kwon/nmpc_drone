@@ -46,11 +46,11 @@ Continuous low pass filter result is shown below.
 <img src='l1_estimator/figures/ros_low_pass_filter_test_result.png'>
 
 
-### Translational disturbance estimation result through L1 estimator
+## Translational disturbance estimation result through L1 estimator
 
 <img src='l1_estimator/figures/disturbance_estimation_result(trans).png'>
 
-### Rotational disturbance estimation result through L1 estimator
+## Rotational disturbance estimation result through L1 estimator
 <img src='l1_estimator/figures/disturbance_estimation_result(orien).png'>
 
 But, it is problematic since it only utilizes angular velocity data which is susceptible to bias.
@@ -61,6 +61,10 @@ where $\eta_{\omega}$ ~ $\mathcal{N}(0,\sigma_{\eta_{\omega}}^{2})$ and
 $\dot{b_{\omega}}$ ~ $\mathcal{N}(0,\sigma_{b_{\omega}}^2)$.
 
 Thus, quaternion should be used to estimate the disturbance perfectly.
+
+## Rotational disturbance estimation result through optimization based estimator
+
+<img src='opt_based_estimator/figures/rotational_disturbance_estimation_result.png'>
 
 ## To do list (Opt-based rotational disturbance estimator)
 

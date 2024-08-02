@@ -31,6 +31,18 @@ class PlotTool{
     void plot_data(const string &title_name, const string &y_label_name, 
     const string &data1_name, const string &data2_name, const size_t &index);
 
+    map<string, string> line_keywords_;
+    map<string, string> label_keywords_;
+    map<string, string> tick_keywords_;
+    map<string, string> legend_keywords_;
+
+    vector<double> time_vec_;
+    vector< vector<double> > true_vec_;
+    vector< vector<double> > est_vec_;
+
+    vector<double> x_tick_vec_;
+    vector< vector<double> > y_tick_vec_;
+
     private:
     
     void set_data_size(const size_t & dim, const size_t &data_size, 
@@ -51,18 +63,6 @@ class PlotTool{
     void set_max_data(const double& data, double &max_data);
 
     void compute_boundary(double &y_min, double &y_max);
-
-    map<string, string> line_keywords_;
-    map<string, string> label_keywords_;
-    map<string, string> tick_keywords_;
-    map<string, string> legend_keywords_;
-
-    vector<double> time_vec_;
-    vector< vector<double> > true_data_;
-    vector< vector<double> > est_data_;
-
-    vector<double> x_tick_vec_;
-    vector< vector<double> > y_tick_vec_;
 
     vector<double> data_max_, data_min_;
 

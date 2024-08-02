@@ -10,6 +10,11 @@ int main(int argc, char** argv)
 
     set_parameter(nh);
 
+    // PlotTool plot_tool_obj = PlotTool(VECTOR_T_DIM, N, 
+    // x_tick_size, y_tick_size);
+
+    // plot_tool_obj.set_keywords(line_width, label_font_size, tick_font_size);
+
     for(size_t i = 0; i < N; i++)
     {
         M << 0, 0, 0;
@@ -41,17 +46,84 @@ int main(int argc, char** argv)
         push_back_vector(theta_exg, theta_true_vec);
         push_back_vector(theta_est, theta_est_vec);
 
+        // plot_tool_obj.add_data(curr_time, theta_exg, theta_est);
+
     }
 
-    plt::figure_size(3500,2000);
+    plt::figure_size(1000,1000);
     plt::subplot(3,1,1);
     title_name = "$θ_{x} - t$";
     y_label_name = "$θ_{x} (Nm)$";
-    data1_name = "$θ_{x,est} - t$";
-    data2_name = "$θ_{x,true} - t$";
+    data1_name = "$θ_{x,est}$";
+    data2_name = "$θ_{x,true}$";
+    // plot_tool_obj.plot_data(title_name, y_label_name, 
+    // data1_name, data2_name, idx[0]);
+    // plt::title(title_name, {{"fontsize","15"}});
+    
+    plt::plot(time_vec, theta_est_vec[0], { {"label",data1_name},
+    {"color", "red"}, {"linewidth", "4"}});
+
+    plt::plot(time_vec, theta_true_vec[0], 
+    { {"label",data2_name},
+    {"color","limegreen"}, {"linewidth", "4"},
+    {"linestyle","--"}});
+    
+    plt::xlabel("time (s)",{{"fontsize","15"}});
+    plt::ylabel(y_label_name,{{"fontsize","15"}});
+    plt::legend({{"fontsize","15"}});
+    plt::grid(true);
 
 
+    plt::subplot(3,1,2);
+    title_name = "$θ_{y} - t$";
+    y_label_name = "$θ_{y} (Nm)$";
+    data1_name = "$θ_{y,est}$";
+    data2_name = "$θ_{y,true}$";
+    // plot_tool_obj.plot_data(title_name, y_label_name, 
+    // data1_name, data2_name, idx[0]);
+    // plt::title(title_name, {{"fontsize","20"}});
+    
+    plt::plot(time_vec, theta_est_vec[1], { {"label",data1_name},
+    {"color", "red"}, {"linewidth", "4"}});
 
-    plt::show();
+    plt::plot(time_vec, theta_true_vec[1], 
+    { {"label",data2_name},
+    {"color","limegreen"}, {"linewidth", "4"},
+    {"linestyle","--"}});
+    
+    plt::xlabel("time (s)",{{"fontsize","15"}});
+    plt::ylabel(y_label_name,{{"fontsize","15"}});
+    plt::legend({{"fontsize","15"}});
+    plt::grid(true);
+
+
+    plt::subplot(3,1,3);
+    title_name = "$θ_{z} - t$";
+    y_label_name = "$θ_{z} (Nm)$";
+    data1_name = "$θ_{z,est}$";
+    data2_name = "$θ_{z,true}$";
+    // plot_tool_obj.plot_data(title_name, y_label_name, 
+    // data1_name, data2_name, idx[0]);
+    // plt::title(title_name, {{"fontsize","20"}});
+    
+    plt::plot(time_vec, theta_est_vec[2], { {"label",data1_name},
+    {"color", "red"}, {"linewidth", "4"}});
+
+    plt::plot(time_vec, theta_true_vec[2], 
+    { {"label",data2_name},
+    {"color","limegreen"}, {"linewidth", "4"},
+    {"linestyle","--"}});
+    
+    plt::xlabel("time (s)",{{"fontsize","15"}});
+    plt::ylabel(y_label_name,{{"fontsize","15"}});
+    plt::legend({{"fontsize","15"}});
+    plt::grid(true);
+
+    // plt::xticks(time_vec, {}, {{"fontsize","15"}});
+    // plt::yticks(theta_est_vec[0], {}, {{"fontsize","15"}});
+
+    // plt::show();
+
+    plt::save("/home/kay/Pictures/test.png", 600);
 
 }

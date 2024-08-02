@@ -188,7 +188,7 @@ void push_back_vector(const vector_t &vec_, vector<vector<double>> &plot_vec_)
         plot_vec_[i].push_back(vec_(i));
 }
 
-inline void push_back_vector(const quaternion_t &q_vec_, vector<vector<double>> &plot_vec_)
+void push_back_vector(const quaternion_t &q_vec_, vector<vector<double>> &plot_vec_)
 {
     plot_vec_[0].push_back(q_vec_.w());
     plot_vec_[1].push_back(q_vec_.x());
