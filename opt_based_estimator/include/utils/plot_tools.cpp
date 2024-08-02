@@ -72,7 +72,9 @@ const string &data1_name, const string &data2_name, const size_t &index)
     line_keywords_.insert(pair<string, string>
     ("label", data1_name));
 
-    plt::plot(time_vec_, est_data_[index], line_keywords_);
+    vector<double> &ref = est_data_[index];
+
+    plt::plot(time_vec_, ref);
 
     // After plot the first data, erase color and label keywords from the line_keywords
     line_keywords_.erase("color");
@@ -89,7 +91,9 @@ const string &data1_name, const string &data2_name, const size_t &index)
     line_keywords_.insert(pair<string,string>
     ("linestyle","--"));
 
-    plt::plot(time_vec_, true_data_[index], line_keywords_);
+    ref = true_data_[index];
+
+    plt::plot(time_vec_, ref);
 
     plt::grid(true);
 
@@ -119,9 +123,14 @@ const size_t &x_tick_size, const size_t &y_tick_size)
 
     for(size_t i = 0; i < true_data_.capacity(); i++)
     {
+        true_data_.push_back(vector<double>());
+        est_data_.push_back(vector<double>());
+        y_tick_vec_.push_back(vector<double>());
+
         true_data_[i].reserve(data_size);
         est_data_[i].reserve(data_size);
         y_tick_vec_[i].reserve(y_tick_size);
+
     }
 
 }
@@ -153,7 +162,7 @@ void PlotTool::push_back_ticks()
 
     double Tf;
 
-    Tf = x_tick_vec_.back();
+    Tf = time_vec_.back();
 
     for(size_t i = 0; i < x_tick_vec_.capacity(); i++)
     {

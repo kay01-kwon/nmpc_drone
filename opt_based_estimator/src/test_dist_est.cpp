@@ -1,7 +1,4 @@
 #include "test_dist_est.h"
-#include "matplotlibcpp.h"
-
-namespace plt = matplotlibcpp;
 
 int main(int argc, char** argv)
 {
@@ -12,9 +9,6 @@ int main(int argc, char** argv)
     cout << "Node handler created" << endl;
 
     set_parameter(nh);
-
-    theta_est.setZero();
-
 
     for(size_t i = 0; i < N; i++)
     {
@@ -50,20 +44,13 @@ int main(int argc, char** argv)
     }
 
     plt::figure_size(3500,2000);
-
     plt::subplot(3,1,1);
-    plt::plot(time_vec, theta_true_vec[0]);
-    plt::plot(time_vec, theta_est_vec[0]);
+    title_name = "$θ_{x} - t$";
+    y_label_name = "$θ_{x} (Nm)$";
+    data1_name = "$θ_{x,est} - t$";
+    data2_name = "$θ_{x,true} - t$";
 
 
-    plt::subplot(3,1,2);
-    plt::plot(time_vec, theta_true_vec[1]);
-    plt::plot(time_vec, theta_est_vec[1]);
-
-
-    plt::subplot(3,1,3);
-    plt::plot(time_vec, theta_true_vec[2]);
-    plt::plot(time_vec, theta_est_vec[2]);
 
     plt::show();
 

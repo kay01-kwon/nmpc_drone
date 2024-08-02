@@ -100,30 +100,12 @@ void RotDistEst::solve()
         
         for(size_t i = 0; i < 3; i++)
             s_tilde(i+4) = s_meas_(i+4) - s_rk4_(i+4);
-        
-        // cout << s_rk4_ << endl;
-
-        // cout << endl;
-
-        // cout << s_meas_ << endl;
-
-        // cout << endl;
-
-        // cout << s_tilde << endl;
-
-        // cout << endl;
 
         RK_grad = rot_rk4_grad_obj_.getRK4Grad();
 
-        // cout << RK_grad << endl;
-
         gradient_f = -dt_/3.0 * RK_grad.transpose() * Q_ * s_tilde;
 
-        // cout << gradient_f << endl;
-
         Hessian_f = dt_*dt_/18.0 * RK_grad.transpose() * Q_ * RK_grad;
-
-        // cout << Hessian_f << endl;
 
         theta_k_ = theta_k_ - Hessian_f.inverse() * gradient_f;
 

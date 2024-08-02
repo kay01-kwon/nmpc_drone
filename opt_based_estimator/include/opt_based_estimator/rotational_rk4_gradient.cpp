@@ -113,23 +113,6 @@ mat73_t RotRK4Grad::getRK4Grad() const
     // diff_inertial_temp = D(w_f x J*w_f)
     diff_inertial_temp = DiffInertial(w_temp, dw_temp);
     DK4.block(4, 0, 3, 3) = J_.inverse()*(-diff_inertial_temp + Eye_);
-
-    // cout << "DK 1" << endl;
-    // cout << DK1 << endl;
-    // cout << endl;
-
-    // cout << "DK 2" << endl;
-    // cout << DK2 << endl;
-    // cout << endl;
-
-    // cout << "DK 3" << endl;
-    // cout << DK3 << endl;
-    // cout << endl;
-
-    // cout << "DK 4" << endl;
-    // cout << DK4 << endl;
-    // cout << endl;
-
     
     return a1_*DK1 + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }

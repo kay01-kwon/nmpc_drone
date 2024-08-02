@@ -72,9 +72,11 @@ Thus, quaternion should be used to estimate the disturbance perfectly.
 
 - [x] Put differentiation of inerital term with respect to $\theta_{est}$.
 
-- [ ] Complete Plot tool class
+- [x] Complete Plot tool class (Size problem -> It does not work)
 
-- [ ] Make the test code, check the error and then fix it.
+- [ ] Just implement the simple function code.
+
+- [x] Make the test code, check the error and then fix it.
 
 - [ ] Finally check the time that it takes to compute the iteration.
 

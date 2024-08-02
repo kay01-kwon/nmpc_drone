@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include "opt_based_estimator/rotational_disturbance_estimator.hpp"
 #include "simulation_model/rotational_simulation_class.hpp"
-// #include "utils/plot_tools.hpp"
+#include "utils/plot_tools.hpp"
 #include <numeric>
 #include <vector>
 
@@ -62,8 +62,13 @@ double rate;
 size_t N;
 double curr_time, prev_time;
 
+size_t x_tick_size, y_tick_size;
 
+double line_width, label_font_size, tick_font_size;
 
+string title_name, y_label_name, data1_name, data2_name;
+
+size_t idx[3] = {0, 1, 2};
 
 void set_parameter(const NodeHandle &nh_)
 {
@@ -121,6 +126,13 @@ void set_parameter(const NodeHandle &nh_)
 
     theta_est.setZero();
 
+    x_tick_size = 5;
+    y_tick_size = 5;
+
+    line_width = 2;
+    label_font_size = 30;
+    tick_font_size = 25;
+
 }
 
 void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<double> > &data_)
@@ -131,7 +143,7 @@ void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<doubl
 
     size_t n;
     n = data_.capacity();
-    cout << n << endl;
+    // cout << n << endl;
 
     size_t m;
 
@@ -141,7 +153,7 @@ void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<doubl
         data_[i].reserve(N_);
         m = data_[i].capacity();
         assert(m == N_);
-        cout << m << endl;
+        // cout << m << endl;
     }
 }
 
