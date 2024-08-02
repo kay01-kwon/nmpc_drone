@@ -4,6 +4,7 @@
 #include "opt_based_estimator/rotational_disturbance_estimator.hpp"
 #include "simulation_model/rotational_simulation_class.hpp"
 // #include "utils/plot_tools.hpp"
+#include <numeric>
 #include <vector>
 
 #define QUATERNION_T_DIM    4
@@ -22,6 +23,10 @@ void reserve_vec_data(const size_t &N_, vector<double> &data_);
 
 void reserve_vec_data(const size_t &N_, const size_t &dim_,
 vector< vector<double> > &data_);
+
+void push_back_vector(const vector_t &vec_, vector< vector<double> > &plot_vec_);
+
+void push_back_vector(const quaternion_t &q_vec_, vector< vector<double> > &plot_vec_);
 
 mat33_t J;
 
@@ -159,6 +164,20 @@ void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<doubl
 
     for(size_t i = 0; i < dim_; i++)
         data_[i].reserve(N_);
+}
+
+void push_back_vector(const vector_t &vec_, vector<vector<double>> &plot_vec_)
+{
+    for(size_t i = 0; i < VECTOR_T_DIM; i++)
+        plot_vec_[i].push_back(vec_(i));
+}
+
+inline void push_back_vector(const quaternion_t &q_vec_, vector<vector<double>> &plot_vec_)
+{
+    plot_vec_[0].push_back(q_vec_.w());
+    plot_vec_[1].push_back(q_vec_.x());
+    plot_vec_[2].push_back(q_vec_.y());
+    plot_vec_[3].push_back(q_vec_.z());
 }
 
 #endif

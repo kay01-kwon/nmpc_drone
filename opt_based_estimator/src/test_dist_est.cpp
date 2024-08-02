@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     for(size_t i = 0; i < N; i++)
     {
         M << 0, 0, 0;
-        theta_exg << 5*cos(time), 1*cos(time), 2*cos(time);
+        theta_exg << 5*cos(curr_time), 1*cos(curr_time), 2*cos(curr_time);
         
         // Set control input and disturbance
         // and then simulate it.
@@ -29,8 +29,15 @@ int main(int argc, char** argv)
 
         rot_dist_est_ptr->solve();
 
+        theta_est = rot_dist_est_ptr->get_est_dist();
+
         prev_time = curr_time;
 
+
+        push_back_vector(q_obs, q_obs_vec);
+        push_back_vector(w_obs, w_obs_vec);
+        push_back_vector(theta_exg, theta_est_vec);
+        push_back_vector(theta_est, theta_est_vec);
     }
 
 
