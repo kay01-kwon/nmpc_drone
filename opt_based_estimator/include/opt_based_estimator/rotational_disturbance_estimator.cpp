@@ -42,6 +42,11 @@ void RotDistEst::set_input(const vector_t &M, const vector_t &theta)
     theta_k_ = theta;
 }
 
+vector_t RotDistEst::get_est_dist() const
+{
+    return theta_k_;
+}
+
 void RotDistEst::solve()
 {
     dt_ = curr_time_ - prev_time_;

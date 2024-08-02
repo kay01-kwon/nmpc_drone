@@ -16,6 +16,8 @@ class RotDistEst{
     void set_meas_state(const quaternion_t &q_meas, const vector_t &w_meas);
     void set_input(const vector_t &M, const vector_t &theta);
 
+    vector_t get_est_dist() const;
+
     void solve();
 
     private:

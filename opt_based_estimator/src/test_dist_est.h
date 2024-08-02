@@ -51,6 +51,7 @@ vector_t theta_est;
 double Tf;
 double rate;
 size_t N;
+double curr_time, prev_time;
 
 // State variables data to plot
 vector<double> time_vec;
@@ -115,7 +116,11 @@ void set_parameter(const NodeHandle &nh_)
 
     print_parameter(J, Tf, rate, Q, term_error, iter_max);
 
-    
+    curr_time = 0;
+    prev_time = curr_time;
+
+    theta_est.setZero();
+
 }
 
 void print_parameter(const mat33_t &J_, const double &Tf_, const double &rate_,
