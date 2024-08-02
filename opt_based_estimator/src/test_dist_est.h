@@ -7,8 +7,10 @@
 #include <numeric>
 #include <vector>
 
-#define QUATERNION_T_DIM    4
-#define VECTOR_T_DIM        3
+using std::vector;
+
+// #define QUATERNION_T_DIM    4
+// #define VECTOR_T_DIM        3
 
 using ros::NodeHandle;
 using std::vector;
@@ -18,8 +20,6 @@ void set_parameter(const NodeHandle &nh_);
 void print_parameter(const mat33_t &J_, const double &Tf_,
 const double &rate_, const mat77_t &Q_,
 const double &term_error_, const int &iter_max_);
-
-void reserve_vec_data(const size_t &N_, vector<double> &data_);
 
 void reserve_vec_data(const size_t &N_, const size_t &dim_,
 vector< vector<double> > &data_);
@@ -69,10 +69,14 @@ vector< vector<double> > theta_true_vec;
 // Estimated rotational disturbance data to plot
 vector< vector<double> > theta_est_vec;
 
+const size_t QUATERNION_T_DIM = 4;
+const size_t VECTOR_T_DIM = 3;
+
 
 
 void set_parameter(const NodeHandle &nh_)
 {
+
     // Initialize moment of inertia
     J.setZero();
 
@@ -87,9 +91,6 @@ void set_parameter(const NodeHandle &nh_)
 
     assert(rate >= 100);
     assert(Tf > 1/rate);
-    
-    // Get simulation step
-    N = static_cast<size_t>(Tf*rate);
 
     // Initialize weight matrix for optimization based disturnbace estimator
     Q.setZero();
@@ -106,6 +107,7 @@ void set_parameter(const NodeHandle &nh_)
 
     assert(iter_max > 0);
 
+    N = static_cast<size_t>(Tf*rate);
     double dt = 1/rate;
 
     rot_sim_ptr = new RotationalSimulation(J, dt);
@@ -113,13 +115,14 @@ void set_parameter(const NodeHandle &nh_)
 
     // Reserve time vector, obs state variable, and 
     // true and estimated disturbacne data
+
+    print_parameter(J, Tf, rate, Q, term_error, iter_max);
+
     time_vec.reserve(N);
     reserve_vec_data(N, QUATERNION_T_DIM, q_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, w_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, theta_true_vec);
     reserve_vec_data(N, VECTOR_T_DIM, theta_est_vec);
-
-    print_parameter(J, Tf, rate, Q, term_error, iter_max);
 
     curr_time = 0;
     prev_time = curr_time;
@@ -147,23 +150,28 @@ const mat77_t &Q_, const double &term_error_, const int &iter_max_)
     cout << "Wieght info" << endl;
     cout << Q_ << endl;
 
-    cout << "Termination of state error: " << term_error_;
+    cout << "Termination of state error: " << term_error_ << endl;
 
-    cout << "Allowable maximum iteration: " << iter_max_;
+    cout << "Allowable maximum iteration: " << iter_max_ << endl;
 
-}
-
-void reserve_vec_data(const size_t &N_, vector<double> &data_)
-{
-    data_.reserve(N_);
 }
 
 void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<double> > &data_)
 {
     data_.reserve(dim_);
 
+    size_t n;
+    n = data_.capacity();
+    cout << n << endl;
+    size_t m;
+
     for(size_t i = 0; i < dim_; i++)
+    {
         data_[i].reserve(N_);
+        m = data_[i].capacity();
+        cout << m << endl;
+    }
+
 }
 
 void push_back_vector(const vector_t &vec_, vector<vector<double>> &plot_vec_)
