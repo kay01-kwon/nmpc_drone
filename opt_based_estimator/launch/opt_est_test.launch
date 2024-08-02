@@ -1,5 +1,23 @@
 <launch>
 
     <node pkg = "opt_based_estimator" type = "test_dist_est" name = "test_dist_est" output="screen"/>
+        
+        <param name = "J_xx" type = "double" value = "0.007"/>
+        <param name = "J_yy" type = "double" value = "0.007"/>
+        <param name = "J_zz" type = "double" value = "0.012"/>
 
+        <param name = "rate" type = "double" value = "100.0"/>
+        <param name = "Tf" type = "double" value = "10.0"/>
+
+        <param name = "Q_qw" type = "double" value = "0.0"/>
+        <param name = "Q_qx" type = "double" value = "10.0"/>
+        <param name = "Q_qy" type = "double" value = "10.0"/>
+        <param name = "Q_qz" type = "double" value = "10.0"/>
+        <param name = "Q_wx" type = "double" value = "10.0"/>
+        <param name = "Q_wy" type = "double" value = "10.0"/>
+        <param name = "Q_wz" type = "double" value = "10.0"/>
+        
+        <param name = "term_error" type = "double" value = "0.001"/>
+        <param name = "iter_max" type = "int" value = "30"/>
+        
 </launch>

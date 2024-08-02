@@ -16,7 +16,7 @@ using std::vector;
 void set_parameter(const NodeHandle &nh_);
 
 void print_parameter(const mat33_t &J_, const double &Tf_,
-const double &rate_, const mat33_t &Q_,
+const double &rate_, const mat77_t &Q_,
 const double &term_error_, const int &iter_max_);
 
 void reserve_vec_data(const size_t &N_, vector<double> &data_);
@@ -113,7 +113,7 @@ void set_parameter(const NodeHandle &nh_)
 
     // Reserve time vector, obs state variable, and 
     // true and estimated disturbacne data
-    reserve_vec_data(N, time_vec);
+    time_vec.reserve(N);
     reserve_vec_data(N, QUATERNION_T_DIM, q_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, w_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, theta_true_vec);
@@ -129,7 +129,7 @@ void set_parameter(const NodeHandle &nh_)
 }
 
 void print_parameter(const mat33_t &J_, const double &Tf_, const double &rate_,
-const mat33_t &Q_, const double &term_error_, const int &iter_max_)
+const mat77_t &Q_, const double &term_error_, const int &iter_max_)
 {
     cout << "*************************************" << endl;
     cout << "MOI (kg m^3) setup" << endl;
