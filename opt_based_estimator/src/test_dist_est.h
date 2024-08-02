@@ -11,12 +11,21 @@ using std::vector;
 
 void set_parameter(const NodeHandle &nh);
 
+void reserve_vec_data(const int &N_);
+
 mat33_t J;
 
 // pointer for rotational simulator 
 // and the corresponding distrubance estimator
 RotationalSimulation* rot_sim_ptr;
 RotDistEst* rot_dist_est_ptr;
+
+// Weight for the disturbance estimator 
+// (qw, qx, qy, qz, wx, wy, wz)
+mat77_t Q;
+
+double term_error;
+int iter_max;
 
 // Control input and disturbance for rotational simulator
 vector_t M, theta_exg;
@@ -62,9 +71,32 @@ void set_parameter(const NodeHandle &nh)
 
     assert(rate >= 100);
     assert(Tf > 1/rate);
-
+    
+    // Get simulation step
     N = static_cast<size_t>(Tf*rate);
+
+    // Initialize weight matrix for optimization based disturnbace estimator
+    Q.setZero();
+    nh.getParam("Q_qw", Q(0,0));
+    nh.getParam("Q_qx", Q(1,1));
+    nh.getParam("Q_qy", Q(2,2));
+    nh.getParam("Q_qz", Q(3,3));
+    nh.getParam("Q_wx", Q(4,4));
+    nh.getParam("Q_wy", Q(5,5));
+    nh.getParam("Q_wz", Q(6,6));
+
+    nh.getParam("term_error", term_error);
+    nh.getParam("iter_max", iter_max);
+
+    assert(iter_max > 0);
+
+    rot_sim_ptr = new RotationalSimulation(J, 1/rate);
+    
 }
 
+void reserve_vec_data(const int &N)
+{
+
+}
 
 #endif
