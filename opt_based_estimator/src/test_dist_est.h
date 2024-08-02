@@ -12,7 +12,11 @@
 using ros::NodeHandle;
 using std::vector;
 
-void set_parameter(const NodeHandle &nh);
+void set_parameter(const NodeHandle &nh_);
+
+void print_parameter(const mat33_t &J_, const double &Tf_,
+const double &rate_, const mat33_t &Q_,
+const double &term_error_, const int &iter_max_);
 
 void reserve_vec_data(const size_t &N_, vector<double> &data_);
 
@@ -61,19 +65,19 @@ vector< vector<double> > theta_est_vec;
 
 
 
-void set_parameter(const NodeHandle &nh)
+void set_parameter(const NodeHandle &nh_)
 {
     // Initialize moment of inertia
     J.setZero();
 
     // Get MOI parameter from launch file
-    nh.getParam("J_xx", J(0,0));
-    nh.getParam("J_yy", J(1,1));
-    nh.getParam("J_zz", J(2,2));
+    nh_.getParam("J_xx", J(0,0));
+    nh_.getParam("J_yy", J(1,1));
+    nh_.getParam("J_zz", J(2,2));
 
     // Get simulation time information from launch file
-    nh.getParam("rate", rate);
-    nh.getParam("Tf", Tf);
+    nh_.getParam("rate", rate);
+    nh_.getParam("Tf", Tf);
 
     assert(rate >= 100);
     assert(Tf > 1/rate);
@@ -83,30 +87,60 @@ void set_parameter(const NodeHandle &nh)
 
     // Initialize weight matrix for optimization based disturnbace estimator
     Q.setZero();
-    nh.getParam("Q_qw", Q(0,0));
-    nh.getParam("Q_qx", Q(1,1));
-    nh.getParam("Q_qy", Q(2,2));
-    nh.getParam("Q_qz", Q(3,3));
-    nh.getParam("Q_wx", Q(4,4));
-    nh.getParam("Q_wy", Q(5,5));
-    nh.getParam("Q_wz", Q(6,6));
+    nh_.getParam("Q_qw", Q(0,0));
+    nh_.getParam("Q_qx", Q(1,1));
+    nh_.getParam("Q_qy", Q(2,2));
+    nh_.getParam("Q_qz", Q(3,3));
+    nh_.getParam("Q_wx", Q(4,4));
+    nh_.getParam("Q_wy", Q(5,5));
+    nh_.getParam("Q_wz", Q(6,6));
 
-    nh.getParam("term_error", term_error);
-    nh.getParam("iter_max", iter_max);
+    nh_.getParam("term_error", term_error);
+    nh_.getParam("iter_max", iter_max);
 
     assert(iter_max > 0);
 
     double dt = 1/rate;
 
     rot_sim_ptr = new RotationalSimulation(J, dt);
+    rot_dist_est_ptr = new RotDistEst(J, Q, term_error, iter_max);
 
-    // Reserve time vector, obs state variable and estimated disturbacne data
+    // Reserve time vector, obs state variable, and 
+    // true and estimated disturbacne data
     reserve_vec_data(N, time_vec);
     reserve_vec_data(N, QUATERNION_T_DIM, q_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, w_obs_vec);
+    reserve_vec_data(N, VECTOR_T_DIM, theta_true_vec);
     reserve_vec_data(N, VECTOR_T_DIM, theta_est_vec);
 
+    print_parameter(J, Tf, rate, Q, term_error, iter_max);
+
     
+}
+
+void print_parameter(const mat33_t &J_, const double &Tf_, const double &rate_,
+const mat33_t &Q_, const double &term_error_, const int &iter_max_)
+{
+    cout << "*************************************" << endl;
+    cout << "MOI (kg m^3) setup" << endl;
+    cout << J_ <<endl;
+
+    cout << "*************************************" << endl;
+    cout << "Final time (s): " << Tf_ << endl;
+
+    cout << "*************************************" << endl;
+    cout << "Rate (Hz): " << rate_ << endl;
+
+    cout << "*************************************" << endl;
+    cout << "Setup for rotataional disturbance estimator" << endl;
+    
+    cout << "Wieght info" << endl;
+    cout << Q_ << endl;
+
+    cout << "Termination of state error: " << term_error_;
+
+    cout << "Allowable maximum iteration: " << iter_max_;
+
 }
 
 void reserve_vec_data(const size_t &N_, vector<double> &data_)
