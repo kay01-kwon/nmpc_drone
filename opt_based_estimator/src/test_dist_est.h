@@ -7,22 +7,20 @@
 #include <numeric>
 #include <vector>
 
-using std::vector;
-
-// #define QUATERNION_T_DIM    4
-// #define VECTOR_T_DIM        3
+#define QUATERNION_T_DIM    4
+#define VECTOR_T_DIM        3
 
 using ros::NodeHandle;
 using std::vector;
 
 void set_parameter(const NodeHandle &nh_);
 
+void reserve_vec_data(const size_t &N_, const size_t &dim_,
+vector< vector<double> > &data_);
+
 void print_parameter(const mat33_t &J_, const double &Tf_,
 const double &rate_, const mat77_t &Q_,
 const double &term_error_, const int &iter_max_);
-
-void reserve_vec_data(const size_t &N_, const size_t &dim_,
-vector< vector<double> > &data_);
 
 void push_back_vector(const vector_t &vec_, vector< vector<double> > &plot_vec_);
 
@@ -52,25 +50,18 @@ vector_t w_obs;
 // Variables to store estimated disturbance result temporaliry
 vector_t theta_est;
 
+vector<double> time_vec;
+vector<vector<double> > q_obs_vec;
+vector<vector<double> > w_obs_vec;
+vector<vector<double> > theta_true_vec;
+vector<vector<double> > theta_est_vec;
+
 // Simulation final time, time difference, and the total step
 double Tf;
 double rate;
 size_t N;
 double curr_time, prev_time;
 
-// State variables data to plot
-vector<double> time_vec;
-vector< vector<double> > q_obs_vec;
-vector< vector<double> > w_obs_vec;
-
-// True rotational disturbance data to plot
-vector< vector<double> > theta_true_vec;
-
-// Estimated rotational disturbance data to plot
-vector< vector<double> > theta_est_vec;
-
-const size_t QUATERNION_T_DIM = 4;
-const size_t VECTOR_T_DIM = 3;
 
 
 
@@ -107,18 +98,19 @@ void set_parameter(const NodeHandle &nh_)
 
     assert(iter_max > 0);
 
-    N = static_cast<size_t>(Tf*rate);
+    N = Tf*rate;
     double dt = 1/rate;
 
     rot_sim_ptr = new RotationalSimulation(J, dt);
     rot_dist_est_ptr = new RotDistEst(J, Q, term_error, iter_max);
 
-    // Reserve time vector, obs state variable, and 
-    // true and estimated disturbacne data
-
     print_parameter(J, Tf, rate, Q, term_error, iter_max);
 
+    // Reserve time vector, obs state variable, and 
+    // true and estimated disturbacne data
     time_vec.reserve(N);
+    size_t size_time_vec;
+    size_time_vec = time_vec.capacity();
     reserve_vec_data(N, QUATERNION_T_DIM, q_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, w_obs_vec);
     reserve_vec_data(N, VECTOR_T_DIM, theta_true_vec);
@@ -129,6 +121,28 @@ void set_parameter(const NodeHandle &nh_)
 
     theta_est.setZero();
 
+}
+
+void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<double> > &data_)
+{
+    data_.reserve(dim_);
+
+    cout << "Data length: " << N_ << endl;
+
+    size_t n;
+    n = data_.capacity();
+    cout << n << endl;
+
+    size_t m;
+
+    for(size_t i = 0; i < dim_; i++)
+    {
+        data_.push_back(vector<double>());
+        data_[i].reserve(N_);
+        m = data_[i].capacity();
+        assert(m == N_);
+        cout << m << endl;
+    }
 }
 
 void print_parameter(const mat33_t &J_, const double &Tf_, const double &rate_,
@@ -153,24 +167,6 @@ const mat77_t &Q_, const double &term_error_, const int &iter_max_)
     cout << "Termination of state error: " << term_error_ << endl;
 
     cout << "Allowable maximum iteration: " << iter_max_ << endl;
-
-}
-
-void reserve_vec_data(const size_t &N_, const size_t &dim_, vector< vector<double> > &data_)
-{
-    data_.reserve(dim_);
-
-    size_t n;
-    n = data_.capacity();
-    cout << n << endl;
-    size_t m;
-
-    for(size_t i = 0; i < dim_; i++)
-    {
-        data_[i].reserve(N_);
-        m = data_[i].capacity();
-        cout << m << endl;
-    }
 
 }
 

@@ -101,9 +101,9 @@ void RotDistEst::solve()
         
         RK_grad = rot_rk4_grad_obj_.getRK4Grad();
 
-        gradient_f = - dt_/6.0 * RK_grad.transpose() * Q_ * s_tilde;
+        gradient_f = - dt_/3.0 * RK_grad.transpose() * Q_ * s_tilde;
 
-        Hessian_f = dt_*dt_/36.0 * RK_grad.transpose() * Q_ * RK_grad;
+        Hessian_f = dt_*dt_/18.0 * RK_grad.transpose() * Q_ * RK_grad;
 
         theta_k_ = theta_k_ - Hessian_f.inverse() * gradient_f;
 
@@ -113,6 +113,8 @@ void RotDistEst::solve()
         {
             break;
         }
+
+        iter++;
     }
 
     // Iteration is finished
@@ -150,4 +152,14 @@ const double &time, const vector_t &M, const vector_t &theta)
     dqdt.z() = 0.5*q_mul.z();
 
     dwdt = J_nom_.inverse()  * (M - w.cross(J_nom_*w) + theta);
+
+    dsdt(0) = dqdt.w();
+    dsdt(1) = dqdt.x();
+    dsdt(2) = dqdt.y();
+    dsdt(3) = dqdt.z();
+
+    dsdt(4) = dwdt(0);
+    dsdt(5) = dwdt(1);
+    dsdt(6) = dwdt(2);
+
 }
