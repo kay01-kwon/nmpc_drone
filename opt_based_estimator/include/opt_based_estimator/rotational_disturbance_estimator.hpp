@@ -18,6 +18,10 @@ class RotDistEst{
 
     vector_t get_est_dist() const;
 
+    double get_computed_time() const;
+
+    double get_computed_iter() const;
+
     void solve();
 
     private:
@@ -43,6 +47,10 @@ class RotDistEst{
     vector_t M_, theta_k_;
 
     double curr_time_, prev_time_, dt_;
+
+    double computed_time_;
+
+    uint8_t computed_iter_;
 
 };
 

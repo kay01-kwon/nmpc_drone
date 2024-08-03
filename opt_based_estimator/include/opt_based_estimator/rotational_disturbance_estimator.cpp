@@ -47,6 +47,16 @@ vector_t RotDistEst::get_est_dist() const
     return theta_k_;
 }
 
+double RotDistEst::get_computed_time() const
+{
+    return computed_time_;
+}
+
+double RotDistEst::get_computed_iter() const
+{
+    return computed_iter_;
+}
+
 void RotDistEst::solve()
 {
     dt_ = curr_time_ - prev_time_;
@@ -120,6 +130,8 @@ void RotDistEst::solve()
 
         iter++;
     }
+
+    computed_iter_ = iter;
 
     // Iteration is finished
     // Set the initial state as measured one.
