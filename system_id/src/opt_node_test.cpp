@@ -2,5 +2,8 @@
 
 int main(int argc, char** argv)
 {
-    OptNode<double> opt_node(OptMethodName::GradDes);
+    cout << "Test" << endl;
+    OptMethodName opt_method_name;
+    opt_method_name = OptMethodName::GradDesc;
+    OptNode<double> opt_node(opt_method_name);
 }

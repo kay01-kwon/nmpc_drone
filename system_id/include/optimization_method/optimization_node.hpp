@@ -16,7 +16,7 @@ class OptNode{
 
     private:
 
-    std::unique_ptr<OptMethod<Meas>> opt_method_ptr;
+    std::unique_ptr< OptMethod<Meas> > opt_method_ptr;
 
 };
 
@@ -26,9 +26,9 @@ template <typename Meas>
 inline OptNode<Meas>::OptNode(const OptMethodName &method_name)
 {
     cout << "OptNode class" << endl;
-    if(method_name == OptMethod::GradDes)
+
+    if(method_name == OptMethodName::GradDesc)
     {
-        GradDesc* grad_desc_ptr;
-        opt_method_ptr = std::move(grad_desc_ptr);
+        opt_method_ptr = std::make_unique< GradDesc<Meas> >();
     }
 }

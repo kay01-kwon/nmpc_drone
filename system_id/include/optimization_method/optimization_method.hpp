@@ -7,19 +7,18 @@
 using std::cout;
 using std::endl;
 
-enum class OptMethodName{GradDes, GaussNewton, LM};
+enum class OptMethodName{GradDesc, GaussNewton, LM};
 
-template <typename Meas>
+template <typename Param>
 class OptMethod{
 
     public:
 
     OptMethod();
 
-    template <typename Param>
-    virtual void minimize(Param &param_est) const;
+    virtual void minimize(Param &param_est) = 0;
 
-    virtual ~OptMethod();
+    ~OptMethod();
 
     private:
 
@@ -31,15 +30,13 @@ class OptMethod{
 
 #endif
 
-template <typename Meas>
-inline OptMethod<Meas>::OptMethod()
+template <typename Param>
+inline OptMethod<Param>::OptMethod()
 {
     cout << "OptMethod class" << endl;
 }
 
-template <typename Meas>
 template <typename Param>
-inline void OptMethod<Meas>::minimize(Param &param_est) const
+inline OptMethod<Param>::~OptMethod()
 {
-    cout << "Minimize function" << endl;
 }

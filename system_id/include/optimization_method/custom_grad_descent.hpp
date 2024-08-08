@@ -2,11 +2,16 @@
 #define CUSTOM_GRAD_DESCENT_HPP
 #include "optimization_method.hpp"
 
-template <typename functor>
-class GradDesc{
+template <typename Param>
+class GradDesc: public OptMethod<Param>{
 
     public:
-        GradDesc();
+
+    GradDesc();
+
+    virtual void minimize(Param &param_est);
+
+    ~GradDesc();
 
     private:
 
@@ -16,8 +21,18 @@ class GradDesc{
 
 #endif
 
-template <typename functor>
-inline GradDesc<functor>::GradDesc()
+template <typename Param>
+inline GradDesc<Param>::GradDesc()
 {
     cout << "GradDes class" << endl;
+}
+
+template <typename Param>
+inline void GradDesc<Param>::minimize(Param &param_est)
+{
+}
+
+template <typename Meas>
+inline GradDesc<Meas>::~GradDesc()
+{
 }
