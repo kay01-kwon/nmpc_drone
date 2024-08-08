@@ -8,15 +8,9 @@
             "includePath": [
                 "/home/kay/catkin_ws/devel/include/**",
                 "/opt/ros/noetic/include/**",
-                // "/home/kay/catkin_ws/src/mav_comm/mav_msgs/include/**",
-                // "/home/kay/catkin_ws/src/mav_comm/mav_planning_msgs/include/**",
-                // "/home/kay/catkin_ws/src/rotors_simulator/rotors_control/include/**",
-                // "/home/kay/catkin_ws/src/rotors_simulator/rotors_gazebo_plugins/include/**",
-                // "/home/kay/catkin_ws/src/rotors_simulator/rotors_hil_interface/include/**",
-                // "/home/kay/catkin_ws/src/rotors_simulator/rotors_joy_interface/include/**",
                 "/usr/include/**",
-                // "${workspaceFolder}/l1_estimator/include",
-                "${workspaceFolder}/opt_based_estimator/include"
+                "${workspaceFolder}/opt_based_estimator/include",
+                "${workspaceFolder}/system_id/include"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
