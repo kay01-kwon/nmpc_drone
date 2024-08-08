@@ -7,7 +7,7 @@
 using std::cout;
 using std::endl;
 
-enum class OptMethodName{GradDesc, GaussNewton, LM};
+enum class OptMethodName{GradDesc, GaussNewton, LevenbergMarquardt};
 
 template <typename Param>
 class OptMethod{
