@@ -1,8 +1,0 @@
-prefix=/home/kay/catkin_ws/src/research/opt_based_estimator/build/devel
-
-Name: opt_based_estimator
-Description: Description of opt_based_estimator
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: roscpp std_msgs

@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libgmockd.so -o ../lib/libgmockd.so CMakeFiles/gmock.dir/src/gmock-all.cc.o  -Wl,-rpath,/home/kay/catkin_ws/src/research/opt_based_estimator/build/gtest/lib ../lib/libgtestd.so -lpthread 
