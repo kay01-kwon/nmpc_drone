@@ -81,7 +81,7 @@ void RotDistEst::solve()
     rot_rk4_grad_obj_.set_time_difference(dt_);
     rot_rk4_grad_obj_.set_initial_state(s_init_);
     rot_rk4_grad_obj_.set_input_disturbance(M_, theta_k_);
-
+    
     while(fabs(error) > term_error_)
     {
         rk4_solver_obj_.do_step(

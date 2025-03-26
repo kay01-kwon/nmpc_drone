@@ -10,12 +10,12 @@
         <param name = "Tf" type = "double" value = "10.0"/>
 
         <param name = "Q_qw" type = "double" value = "0.0"/>
-        <param name = "Q_qx" type = "double" value = "10.0"/>
-        <param name = "Q_qy" type = "double" value = "10.0"/>
-        <param name = "Q_qz" type = "double" value = "10.0"/>
-        <param name = "Q_wx" type = "double" value = "10.0"/>
-        <param name = "Q_wy" type = "double" value = "10.0"/>
-        <param name = "Q_wz" type = "double" value = "10.0"/>
+        <param name = "Q_qx" type = "double" value = "1000.0"/>
+        <param name = "Q_qy" type = "double" value = "1000.0"/>
+        <param name = "Q_qz" type = "double" value = "1000.0"/>
+        <param name = "Q_wx" type = "double" value = "1000.0"/>
+        <param name = "Q_wy" type = "double" value = "1000.0"/>
+        <param name = "Q_wz" type = "double" value = "1000.0"/>
         
         <param name = "term_error" type = "double" value = "0.001"/>
         <param name = "iter_max" type = "int" value = "30"/>

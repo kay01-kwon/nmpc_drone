@@ -24,7 +24,7 @@ int main(int argc, char** argv)
         // and then simulate it.
         rot_sim_ptr->setInput(M, theta_exg);
         rot_sim_ptr->do_simulation();
-        
+
         // Get time, quaternion and angular velocity state variables, respectively
         curr_time = rot_sim_ptr->get_time();
         q_obs = rot_sim_ptr->get_quaternion();
@@ -50,8 +50,14 @@ int main(int argc, char** argv)
 
     }
 
+
+    plt::figure(1);
     plt::figure_size(1000,1000);
-    plt::subplot(3,1,1);
+
+    cout<<"Plotting..."<<endl;
+    
+    // plt::subplot(3,1,1);
+    
     title_name = "$θ_{x} - t$";
     y_label_name = "$θ_{x} (Nm)$";
     data1_name = "$θ_{x,est}$";
@@ -62,19 +68,25 @@ int main(int argc, char** argv)
     
     plt::plot(time_vec, theta_est_vec[0], { {"label",data1_name},
     {"color", "red"}, {"linewidth", "4"}});
-
+    cout << "No problem 2 here" << endl;
     plt::plot(time_vec, theta_true_vec[0], 
     { {"label",data2_name},
     {"color","limegreen"}, {"linewidth", "4"},
     {"linestyle","--"}});
-    
+    cout << "No problem 3 here" << endl;
     plt::xlabel("time (s)",{{"fontsize","15"}});
     plt::ylabel(y_label_name,{{"fontsize","15"}});
     plt::legend({{"fontsize","15"}});
     plt::grid(true);
 
+    plt::show();
 
-    plt::subplot(3,1,2);
+    cout << "Plotting 2..." << endl;
+    plt::figure(2);
+    plt::figure_size(1000,1000);
+
+
+    // plt::subplot(3,1,2);
     title_name = "$θ_{y} - t$";
     y_label_name = "$θ_{y} (Nm)$";
     data1_name = "$θ_{y,est}$";
@@ -96,8 +108,12 @@ int main(int argc, char** argv)
     plt::legend({{"fontsize","15"}});
     plt::grid(true);
 
+    plt::show();
 
-    plt::subplot(3,1,3);
+    // plt::subplot(3,1,3);
+
+    plt::figure(3);
+    plt::figure_size(1000,1000);
     title_name = "$θ_{z} - t$";
     y_label_name = "$θ_{z} (Nm)$";
     data1_name = "$θ_{z,est}$";
@@ -122,7 +138,7 @@ int main(int argc, char** argv)
     // plt::xticks(time_vec, {}, {{"fontsize","15"}});
     // plt::yticks(theta_est_vec[0], {}, {{"fontsize","15"}});
 
-    // plt::show();
+    plt::show();
 
     plt::save("/home/kay/Pictures/test.png", 600);
 

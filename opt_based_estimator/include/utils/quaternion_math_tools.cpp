@@ -102,8 +102,8 @@ mat43_t otimes(const mat43_t &q_left, const vector_t &w)
     
     w_quat_form(0) = 0;
     w_quat_form(1) = w(0);
-    w_quat_form(2) = w(2);
-    w_quat_form(3) = w(3);
+    w_quat_form(2) = w(1);
+    w_quat_form(3) = w(2);
     
     return otimes(q_left, w_quat_form);
 }

@@ -12,7 +12,10 @@ dt_(0.01)
     Jxx = J_(0,0);
     Jyy = J_(1,1);
     Jzz = J_(2,2);
-    J_x_ << (Jzz-Jyy), (Jxx-Jzz), (Jyy-Jxx);
+    J_x_.setZero();
+    J_x_(0,0) = Jzz-Jyy;
+    J_x_(1,1) = Jxx-Jzz;
+    J_x_(2,2) = Jyy-Jxx;
 
     Eye_.setIdentity();
 }
@@ -83,22 +86,19 @@ mat73_t RotRK4Grad::getRK4Grad() const
     // q_temp (q_m2), w_temp (w_m2)
     q_temp = q_init_ + 0.5 * dt_ * 0.5 * otimes(q_temp_prev, w_temp_prev);
     w_temp = w_init_ + 0.5 * dt_ * J_.inverse() * (M_ - w_temp_prev.cross(J_*w_temp_prev) + theta_);
-
+    
     // dq_temp (dq_m2), dw_temp (dw_m2)
     dq_temp = 0.5 * dt_ * 0.5 * otimes(q_temp_prev, dw_temp);
     // diff_inertial_temp D(w_m1 x J*w_m1)
     dw_temp = 0.5 * dt_ * J_.inverse() *(-diff_inertial_temp + Eye_);
-
     mat73_t DK3;
     DK3.block(0, 0, 4, 3) = 0.5 * ( otimes(dq_temp, w_temp) + otimes(q_temp, dw_temp) );
     // diff_inertial_temp D(w_m2 x J*w_m2)
     diff_inertial_temp = DiffInertial(w_temp, dw_temp);
     DK3.block(4, 0, 3, 3)  = J_.inverse()*(-diff_inertial_temp + Eye_);
-
     // q_temp_prev (q_m2), w_temp_prev (w_m2)
     q_temp_prev = q_temp;
     w_temp_prev = w_temp;
-
     // q_temp (q_f), w_temp (w_f)
     q_temp = q_init_ + dt_*(0.5 * otimes(q_temp_prev, w_temp_prev));
     w_temp = w_init_ + dt_*J_.inverse()*(M_ - w_temp_prev.cross(J_*w_temp_prev) + theta_);
@@ -113,7 +113,6 @@ mat73_t RotRK4Grad::getRK4Grad() const
     // diff_inertial_temp = D(w_f x J*w_f)
     diff_inertial_temp = DiffInertial(w_temp, dw_temp);
     DK4.block(4, 0, 3, 3) = J_.inverse()*(-diff_inertial_temp + Eye_);
-    
     return a1_*DK1 + a2_*DK2 + a3_*DK3 + a4_*DK4;
 }
 
