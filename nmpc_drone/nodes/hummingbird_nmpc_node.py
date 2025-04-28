@@ -19,7 +19,7 @@ import rospy
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from mav_msgs.msg import Actuators
-from nmpc_quad.msg import nmpc_ref
+from nmpc_drone.msg import ref
 from std_srvs.srv import Empty
 
 class Hummingbird_nmpc_node():
@@ -28,8 +28,28 @@ class Hummingbird_nmpc_node():
         Initialize the ocp solver and store data for state, reference and so on.
         '''
         rospy.init_node('nmpc_quad', anonymous=True)
+
+        # NMPC weight for state (Qmat) and control input (Rmat)
+        Qmat = np.diag([1, 1, 1,                # position
+                        0.5, 0.5, 0.5,          # linear velocity
+                        0, 0.5, 0.5, 0.5,       # quaternion
+                        0.05, 0.05, 0.05        # angular velocity
+                        ])
+        Rmat = np.diag([0.01]*4)                # Thrust
+
+        Parameter = {'m': 0.716,
+                     'J': np.array([0.007, 0.007, 0.012]),
+                     'l': 0.17,
+                     'C_T': 8.54858e-06,
+                     'C_M': 0.05 * 8.54858e-06}
+
+        self.C_T = Parameter['C_T']
+
         # Create ocp solver object
-        self.ocp_solver_obj = HummingbirdOCP()
+        self.ocp_solver_obj = HummingbirdOCP(u_min=0.0, u_max=5.0,
+                                             Qmat=Qmat, Rmat=Rmat,
+                                             Parameter = Parameter,
+                                             model_description='+')
 
         self.state = np.zeros((13,))
         self.state[6] = 1.0
@@ -40,8 +60,6 @@ class Hummingbird_nmpc_node():
         self.u = np.zeros((4,))
         self.rpm_des = np.zeros((4,))
         self.u_msg = Actuators()
-
-        self.C_lift = 8.54858e-06
 
         self.ros_setup()
 
@@ -69,7 +87,7 @@ class Hummingbird_nmpc_node():
 
 
         self.ref_sub = rospy.Subscriber('/nmpc_quad/ref',
-                                        nmpc_ref,
+                                        ref,
                                         self.ref_callback,
                                         queue_size=1)
 
@@ -163,13 +181,13 @@ class Hummingbird_nmpc_node():
         # print('Reference position: ', self.ref[:3])
 
     def publish_control_input(self):
-        status, self.u = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
+        self.u, status = self.ocp_solver_obj.ocp_solve(self.state, self.ref)
 
         # u[i] = C_lift * rpm[i]^2
         # rpm[i] = sqrt(u[i]/C_lift)
         if status == 0:
             for i in range(4):
-                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_lift)
+                self.rpm_des[i] = np.sqrt(self.u[i]/self.C_T)
         else:
             self.publish_zero_control_input()
             print('NMPC : Infeasible')
@@ -208,9 +226,3 @@ if __name__ == '__main__':
     # main()
     nmpc_quad_node = Hummingbird_nmpc_node()
     nmpc_quad_node.run()
-
-
-
-
-
-

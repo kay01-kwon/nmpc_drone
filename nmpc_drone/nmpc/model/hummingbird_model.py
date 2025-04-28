@@ -1,9 +1,10 @@
 from acados_template import AcadosModel
 from nmpc.utils import math_tools
+from nmpc.utils import quad_tool
 import casadi as cs
 
 class HummingbirdModel:
-    def __init__(self, m, J, l, C_moment, model_description):
+    def __init__(self, Parameter, model_description):
         '''
         Constructor for QuadModel
         :param m: mass
@@ -17,13 +18,17 @@ class HummingbirdModel:
         self.model_name = 'Hummingbird_model'
         self.model = AcadosModel()
 
-        self.l = l
+        self.Parameter = Parameter
+
+        # Arm length
+        self.l = Parameter['l']
 
         # Get parameters
         # mass, moment of inertia, lift coefficient, moment coefficient
-        self.m = m
-        self.J = J
-        self.C_moment = C_moment
+        self.m = Parameter['m']
+        self.J = Parameter['J']
+        self.C_T = Parameter['C_T']
+        self.C_M = Parameter['C_M']
 
         # Model description ('x' or '+')
         self.model_description = model_description
@@ -126,7 +131,9 @@ class HummingbirdModel:
         Jzz = self.J[2]
 
         # Convert Four rotor thrusts to moment
-        M_x, M_y, M_z = math_tools.thrust2moment(self.model_description, self.u, self.l, self.C_moment)
+        M_x, M_y, M_z = quad_tool.quad_thrust_to_moment(self.model_description,
+                                                        self.Parameter,
+                                                        self.u)
 
         # Get angular acceleration due to the moment
         m_vec = cs.vertcat(M_x/Jxx , M_y/Jyy, M_z/Jzz)

@@ -63,9 +63,9 @@ def vec2skew_symm(v):
     # Not casadi --> represent the return value as np.array
     if isinstance(v, np.ndarray):
         return np.array([
-                        [ 0, -v[2], v[1] ],
-                        [ v[2], 0, -v[0] ],
-                        [-v[1], v[0], 0]
+                        [ 0,    -v[2],  v[1] ],
+                        [ v[2],     0, -v[0] ],
+                        [-v[1],  v[0],    0  ]
         ])
 
     vx = v[0]
@@ -113,25 +113,3 @@ def otimes(q1,q2):
     )
 
     return cs.mtimes(q1_L, q2)
-
-def thrust2moment(model_description, thrust, arm_length, C_moment):
-    '''
-    Convert thrust to moment
-    :param model_description: '+' or 'x'
-    :param thrust: Four rotor thrusts
-    :param arm_length: arm length
-    :param C_moment: Coefficient of moment
-    :return: m_x, m_y, m_z
-    '''
-    if model_description == '+':
-        l = arm_length
-        m_x = l*( thrust[1] - thrust[3])
-        m_y = l*( thrust[2] - thrust[0])
-    else:
-        l = arm_length*np.sqrt(2)/2
-        m_x = l*( -thrust[0] + thrust[1] + thrust[2] - thrust[3])
-        m_y = l*( -(thrust[0] + thrust[1]) + (thrust[2] + thrust[3]))
-
-    m_z = C_moment*( thrust[0] - thrust[1] + thrust[2] - thrust[3] )
-
-    return m_x, m_y, m_z
