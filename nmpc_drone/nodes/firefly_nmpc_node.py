@@ -22,7 +22,7 @@ from mav_msgs.msg import Actuators
 from nmpc_drone.msg import ref
 from std_srvs.srv import Empty
 
-class Hummingbird_nmpc_node():
+class Firefly_nmpc_node():
     def __init__(self):
         '''
         Initialize the ocp solver and store data for state, reference and so on.
@@ -85,7 +85,7 @@ class Hummingbird_nmpc_node():
         #                                 queue_size=10)
 
 
-        self.ref_sub = rospy.Subscriber('/nmpc_quad/ref',
+        self.ref_sub = rospy.Subscriber('/nmpc_hexa/ref',
                                         ref,
                                         self.ref_callback,
                                         queue_size=1)
@@ -223,5 +223,5 @@ class Hummingbird_nmpc_node():
 
 if __name__ == '__main__':
     # main()
-    nmpc_quad_node = Hummingbird_nmpc_node()
-    nmpc_quad_node.run()
+    nmpc_hexa_node = Firefly_nmpc_node()
+    nmpc_hexa_node.run()
