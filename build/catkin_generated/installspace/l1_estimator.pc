@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: l1_estimator
-Description: Description of l1_estimator
-Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib -ll1_estimator
-Requires: roscpp std_msgs message_runtime
