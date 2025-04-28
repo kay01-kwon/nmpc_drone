@@ -1,6 +1,0 @@
-<launch>
-
-    <node pkg = "l1_estimator" type = "lpf_test_node" name = "lpf_test_node"/>
-        <param name="tau" type="double" value="20"/>
-
-</launch>
