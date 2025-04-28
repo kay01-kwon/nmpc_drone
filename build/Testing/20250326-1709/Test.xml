@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20250326-1709-Experimental"
+	Name="kay-ROG-Zephyrus-M16-GU604VI-GU604VI"
+	Generator="ctest-3.16.3"
+	CompilerName="/usr/bin/g++"
+	CompilerVersion="9.4.0"
+	OSName="Linux"
+	Hostname="kay-ROG-Zephyrus-M16-GU604VI-GU604VI"
+	OSRelease="5.15.0-131-generic"
+	OSVersion="#141~20.04.1-Ubuntu SMP Thu Jan 16 18:38:51 UTC 2025"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="186"
+	ProcessorCacheSize="24576"
+	NumberOfLogicalCPU="20"
+	NumberOfPhysicalCPU="14"
+	TotalVirtualMemory="2047"
+	TotalPhysicalMemory="63915"
+	LogicalProcessorsPerPhysical="1"
+	ProcessorClockFrequency="3000"
+	>
+	<Testing>
+		<StartDateTime>Mar 27 02:09 KST</StartDateTime>
+		<StartTestTime>1743008976</StartTestTime>
+		<TestList/>
+		<EndDateTime>Mar 27 02:09 KST</EndDateTime>
+		<EndTestTime>1743008976</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

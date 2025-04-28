@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 from acados_template import AcadosOcp, AcadosOcpSolver
-from quad_model import QuadModel
+from nmpc.model.hummingbird_model import HummingbirdModel
 import scipy.linalg
 import numpy as np
 
@@ -15,7 +15,7 @@ X0 = np.array([
 ])
 
 
-class OcpSolver():
+class HummingbirdOCP():
     def __init__(self, u_min = 0., u_max = 5, n_nodes = 10, t_horizon = 1.0):
         '''
         Constructor for OcpSolver
@@ -59,7 +59,7 @@ class OcpSolver():
         self.ocp = AcadosOcp()
 
         # Object generation
-        quad_model_obj = QuadModel(m = 0.716,
+        quad_model_obj = HummingbirdModel(m = 0.716,
                                 J =np.array([0.007, 0.007, 0.012]),
                                 l = 0.17,
                                 C_moment = 0.05,
