@@ -37,7 +37,7 @@ class Firefly_nmpc_node():
                         ])
         Rmat = np.diag([0.01]*6)                # Thrust
 
-        Parameter = {'m': 1.513,
+        Parameter = {'m': 1.5,
                      'J': np.array([0.0347, 0.0459, 0.0977]),
                      'l': 0.215,
                      'C_T': 8.54858e-06,
