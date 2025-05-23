@@ -22,12 +22,12 @@ from mav_msgs.msg import Actuators
 from nmpc_drone.msg import ref
 from std_srvs.srv import Empty
 
-class Firefly_nmpc_node():
+class Hexa_nmpc_node():
     def __init__(self):
         '''
         Initialize the ocp solver and store data for state, reference and so on.
         '''
-        rospy.init_node('nmpc_firefly', anonymous=True)
+        rospy.init_node('nmpc_hexa', anonymous=True)
 
         # NMPC weight for state (Qmat) and control input (Rmat)
         Qmat = np.diag([1, 1, 1,                # position
@@ -37,16 +37,16 @@ class Firefly_nmpc_node():
                         ])
         Rmat = np.diag([0.01]*6)                # Thrust
 
-        Parameter = {'m': 1.5,
+        Parameter = {'m': 2.9,
                      'J': np.array([0.0347, 0.0459, 0.0977]),
-                     'l': 0.215,
-                     'C_T': 8.54858e-06,
-                     'C_M': 0.016 * 8.54858e-06}
+                     'l': 0.265,
+                     'C_T': 13.3591e-06,
+                     'C_M': 0.006372 * 13.3591e-06}
 
         self.C_T = Parameter['C_T']
 
         # Create ocp solver object
-        self.ocp_solver_obj = FireflyOCP(u_min=0.0, u_max=5.0,
+        self.ocp_solver_obj = FireflyOCP(u_min=0.0, u_max=0.9*9.81,
                                              Qmat=Qmat, Rmat=Rmat,
                                              Parameter = Parameter)
 
@@ -74,7 +74,7 @@ class Firefly_nmpc_node():
         # Construct message filter to subscribe
         # odometry, imu (quaternion and angular velocity), and reference
 
-        self.state_sub = rospy.Subscriber('/firefly/ground_truth/odometry',
+        self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
                                           Odometry,
                                           self.state_callback,
                                           queue_size=1)
@@ -91,7 +91,7 @@ class Firefly_nmpc_node():
                                         queue_size=1)
 
         # Input publisher to hummingbird
-        self.input_pub = rospy.Publisher('/firefly/command/motor_speed',
+        self.input_pub = rospy.Publisher('/custom_hexacopter/command/motor_speed',
                                          Actuators,
                                          queue_size=1)
         self.ros_rate = rospy.Rate(100)
@@ -223,5 +223,5 @@ class Firefly_nmpc_node():
 
 if __name__ == '__main__':
     # main()
-    nmpc_hexa_node = Firefly_nmpc_node()
+    nmpc_hexa_node = Hexa_nmpc_node()
     nmpc_hexa_node.run()

@@ -1,6 +1,6 @@
 <launch>
   <arg name="mav_name" default="custom_hexacopter"/>
-  <arg name="world_name" default="empty"/>
+  <arg name="world_name" default="drone_world"/>
   <arg name="enable_logging" default="false"/>
   <arg name="enable_ground_truth" default="true"/>
   <arg name="log_file" default="$(arg mav_name)"/>
