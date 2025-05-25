@@ -13,22 +13,6 @@
         <color rgba="0 0 0 1.0" />
     </material> -->
 
-  <!-- <link name="camera_link">
-    <collision>
-      <origin xyz="0 -0.0175 0" rpy="${pi/2} 0 ${pi/2}" />
-      <geometry>
-        <mesh filename="package://drone_description/meshes/sensors/d435_simple.dae" scale="1 1 1" />
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="0 -0.0175 0" rpy="${pi/2} 0 ${pi/2}" />
-      <geometry>
-        <mesh filename="package://drone_description/meshes/sensors/d435_simple.dae" scale="1 1 1" />
-      </geometry>
-      <material name="black" />
-    </visual>
-  </link> -->
-
   <xacro:camera_macro
         namespace="${namespace}"
         parent_link="${namespace}/base_link"
@@ -44,8 +28,8 @@
         noise_stddev="0.01"
         enable_visual="true">
     <box size="0.01 0.01 0.01"/>
-    <origin xyz="0.04 -0.0175 -0.06"
-    rpy = "0 ${pi/6} 0"/>
+    <origin xyz="0.0507 -0.0175 -0.0698"
+    rpy = "0 ${pi/4} 0"/>
   </xacro:camera_macro>
 
   <xacro:camera_macro
@@ -63,8 +47,8 @@
         noise_stddev="0.01"
         enable_visual="true">
     <box size="0.01 0.01 0.01"/>
-    <origin xyz="0.04 0.0325 -0.06"
-    rpy = "0 ${pi/6} 0"/>
+    <origin xyz="0.0507 0.0325 -0.0698"
+    rpy = "0 ${pi/4} 0"/>
   </xacro:camera_macro>
 
 </robot>

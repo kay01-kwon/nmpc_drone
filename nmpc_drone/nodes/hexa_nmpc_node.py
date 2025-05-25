@@ -38,7 +38,7 @@ class Hexa_nmpc_node():
         Rmat = np.diag([0.01]*6)                # Thrust
 
         Parameter = {'m': 2.9,
-                     'J': np.array([0.0347, 0.0459, 0.0977]),
+                     'J': np.array([0.05267, 0.05290, 0.08525]),
                      'l': 0.265,
                      'C_T': 13.3591e-06,
                      'C_M': 0.006372 * 13.3591e-06}
