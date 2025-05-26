@@ -22,14 +22,14 @@
         image_width="640"
         image_height="480"
         image_format="L8"
-        min_distance="0.3"
+        min_distance="0.01"
         max_distance="30.0"
         noise_mean="0.0"
         noise_stddev="0.01"
         enable_visual="true">
     <box size="0.01 0.01 0.01"/>
-    <origin xyz="0.0507 -0.0175 -0.0698"
-    rpy = "0 ${pi/4} 0"/>
+    <origin xyz="0.0597307 -0.0175 -0.1181178"
+    rpy = "0 ${pi/6} 0"/>
   </xacro:camera_macro>
 
   <xacro:camera_macro
@@ -41,14 +41,14 @@
         image_width="640"
         image_height="480"
         image_format="L8"
-        min_distance="0.3"
+        min_distance="0.01"
         max_distance="30.0"
         noise_mean="0.0"
         noise_stddev="0.01"
         enable_visual="true">
     <box size="0.01 0.01 0.01"/>
-    <origin xyz="0.0507 0.0325 -0.0698"
-    rpy = "0 ${pi/4} 0"/>
+    <origin xyz="0.0597307 0.0325 -0.1181178"
+    rpy = "0 ${pi/6} 0"/>
   </xacro:camera_macro>
 
 </robot>

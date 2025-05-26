@@ -9,7 +9,7 @@
         </include>
  
         <include>
-            <uri>model://ground_plane</uri>
+            <uri>model://tiled_plane</uri>
         </include>
 
         <include>
