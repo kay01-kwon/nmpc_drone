@@ -24,7 +24,7 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="${namespace}/base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="0.051 0 -0.088"
+    <origin xyz="0.046 0 -0.088"
     rpy="0 ${pi/6} 0"/>
   </joint>
 

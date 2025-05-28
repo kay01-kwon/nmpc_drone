@@ -30,7 +30,7 @@
   <xacro:property name="body_height" value="0.54" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.016" /> <!-- [kg] -->
   <xacro:property name="arm_length" value="0.265" /> <!-- [m] -->
-  <xacro:property name="rotor_offset_top" value="0.064" /> <!-- [m] -->
+  <xacro:property name="rotor_offset_top" value="0.062" /> <!-- [m] -->
   <xacro:property name="radius_rotor" value="0.127" /> <!-- [m] -->
   <xacro:property name="motor_constant" value="1.336e-05" /> <!-- [kg m/s^2] -->
   <xacro:property name="moment_constant" value="0.01569" /> <!-- [m] -->
