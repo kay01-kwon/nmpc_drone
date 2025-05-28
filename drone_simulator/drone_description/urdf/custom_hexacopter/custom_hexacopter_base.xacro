@@ -19,28 +19,28 @@
   limitations under the License.
 -->
 
-<robot name="firefly" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="custom_hexa" xmlns:xacro="http://ros.org/wiki/xacro">
+  
   <xacro:include filename="$(find drone_description)/urdf/component_snippets.xacro" />
-  <!-- Instantiate firefly "mechanics" -->
+  
+  <!-- Instantiate custom hexa "mechanics" -->
   <xacro:include filename="$(find drone_description)/urdf/custom_hexacopter/custom_hexacopter.xacro" />
 
-  <xacro:include filename="$(find drone_description)/urdf/sensors/d435.xacro"
-  namespace="${namespace}" parent_link="${namespace}/base_link" />
+  <!-- Instantiate D435 camera sensor -->
+  <xacro:include filename="$(find drone_description)/urdf/sensors/d435_attach.urdf.xacro"
+  namespace="${namespace}"/>
 
   <!-- Instantiate a controller. -->
   <xacro:controller_plugin_macro namespace="${namespace}" imu_sub_topic="imu" />
-
-  <!-- Instantiate a ROS message interface -->
-  <!-- <xacro:ros_interface_plugin_macro namespace="${namespace}" />-->
-
 
   <xacro:if value="$(arg enable_mavlink_interface)">
     <!-- Instantiate mavlink telemetry interface. -->
     <xacro:default_mavlink_interface namespace="${namespace}" imu_sub_topic="imu" rotor_count="6" />
   </xacro:if>
 
-  <!-- Mount an ADIS16448 IMU. -->
-  <xacro:default_imu namespace="${namespace}" parent_link="${namespace}/base_link" />
+  <!-- Include Pixhawk 6x mini -->
+  <xacro:include filename="$(find drone_description)/urdf/sensors/px6_mini.xacro"
+  name="namespace"/>
 
   <xacro:if value="$(arg enable_ground_truth)">
     <xacro:ground_truth_imu_and_odometry namespace="${namespace}" parent_link="${namespace}/base_link" />

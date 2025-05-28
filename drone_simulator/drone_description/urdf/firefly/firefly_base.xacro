@@ -24,9 +24,6 @@
   <!-- Instantiate firefly "mechanics" -->
   <xacro:include filename="$(find drone_description)/urdf/firefly/firefly.xacro" />
 
-  <xacro:include filename="$(find drone_description)/urdf/sensors/d435.xacro"
-  namespace="${namespace}" parent_link="${namespace}/base_link" />
-
 
   <!-- <xacro:include filename="$(find drone_description)/urdf/component_snippets.xacro" /> -->
 

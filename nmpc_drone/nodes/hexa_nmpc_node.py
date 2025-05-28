@@ -30,23 +30,23 @@ class Hexa_nmpc_node():
         rospy.init_node('nmpc_hexa', anonymous=True)
 
         # NMPC weight for state (Qmat) and control input (Rmat)
-        Qmat = np.diag([1, 1, 1,                # position
-                        0.5, 0.5, 0.5,          # linear velocity
-                        0, 0.5, 0.5, 0.5,       # quaternion
+        Qmat = np.diag([2, 2, 2,                # position
+                        1, 1, 1,          # linear velocity
+                        0, 0.7, 0.7, 0.7,       # quaternion
                         0.05, 0.05, 0.05        # angular velocity
                         ])
         Rmat = np.diag([0.01]*6)                # Thrust
 
-        Parameter = {'m': 2.9,
+        Parameter = {'m': 2.90,
                      'J': np.array([0.05267, 0.05290, 0.08525]),
                      'l': 0.265,
-                     'C_T': 13.3591e-06,
-                     'C_M': 0.006372 * 13.3591e-06}
+                     'C_T': 1.33591e-05,
+                     'C_M': 0.01569 * 1.33591e-05}
 
         self.C_T = Parameter['C_T']
 
         # Create ocp solver object
-        self.ocp_solver_obj = FireflyOCP(u_min=0.0, u_max=0.9*9.81,
+        self.ocp_solver_obj = FireflyOCP(u_min=0.586, u_max=0.9*9.81,
                                              Qmat=Qmat, Rmat=Rmat,
                                              Parameter = Parameter)
 
@@ -78,11 +78,6 @@ class Hexa_nmpc_node():
                                           Odometry,
                                           self.state_callback,
                                           queue_size=1)
-
-        # self.imu_sub = rospy.Subscriber('/hummingbird/ground_truth/imu',
-        #                                 Imu,
-        #                                 self.Imu_callback,
-        #                                 queue_size=10)
 
 
         self.ref_sub = rospy.Subscriber('/nmpc_hexa/ref',

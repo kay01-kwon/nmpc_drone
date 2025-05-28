@@ -37,4 +37,18 @@
          -model $(arg namespace)"
    respawn="false" output="screen">
   </node>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"
+    respawn="false" output="screen">
+    <param name="use_gui" value="false"/>
+    <param name="publish_frequency" value="50.0"/>
+  </node>
+  
+	<node name="robot_state_publisher"
+	pkg="robot_state_publisher" 
+	type="robot_state_publisher">
+    <param name="publish_frequency" value="50.0"/>
+    <param name="ignore_timestamp" value="true"/>
+  </node>
+
 </launch>
