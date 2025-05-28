@@ -27,7 +27,7 @@
   <xacro:property name="mesh_file" value="package://drone_description/meshes/custom_hexacopter/custom_hexacopter.dae" />
   <xacro:property name="mass" value="2.900" /> <!-- [kg] -->
   <xacro:property name="body_width" value="0.80" /> <!-- [m] -->
-  <xacro:property name="body_height" value="0.54" /> <!-- [m] -->
+  <xacro:property name="body_height" value="0.545" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.016" /> <!-- [kg] -->
   <xacro:property name="arm_length" value="0.265" /> <!-- [m] -->
   <xacro:property name="rotor_offset_top" value="0.062" /> <!-- [m] -->
