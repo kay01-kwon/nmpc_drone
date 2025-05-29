@@ -50,39 +50,7 @@ rosrun nmpc_drone firefly_nmpc_node
 
 # Customized Hexacopter
 
-Navigate to the following file.
-
-rotors_simulator/rotors_gazebo_plugins/gazebo_imu_plugin.cpp
-
-Erase line 278.
-
-```
-last_time_ = current_time;
-```
-
-Go to the line 333.
-
-```
-// Publish the IMU message
-imu_pub_->Publish(imu_message_);
-```
-
-Modify this line like the below.
-
-```
-if(dt >= 0.005)
-{
-    imu_pub_->Publish(imu_message_);
-    last_time_ = current_time;
-}
-```
 
 ```
 roslaunch drone_gazebo mav_custom_hexacopter.launch
-```
-
-In the drone_gazebo/worlds/drone_world.world file, the max_step_size is changed from 0.01 to 0.001, which means that the rate of simulator is set to 1000 Hz.
-
-```
-<max_step_size>0.001</max_step_size>
 ```
