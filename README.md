@@ -54,3 +54,12 @@ rosrun nmpc_drone firefly_nmpc_node
 ```
 roslaunch drone_gazebo mav_custom_hexacopter.launch
 ```
+
+IMU white and random walk noise data (Pixhawk 6x mini)
+
+| Parameter | 200 Hz value | 100 Hz value (x ${\sqrt{2}})|
+|:---:|:---:|:---:|
+|Accel noise density| 0.004997776 | 0.0070708|
+|Accel random walk| 2.610869e-04 | 3.6921e-04|
+|Gyro noise density|0.0003059355 | 0.0004326|
+|Gyro random walk|9.059705e-06 | 1.2810e-05|
