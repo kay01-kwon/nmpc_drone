@@ -39,7 +39,8 @@
   </xacro:if>
 
   <!-- Include Pixhawk 6x mini -->
-  <xacro:include filename="$(find drone_description)/urdf/sensors/px6_mini.xacro"
+  <xacro:include 
+  filename="$(find drone_description)/urdf/sensors/px6_mini.xacro"
   name="namespace"/>
 
   <xacro:if value="$(arg enable_ground_truth)">

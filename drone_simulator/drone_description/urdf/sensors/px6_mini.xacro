@@ -2,22 +2,22 @@
 
 	<robot name="${namespace}" xmlns:xacro="http://ros.org/wiki/xacro">
 
-	  <!-- Todo : Modify parameter using Kalibr -->
   <!-- Mount an ADIS16448 IMU. -->
   <xacro:imu_plugin_macro
-    namespace="${namespace}"
+    namespace="/mavros"
     imu_suffix=""
     parent_link="${namespace}/base_link"
-    imu_topic="px6x_mini/imu"
+    imu_topic="/mavros/imu/data_raw"
     mass_imu_sensor="1e-5"
+    accelerometer_noise_density="0.004997776"
+    accelerometer_random_walk="2.6108694369610206e-04"
+    accelerometer_bias_correlation_time="300.0"
+    accelerometer_turn_on_bias_sigma="0.0001"
     gyroscope_noise_density="0.0003394"
-    gyroscope_random_walk="0.000038785"
+    gyroscope_random_walk="9.059705258699343e-06"
     gyroscope_bias_correlation_time="1000.0"
     gyroscope_turn_on_bias_sigma="0.0087"
-    accelerometer_noise_density="0.004"
-    accelerometer_random_walk="0.0006"
-    accelerometer_bias_correlation_time="300.0"
-    accelerometer_turn_on_bias_sigma="0.1960">
+  >
     <inertia ixx="1e-10" ixy="0.0" ixz="0.0"
              iyy="1e-10" iyz="0.0" 
              izz="1e-10"/>
