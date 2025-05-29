@@ -27,8 +27,10 @@
   <xacro:include filename="$(find drone_description)/urdf/custom_hexacopter/custom_hexacopter.xacro" />
 
   <!-- Instantiate D435 camera sensor -->
-  <xacro:include filename="$(find drone_description)/urdf/sensors/d435_attach.urdf.xacro"
-  namespace="${namespace}"/>
+  <xacro:include filename="$(find drone_description)/urdf/sensors/d435_attach.urdf.xacro"/>
+
+  <!-- Instantiate PX6 mini IMU sensor -->
+  <xacro:include filename="$(find drone_description)/urdf/sensors/pxhawk_6x_mini.xacro"/>
 
   <!-- Instantiate a controller. -->
   <xacro:controller_plugin_macro namespace="${namespace}" imu_sub_topic="imu" />
@@ -37,11 +39,6 @@
     <!-- Instantiate mavlink telemetry interface. -->
     <xacro:default_mavlink_interface namespace="${namespace}" imu_sub_topic="imu" rotor_count="6" />
   </xacro:if>
-
-  <!-- Include Pixhawk 6x mini -->
-  <xacro:include 
-  filename="$(find drone_description)/urdf/sensors/px6_mini.xacro"
-  name="namespace"/>
 
   <xacro:if value="$(arg enable_ground_truth)">
     <xacro:ground_truth_imu_and_odometry namespace="${namespace}" parent_link="${namespace}/base_link" />
