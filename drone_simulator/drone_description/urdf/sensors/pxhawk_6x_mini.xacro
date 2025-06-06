@@ -12,13 +12,12 @@
     accelerometer_noise_density="0.0070708"
     accelerometer_random_walk="3.6921e-04"
     accelerometer_bias_correlation_time="300"
-    accelerometer_turn_on_bias_sigma="1e-4"
+    accelerometer_turn_on_bias_sigma="1e-6"
     gyroscope_noise_density="0.0004326"
     gyroscope_random_walk="1.2810e-05"
     gyroscope_bias_correlation_time="1000"
-    gyroscope_turn_on_bias_sigma="1e-4"
+    gyroscope_turn_on_bias_sigma="1e-6"
   >
-
 
     <inertia ixx="1e-10" ixy="0.0" ixz="0.0"
              iyy="1e-10" iyz="0.0" 
