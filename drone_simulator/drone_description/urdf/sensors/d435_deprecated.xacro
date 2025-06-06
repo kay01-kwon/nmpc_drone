@@ -324,9 +324,9 @@
         <D435NoiseSubpixelErr>0.25</D435NoiseSubpixelErr>
         <D435MaxStdev>3</D435MaxStdev>
         
-        <imageTopicName>camera/image_raw</imageTopicName>
+        <imageTopicName>camera/image_rect_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <depthImageTopicName>depth/image_raw</depthImageTopicName>
+        <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
         <depthImageInfoTopicName>depth/camera_info</depthImageInfoTopicName>
         <pointCloudTopicName>depth/points</pointCloudTopicName>
         <frameName>camera_depth_optical_frame</frameName>

@@ -37,7 +37,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
 
                                           align_depth:=false
                                           enable_pointCloud:=false
-                                          visualize:=false
+                                          visualize:=true
                                           ">
 
     <!-- Load parameters to model's main link-->
@@ -54,79 +54,120 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <slip2>0</slip2>-->
       <kp>1e+13</kp>
       <kd>1</kd>
-      <!--<max_vel>0.01</max_vel>
-      <min_depth>0</min_depth>-->
+
+
+      <!-- 1/4 Color -->
       <sensor name="${camera_name}color" type="camera">
         <camera name="${camera_name}">
-          <horizontal_fov>${69.4*deg_to_rad}</horizontal_fov>
+
+          <horizontal_fov>${69*deg_to_rad}</horizontal_fov>
+        
           <image>
             <width>${color_width}</width>
             <height>${color_height}</height>
             <format>RGB_INT8</format>
           </image>
+        
           <clip>
             <near>0.1</near>
             <far>100</far>
           </clip>
+        
           <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
             <stddev>0.007</stddev>
           </noise>
+
         </camera>
         <always_on>1</always_on>
         <update_rate>${color_fps}</update_rate>
         <visualize>${visualize}</visualize>
       </sensor>
+
+
+      <!-- 2/4 Infra 1 -->
       <sensor name="${camera_name}ired1" type="camera">
         <camera name="${camera_name}">
-          <horizontal_fov>${85.2*deg_to_rad}</horizontal_fov>
+      
+          <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
+      
           <image>
             <width>${infra_width}</width>
             <height>${infra_height}</height>
             <format>L_INT8</format>
           </image>
+          
           <clip>
-            <near>0.1</near>
+            <near>0.02</near>
             <far>100</far>
           </clip>
+
+          <distortion>
+            <k1>0.02036288</k1>
+            <k2>-0.01344942</k2>
+            <k3>0.0</k3>
+            <p1>0.0006394</p1>
+            <p2>0.00069048</p2>
+          </distortion>
+          
           <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
-            <stddev>0.001</stddev>
+            <stddev>0.007</stddev>
           </noise>
+      
         </camera>
         <always_on>1</always_on>
         <update_rate>${infra_fps}</update_rate>
-        <visualize>false</visualize>
+        <visualize>${visualize}</visualize>
       </sensor>
+
+
+      <!-- 3/4 Infra 2 -->
       <sensor name="${camera_name}ired2" type="camera">
         <camera name="${camera_name}">
-          <horizontal_fov>${85.2*deg_to_rad}</horizontal_fov>
+          <pose>0 -0.0325 0 0 0 0</pose>
+          <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
+
           <image>
             <width>${infra_width}</width>
             <height>${infra_height}</height>
             <format>L_INT8</format>
           </image>
+
           <clip>
-            <near>0.1</near>
+            <near>0.02</near>
             <far>100</far>
           </clip>
+          
+          <distortion>
+            <k1>0.02000657</k1>
+            <k2>-0.009174</k2>
+            <k3>0.0</k3>
+            <p1>0.00001288</p1>
+            <p2>-0.00040591</p2>
+          </distortion>
+
           <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
-            <stddev>0.05</stddev>
+            <stddev>0.007</stddev>
           </noise>
+
         </camera>
         <always_on>1</always_on>
         <update_rate>${infra_fps}</update_rate>
-        <visualize>false</visualize>
+        <visualize>${visualize}</visualize>
       </sensor>
+
+
+      <!-- 4/4 Depth -->
       <sensor name="${camera_name}depth" type="depth">
         <camera name="${camera_name}">
           <!-- align-depth settings -->
           <xacro:unless value="${align_depth}">
-            <horizontal_fov>${85.2*deg_to_rad}</horizontal_fov>
+            <horizontal_fov>${87*deg_to_rad}</horizontal_fov>
             <image>
               <width>${depth_width}</width>
               <height>${depth_height}</height>
@@ -165,6 +206,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       </sensor>
     </gazebo>
 
+    <!-- Realsense plugin -->
     <gazebo>
       <plugin name="${topics_ns}" filename="librealsense_gazebo_plugin.so">
         <prefix>${camera_name}</prefix>

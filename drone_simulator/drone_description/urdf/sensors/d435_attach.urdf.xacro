@@ -28,6 +28,7 @@
     rpy="0 ${pi/6} 0"/>
   </joint>
 
+
   <!-- d435  frame definition can be found at https://github.com/IntelRealSense/librealsense/blob/master/doc/d435i.md -->
   <xacro:include filename="$(find drone_description)/urdf/sensors/_d435.urdf.xacro"/>
   <xacro:sensor_d435  parent="camera_mount" name="camera" topics_ns="camera" visualize="true">
