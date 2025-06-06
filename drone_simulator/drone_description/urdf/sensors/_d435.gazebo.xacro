@@ -43,15 +43,8 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
     <!-- Load parameters to model's main link-->
     <xacro:property name="deg_to_rad" value="0.01745329251994329577"/>
     <gazebo reference="${reference_link}">
-      <self_collide>0</self_collide>
-      <enable_wind>0</enable_wind>
-      <kinematic>0</kinematic>
-      <!-- <gravity>1</gravity> -->
-      <!--<mu>1</mu>-->
       <mu2>1</mu2>
       <fdir1>0 0 0</fdir1>
-      <!--<slip1>0</slip1>
-      <slip2>0</slip2>-->
       <kp>1e+13</kp>
       <kd>1</kd>
 
@@ -59,7 +52,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <!-- 1/4 Color -->
       <sensor name="${camera_name}color" type="camera">
         <camera name="${camera_name}">
-
+          <pose>0 -0.029 0 0 0 0</pose>
           <horizontal_fov>${69*deg_to_rad}</horizontal_fov>
         
           <image>
@@ -89,9 +82,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <!-- 2/4 Infra 1 -->
       <sensor name="${camera_name}ired1" type="camera">
         <camera name="${camera_name}">
-      
           <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
-      
           <image>
             <width>${infra_width}</width>
             <height>${infra_height}</height>
@@ -127,7 +118,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <!-- 3/4 Infra 2 -->
       <sensor name="${camera_name}ired2" type="camera">
         <camera name="${camera_name}">
-          <pose>0 -0.0325 0 0 0 0</pose>
+          <pose>0 -0.050 0 0 0 0</pose>
           <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
 
           <image>
