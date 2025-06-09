@@ -144,6 +144,38 @@ namespace gazebo{
             << " Using default gyroscope random walk: "
             << DefaultGyroRandomWalk << "\n";
         }
+
+        if(_sdf->HasElement("accFullScale"))
+        {
+            acc_full_scale_ = 
+            _sdf->Get<double>("accFullScale");
+            std::cout << "[gazebo_imu_plugin]"
+            << " Accelerometer full scale: "
+            << acc_full_scale_ << "\n";
+        }
+        else
+        {
+            acc_full_scale_ = 32.0; // Default value
+            std::cout << "[gazebo_imu_plugin]"
+            << " Using default accelerometer full scale: "
+            << acc_full_scale_ << "\n";
+        }
+
+        if(_sdf->HasElement("gyroFullScale"))
+        {
+            gyro_full_scale_ = 
+            _sdf->Get<double>("gyroFullScale");
+            std::cout << "[gazebo_imu_plugin]"
+            << " Gyroscope full scale: "
+            << gyro_full_scale_ << "\n";
+        }
+        else
+        {
+            gyro_full_scale_ = 4000.0; // Default value
+            std::cout << "[gazebo_imu_plugin]"
+            << " Using default gyroscope full scale: "
+            << gyro_full_scale_ << "\n";
+        }
         
         frame_id_ = link_name_;
 
@@ -219,6 +251,29 @@ namespace gazebo{
         ros_imu_msg_.orientation.x = quat_w_I.X();
         ros_imu_msg_.orientation.y = quat_w_I.Y();
         ros_imu_msg_.orientation.z = quat_w_I.Z();
+
+        for(size_t i = 0; i < 3; i++)
+        {
+            // Scale the accelerometer and gyro values
+            if (linear_acc[i] > acc_full_scale_*9.81)
+            {
+                linear_acc[i] = acc_full_scale_*9.81;
+            }
+            else if (linear_acc[i] < -acc_full_scale_*9.81)
+            {
+                linear_acc[i] = -acc_full_scale_*9.81;
+            }
+
+            if(angular_vel[i] > gyro_full_scale_*M_PI/180.0)
+            {
+                angular_vel[i] = gyro_full_scale_;
+            }
+            else if (angular_vel[i] < -gyro_full_scale_*M_PI/180.0)
+            {
+                angular_vel[i] = -gyro_full_scale_;
+            }
+
+        }
 
         ros_imu_msg_.linear_acceleration.x = linear_acc[0];
         ros_imu_msg_.linear_acceleration.y = linear_acc[1];

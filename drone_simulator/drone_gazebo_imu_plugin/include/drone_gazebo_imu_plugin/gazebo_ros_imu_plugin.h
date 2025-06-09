@@ -112,6 +112,9 @@ namespace gazebo{
             Eigen::Vector3d acc_bias_;
             Eigen::Vector3d gyro_bias_;
 
+            double acc_full_scale_{32.0};
+            double gyro_full_scale_{4000.0};
+
             ImuParameters imu_params_;
 
             std::random_device rd_{};
