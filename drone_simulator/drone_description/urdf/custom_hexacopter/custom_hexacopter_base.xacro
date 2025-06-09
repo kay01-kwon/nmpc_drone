@@ -28,10 +28,10 @@
 
   <!-- Instantiate D435 camera sensor -->
   <xacro:include filename="$(find drone_description)/urdf/sensors/d435_attach.urdf.xacro"/>
-  <!-- <xacro:include filename="$(find drone_description)/urdf/sensors/d435_deprecated.xacro"/> -->
 
   <!-- Instantiate PX6 mini IMU sensor -->
-  <xacro:include filename="$(find drone_description)/urdf/sensors/pxhawk_6x_mini.xacro"/>
+  <!-- <xacro:include filename="$(find drone_description)/urdf/sensors/pxhawk_6x_mini.xacro"/> -->
+    <xacro:include filename="$(find drone_description)/urdf/sensors/pxhawk_6x_mini_v2.xacro"/>
 
   <!-- Instantiate a controller. -->
   <xacro:controller_plugin_macro namespace="${namespace}" imu_sub_topic="imu" />

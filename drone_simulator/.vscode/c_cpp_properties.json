@@ -32,7 +32,7 @@
                 "/home/kay/voxfield_ws/src/voxfield/voxblox_ros/include/**",
                 "/home/kay/voxfield_ws/src/voxfield/voxblox_rviz_plugin/include/**",
                 "/usr/include/**",
-                "${workspaceFolder}/drone_plugins/include"
+                "/home/kay/catkin_ws/src/research/drone_simulator/drone_gazebo_imu_plugin/include/drone_gazebo_imu_plugin/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
