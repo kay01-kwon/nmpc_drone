@@ -308,13 +308,11 @@ namespace gazebo{
             // Add random walk to the bias
             acc_bias_[i] += 
             imu_params_.acc_random_walk 
-            * normal_dist_(gen_)
-            * dt;
+            * normal_dist_(gen_);
 
             gyro_bias_[i] +=
             imu_params_.gyro_random_walk
-            * normal_dist_(gen_)
-            * dt;
+            * normal_dist_(gen_);
             
             // Add noise and bias to the accelerometer and gyro
             (*linear_acc)[i] = 
