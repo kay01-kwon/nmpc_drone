@@ -303,27 +303,30 @@ namespace gazebo{
         GZ_ASSERT(dt > 0.0,
         "dt must be greater than 0.0");
 
+        // According to the imu noise model proposed by Kalibr
+        // implemented the noise and bias model for the IMU
+
         for(size_t i = 0; i < 3; i++)
         {
             // Add random walk to the bias
             acc_bias_[i] += 
             imu_params_.acc_random_walk 
-            * normal_dist_(gen_);
+            * normal_dist_(gen_)*sqrt(dt);
 
             gyro_bias_[i] +=
             imu_params_.gyro_random_walk
-            * normal_dist_(gen_);
+            * normal_dist_(gen_)*sqrt(dt);
             
             // Add noise and bias to the accelerometer and gyro
             (*linear_acc)[i] = 
             (*linear_acc)[i] + acc_bias_[i]
             + imu_params_.acc_noise_density
-            * normal_dist_(gen_);
+            * normal_dist_(gen_)/sqrt(dt);
             
             (*angular_vel)[i] = 
             (*angular_vel)[i] + gyro_bias_[i]
             + imu_params_.gyro_noise_density
-            * normal_dist_(gen_);
+            * normal_dist_(gen_)/sqrt(dt);
         }
     }
 
