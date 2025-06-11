@@ -82,7 +82,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <!-- 2/4 Infra 1 -->
       <sensor name="${camera_name}ired1" type="camera">
         <camera name="${camera_name}">
-          <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
+          <horizontal_fov>${78.7386*deg_to_rad}</horizontal_fov>
           <image>
             <width>${infra_width}</width>
             <height>${infra_height}</height>
@@ -119,7 +119,7 @@ This is the Gazebo URDF model for the Intel RealSense D435 camera
       <sensor name="${camera_name}ired2" type="camera">
         <camera name="${camera_name}">
           <pose>0 -0.050 0 0 0 0</pose>
-          <horizontal_fov>${87.0*deg_to_rad}</horizontal_fov>
+          <horizontal_fov>${78.7386*deg_to_rad}</horizontal_fov>
 
           <image>
             <width>${infra_width}</width>
