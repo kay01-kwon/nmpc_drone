@@ -7,6 +7,10 @@
         <include>
             <uri>model://sun</uri>
         </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
  
         <include>
             <uri>model://tiled_plane</uri>

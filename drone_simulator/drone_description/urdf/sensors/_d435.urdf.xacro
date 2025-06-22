@@ -37,7 +37,7 @@ aluminum peripherial evaluation case.
 
                                           visualize:=false
                                           *origin">
-    <xacro:property name="M_PI" value="3.1415926535897931"/>
+    <xacro:property name="M_PI" value="3.14159265358979323846"/>
 
     <!-- The following values are approximate, and the camera node
      publishing TF values with actual calibrated camera extrinsic values -->

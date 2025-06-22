@@ -2,6 +2,8 @@
 
 <robot name="realsense_cameras" xmlns:xacro="http://ros.org/wiki/xacro">
 
+  <xacro:property name="pi" value="3.14159265358979323846"/>
+  
   <link name="camera_mount">
     <visual>
       <geometry>
@@ -25,7 +27,7 @@
     <parent link="${namespace}/base_link"/>
     <child link="camera_mount"/>
     <origin xyz="0.046 0 -0.088"
-    rpy="0 ${pi/6} 0"/>
+    rpy="0 ${pi/6.0} 0"/>
   </joint>
 
 

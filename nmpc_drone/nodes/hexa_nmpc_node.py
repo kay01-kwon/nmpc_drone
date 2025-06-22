@@ -35,6 +35,7 @@ class Hexa_nmpc_node():
                         0, 0.7, 0.7, 0.7,       # quaternion
                         0.05, 0.05, 0.05        # angular velocity
                         ])
+
         Rmat = np.diag([0.01]*6)                # Thrust
 
         Parameter = {'m': 2.90,
@@ -73,6 +74,11 @@ class Hexa_nmpc_node():
         # To do list
         # Construct message filter to subscribe
         # odometry, imu (quaternion and angular velocity), and reference
+
+        # self.state_sub = rospy.Subscriber('/vins_estimator/imu_propagate',
+        #                                   Odometry,
+        #                                   self.state_callback,
+        #                                   queue_size=1)
 
         self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
                                           Odometry,
