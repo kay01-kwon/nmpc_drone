@@ -22,9 +22,6 @@ from mav_msgs.msg import Actuators
 from nmpc_drone.msg import ref
 from std_srvs.srv import Empty
 
-def low_pass_filter(data_prev, data_current, alpha):
-    filtered = alpha*data_prev + (1-alpha) * data_current
-    return filtered
 class Hexa_nmpc_node():
     def __init__(self):
         '''
@@ -35,7 +32,7 @@ class Hexa_nmpc_node():
         # NMPC weight for state (Qmat) and control input (Rmat)
         Qmat = np.diag([2, 2, 2,                # position
                         1, 1, 1,          # linear velocity
-                        0, 0.5, 0.5, 0.5,       # quaternion
+                        0, 0.7, 0.7, 0.7,       # quaternion
                         0.05, 0.05, 0.05        # angular velocity
                         ])
 
@@ -56,12 +53,13 @@ class Hexa_nmpc_node():
 
         self.state = np.zeros((13,))
         self.state[6] = 1.0
-        self.angular_velocity_prev = np.zeros((3,))
 
-        self.is_callback_first = False
-
+        self.is_first_callback = 0
         self.time_stamp_current = rospy.Time.now().to_sec()
         self.time_stamp_prev = rospy.Time.now().to_sec()
+
+        self.quaternion_prev = np.zeros((4,))
+        self.quaternion_prev[0] = 1.0
 
         self.ref = np.zeros((13,))
         self.ref[6] = 1.0
@@ -89,6 +87,7 @@ class Hexa_nmpc_node():
                                           self.state_callback,
                                           queue_size=1)
 
+
         self.ref_sub = rospy.Subscriber('/nmpc_hexa/ref',
                                         ref,
                                         self.ref_callback,
@@ -109,12 +108,11 @@ class Hexa_nmpc_node():
 
         # Get current position
         self.time_stamp_current = msg.header.stamp.to_sec()
-
         self.state[0] = msg.pose.pose.position.x
         self.state[1] = msg.pose.pose.position.y
         self.state[2] = msg.pose.pose.position.z
 
-        # Get current linear velocity
+        # # Get current linear velocity
         self.state[3] = msg.twist.twist.linear.x
         self.state[4] = msg.twist.twist.linear.y
         self.state[5] = msg.twist.twist.linear.z
@@ -125,28 +123,10 @@ class Hexa_nmpc_node():
         self.state[8] = msg.pose.pose.orientation.y
         self.state[9] = msg.pose.pose.orientation.z
 
-        if self.is_callback_first == False:
-
-            # Get current angular velocity
-            self.state[10] = msg.twist.twist.angular.x
-            self.state[11] = msg.twist.twist.angular.y
-            self.state[12] = msg.twist.twist.angular.z
-
-            self.is_callback_first = True
-
-        else:
-
-            self.state[10] = 0.5 * (self.angular_velocity_prev[0] + msg.twist.twist.angular.x)
-            self.state[11] = 0.5 * (self.angular_velocity_prev[1] + msg.twist.twist.angular.y)
-            self.state[12] = 0.5 * (self.angular_velocity_prev[2] + msg.twist.twist.angular.z)
-
-            self.angular_velocity_prev[0] = msg.twist.twist.angular.x
-            self.angular_velocity_prev[1] = msg.twist.twist.angular.y
-            self.angular_velocity_prev[2] = msg.twist.twist.angular.z
-
-        self.time_stamp_prev = self.time_stamp_current
-
-        # print('position: ',self.state[0], ', ', self.state[1], ', ', self.state[2])
+        # Get current angular velocity
+        self.state[10] = msg.twist.twist.angular.x
+        self.state[11] = msg.twist.twist.angular.y
+        self.state[12] = msg.twist.twist.angular.z
 
     def ref_callback(self, msg):
         '''
@@ -167,6 +147,8 @@ class Hexa_nmpc_node():
         self.ref[10] = 0
         self.ref[11] = 0
         self.ref[12] = msg.dpsi_des
+
+        # print('Reference position: ', self.ref[:3])
 
     def publish_control_input(self):
         self.u, status = self.ocp_solver_obj.ocp_solve(self.state, self.ref)

@@ -33,9 +33,9 @@ class Hexa_nmpc_node():
         rospy.init_node('nmpc_hexa', anonymous=True)
 
         # NMPC weight for state (Qmat) and control input (Rmat)
-        Qmat = np.diag([2, 2, 2,                # position
-                        1, 1, 1,          # linear velocity
-                        0, 0.7, 0.7, 0.7,       # quaternion
+        Qmat = np.diag([1, 1, 1,                # position
+                        0.5, 0.5, 0.5,          # linear velocity
+                        0, 0.5, 0.5, 0.5,       # quaternion
                         0.05, 0.05, 0.05        # angular velocity
                         ])
 
@@ -182,6 +182,7 @@ class Hexa_nmpc_node():
         # rpm[i] = sqrt(u[i]/C_lift)
         if status == 0:
             for i in range(6):
+                # self.rpm_des[i] = low_pass_filter(self.rpm_des[i], np.sqrt(self.u[i]/self.C_T), 0.1)
                 self.rpm_des[i] = np.sqrt(self.u[i]/self.C_T)
         else:
             self.publish_zero_control_input()
