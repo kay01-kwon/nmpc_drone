@@ -75,3 +75,32 @@ Note that you should put the continuous noise density in the imu model.
     gyroscope_random_walk="1.808187069983041e-05"
     gyroscope_full_scale="4000.0"
 ```
+
+## How to modify the location of center of mass
+
+The location of xacro
+
+:custom_hexacopter/multirotor_base.xacro
+
+Line 44
+
+```
+    <link name="${robot_namespace}/base_link_inertia">
+      <inertial>
+        <mass value="${mass}" />  <!-- [kg] -->
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:insert_block name="inertia" />
+      </inertial>
+```
+
+rx = 0.02
+ry = 0.03
+
+```
+    <link name="${robot_namespace}/base_link_inertia">
+      <inertial>
+        <mass value="${mass}" />  <!-- [kg] -->
+        <origin xyz="0.02 0.03 0" rpy="0 0 0"/>
+        <xacro:insert_block name="inertia" />
+      </inertial>
+```
