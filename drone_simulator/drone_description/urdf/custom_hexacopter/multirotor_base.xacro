@@ -41,7 +41,7 @@
     <link name="${robot_namespace}/base_link_inertia">
       <inertial>
         <mass value="${mass}" />  <!-- [kg] -->
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0.01 0 0" rpy="0 0 0"/>
         <xacro:insert_block name="inertia" />
       </inertial>
 

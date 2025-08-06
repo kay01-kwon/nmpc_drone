@@ -18,7 +18,7 @@ from nmpc.ocp import FireflyOCP
 import rospy
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
-from mav_msgs.msg import Actuators
+from ros_libcanard.msg import hexa_cmd_raw
 from nmpc_drone.msg import ref
 from std_srvs.srv import Empty
 
@@ -41,7 +41,7 @@ class Hexa_nmpc_node():
         Parameter = {'m': 2.90,
                      'J': np.array([0.05267, 0.05290, 0.08525]),
                      'l': 0.265,
-                     'C_T': 1.33591e-05,
+                     'C_T': 1.465e-07,
                      'C_M': 0.01569 * 1.33591e-05}
 
         self.C_T = Parameter['C_T']
@@ -66,7 +66,9 @@ class Hexa_nmpc_node():
 
         self.u = np.zeros((6,))
         self.rpm_des = np.zeros((6,))
-        self.u_msg = Actuators()
+        self.MaxBit = 8191
+        self.MaxRPM = 9800
+        self.u_msg = hexa_cmd_raw()
 
         self.ros_setup()
 
@@ -94,8 +96,8 @@ class Hexa_nmpc_node():
                                         queue_size=1)
 
         # Input publisher to hummingbird
-        self.input_pub = rospy.Publisher('/custom_hexacopter/command/motor_speed',
-                                         Actuators,
+        self.input_pub = rospy.Publisher('/uav/cmd_raw',
+                                         hexa_cmd_raw,
                                          queue_size=1)
         self.ros_rate = rospy.Rate(100)
 
@@ -188,9 +190,9 @@ class Hexa_nmpc_node():
             self.publish_zero_control_input()
             print('NMPC : Infeasible')
 
-        self.u_msg.header.stamp = rospy.Time.now()
-        self.u_msg.header.frame_id = "nmpc_node"
-        self.u_msg.angular_velocities = self.rpm_des
+        self.u_msg.stamp = rospy.Time.now()
+        for i in range(6):
+            self.u_msg.raw[i] = int(self.rpm_des[i]*self.MaxBit/self.MaxRPM)
 
         self.input_pub.publish(self.u_msg)
 
@@ -201,7 +203,8 @@ class Hexa_nmpc_node():
     def publish_zero_control_input(self):
         print('Publishing zero control input')
         self.rpm_des[:] = 0
-        self.u_msg.angular_velocities = self.rpm_des
+        for i in range(6):
+            self.u_msg.raw[i] = int(self.rpm_des[i]*self.MaxBit/self.MaxRPM)
         self.input_pub.publish(self.u_msg)
 
     def run(self):

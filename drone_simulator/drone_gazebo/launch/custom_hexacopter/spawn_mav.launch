@@ -51,4 +51,11 @@
     <param name="ignore_timestamp" value="true"/>
   </node>
 
+  <node name="cmd_to_rpm" pkg="cmd_to_rps_converter" type="cmd_to_rps_converter_node"
+    respawn="false" output="screen"/>
+  
+  <node name="rps_to_rpm" pkg="cmd_to_rps_converter" type="rps_to_rpm_converter_node"
+    respawn="false" output="screen"/>
+  
+
 </launch>

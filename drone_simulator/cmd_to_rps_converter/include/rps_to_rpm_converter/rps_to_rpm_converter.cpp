@@ -1,0 +1,27 @@
+#include "rps_to_rpm_converter.h"
+
+RpsToRpmConverter::RpsToRpmConverter(ros::NodeHandle& nh) : nh_(nh)
+{
+    rps_sub_ = nh_.subscribe("/custom_hexacopter/motor_speed", 1, &RpsToRpmConverter::rpsCallback, this);
+    rpm_pub_ = nh_.advertise<ros_libcanard::hexa_actual_rpm>("/uav/actual_rpm", 1);
+}
+
+RpsToRpmConverter::~RpsToRpmConverter()
+{
+    // Destructor can be used for cleanup if needed
+}
+
+void RpsToRpmConverter::rpsCallback(const mav_msgs::Actuators::ConstPtr& msg)
+{
+    rpm_msg_.stamp = ros::Time::now();
+
+    for (size_t i = 0; i < msg->angular_velocities.size(); ++i) 
+    {
+        double rps_value = msg->angular_velocities[i];
+        double rpm_value = rps_value * rps_to_rpm_;
+        rpm_msg_.rpm[i] = rpm_value;
+    }
+
+    rpm_pub_.publish(rpm_msg_);
+}
+
