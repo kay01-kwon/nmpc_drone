@@ -35,7 +35,7 @@ class RpyzController():
         sin_half_phi = np.sqrt( (1 - rz) / 2)
         sin_phi = np.sqrt( 1 - rz**2)
 
-        if np.abs(sin_phi) > 1e-30:
+        if np.abs(sin_phi) > 1e-50:
             self.axis_d[0] = -1 / sin_phi * r[1]
             self.axis_d[1] = 1 / sin_phi * r[0]
         else:
@@ -56,8 +56,10 @@ class RpyzController():
         q_yaw = np.array([cos_half_psi, 0, 0, sin_half_psi])
 
         self.q_d = quaternion_math.otimes(self.q_rp_d, q_yaw)
+        # self.q_d = self.q_rp_d
 
-    def compute_moment(self):
+
+    def compute_moment(self, tau):
 
         q_e = quaternion_math.otimes(quaternion_math.conjugate(self.q_d),
                                     self.q_state)
@@ -66,10 +68,11 @@ class RpyzController():
         R = quaternion_math.quaternion_to_rotm(self.q_state)
         Rd = quaternion_math.quaternion_to_rotm(self.q_d)
         w_e = self.w_state - R.transpose() @ Rd @ self.omega_d
-
         M = (-self.Kp_ori @ q_e_vec - self.Kd_ori @ w_e
              + quaternion_math.skew_symm(self.w_state) @ self.J @ self.w_state)
-        self.u[1:] = M
+        # M = (-self.Kp_ori @ q_e_vec - self.Kd_ori @ w_e)
+
+        self.u[1:] = M - tau
 
         return self.u
     def signum(self, x):

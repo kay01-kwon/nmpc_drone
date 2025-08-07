@@ -1,9 +1,22 @@
 #! /usr/bin/env python3.8
+import os
+import sys
+
+'''
+Append manual control directory using sys module
+'''
+dir_path = os.path.dirname(os.path.realpath(__file__))
+print(dir_path)
+
+pkg_dir = dir_path[:dir_path.rfind('/')]
+print(pkg_dir)
+sys.path.append(pkg_dir)
+
 import numpy as np
 import rospy
 from nav_msgs.msg import Odometry
 from mavros_msgs.msg import RCIn
-from mav_msgs.msg import Actuators
+from ros_libcanard.msg import hexa_cmd_raw
 from manual_control.rc_converter.rc_converter import RcConverter
 from manual_control.rp_yrate_controller.rp_yrate_controller import RpYrateController
 from manual_control.rp_yrate_controller.inverse_dynamics import InverseDynamics
@@ -28,14 +41,17 @@ class manual_control_node():
         self.RpYrateController = RpYrateController(Kp, Kd, J)
 
         param = {'arm_length': 0.265,
-                 'rotor_const': 1.33591e-05,
+                 'rotor_const': 1.456e-07,
                 'moment_const': 0.01569,
                 'T_min': 0.100*9.81,
                 'T_max': 0.90*9.81}
 
         self.InverseDynamics = InverseDynamics(param)
 
-        self.u_msg = Actuators()
+        self.MaxBit = 8191
+        self.MaxRPM = 9800
+
+        self.u_msg = hexa_cmd_raw()
 
         self.ros_setup()
 
@@ -46,8 +62,8 @@ class manual_control_node():
         self.odom_subscriber = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry'
                                                 , Odometry
                                                 , self.odom_callback)
-        self.cmd_pub = rospy.Publisher('/custom_hexacopter/command/motor_speed',
-                                       Actuators,
+        self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
+                                       hexa_cmd_raw,
                                        queue_size=10)
 
     def rc_callback(self, rc_msg):
@@ -60,7 +76,8 @@ class manual_control_node():
 
         rotor_speed = self.InverseDynamics.compute_des_rpm(f,M)
         print(rotor_speed)
-        self.u_msg.angular_velocities = rotor_speed
+        for i in range(6):
+            self.u_msg.raw[i] = int(rotor_speed[i]*self.MaxBit/self.MaxRPM)
         self.cmd_pub.publish(self.u_msg)
 
 

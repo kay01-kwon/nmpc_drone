@@ -21,6 +21,11 @@ from manual_control.rc_converter.rc_converter_alt import RcConverterAlt
 from manual_control.rp_yrate_controller.rp_alt_controller import RpyzController
 from manual_control.rp_yrate_controller.inverse_dynamics import InverseDynamics
 from manual_control.rp_yrate_controller import quaternion_math
+from geometry_msgs.msg import Wrench
+
+def low_pass_filter(data_prev, data_current, alpha):
+    filtered = alpha*data_prev + (1-alpha) * data_current
+    return filtered
 class manual_control_node_alt():
     def __init__(self):
 
@@ -31,6 +36,8 @@ class manual_control_node_alt():
         self.v = np.zeros((3,))
         self.q = np.array([1.0, 0.0, 0.0, 0.0])
         self.w = np.zeros((3,))
+        self.tau = np.zeros((3,))
+        self.r_off = np.zeros((3,))
 
         self.rc_subsriber = []
         self.odom_subsriber = []
@@ -39,22 +46,24 @@ class manual_control_node_alt():
         self.MaxBit = 8191
         self.MaxRPM = 9800
 
+        self.rotor_speed_filtered = np.zeros((6,))
+
         self.RcConverter = RcConverterAlt(ax_max = 0.3, ay_max = 0.3,
                                          z_max = 0.9, psidot_max = 10)
 
         GainParam = {'Kp_trans': np.diag([0,0,4]),
-                     'Kv_trans': np.diag([0,0,2]),
+                     'Kv_trans': np.diag([0,0,1]),
                      'Kp_ori': np.diag([4, 4, 0.3]),
-                     'Kd_ori': np.diag([1, 1, 0.1])}
+                     'Kd_ori': np.diag([1, 1, 0.01])}
         DynParam = {'m': 2.9,
-                    'J': np.diag([0.052, 0.052, 0.070])}
+                    'J': np.diag([0.052, 0.052, 0.080])}
 
         self.RpyzController = RpyzController(GainParam, DynParam)
 
         param = {'arm_length': 0.265,
                  'rotor_const': 1.465e-07,
                 'moment_const': 0.01569,
-                'T_min': 0.100*9.81,
+                'T_min': 0.10*9.81,
                 'T_max': 0.90*9.81}
 
         self.InverseDynamics = InverseDynamics(param)
@@ -73,6 +82,9 @@ class manual_control_node_alt():
         self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
                                        hexa_cmd_raw,
                                        queue_size=1)
+        self.wrench_subscriber = rospy.Subscriber('/ekf_wrench',
+                                                  Wrench,
+                                                  self.wrench_callback)
 
     def rc_callback(self, rc_msg):
         self.rc_state = rc_msg.channels
@@ -81,13 +93,16 @@ class manual_control_node_alt():
 
         self.RpyzController.set_rp_yrate(a_ref, z_ref, w_rate,
                                          self.p, self.v, self.q, self.w)
-        u = self.RpyzController.compute_moment()
-        # print(u)
+        # self.tau = np.zeros((3,))
+        u = self.RpyzController.compute_moment(self.tau)
 
         rotor_speed = self.InverseDynamics.compute_des_rpm(u[0],u[1:])
-        # print(rotor_speed)
+        print(rotor_speed)
         for i in range(6):
             self.u_msg.raw[i] = int(rotor_speed[i]*self.MaxBit/self.MaxRPM)
+        if self.rc_state[8] == 2000:
+            for i in range(6):
+                self.u_msg.raw[i] = 0
         self.cmd_pub.publish(self.u_msg)
 
 
@@ -117,6 +132,18 @@ class manual_control_node_alt():
         self.w[1] = odom_msg.twist.twist.angular.y
         self.w[2] = odom_msg.twist.twist.angular.z
 
+    def wrench_callback(self, wrench_msg):
+        f = wrench_msg.force.z
+        # self.tau[0] = wrench_msg.torque.x
+        # self.tau[1] = wrench_msg.torque.y
+        # self.tau[2] = wrench_msg.torque.z
+        tau_signal = np.array([wrench_msg.torque.x,
+                               wrench_msg.torque.y,
+                               wrench_msg.torque.z])
+
+        self.tau = low_pass_filter(self.tau, tau_signal, 0.99)
+
+        # print(self.r_off)
 
 if __name__ == '__main__':
     print('manual control')
