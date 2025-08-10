@@ -1,0 +1,8 @@
+<launch>
+    <node name="pos_control"
+          type="pos_control_node.py"
+          pkg="nmpc_drone"
+          output="screen">
+    <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
+    </node>
+</launch>

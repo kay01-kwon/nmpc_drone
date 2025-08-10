@@ -1,11 +1,11 @@
 import numpy as np
-from manual_control.rp_yrate_controller import quaternion_math
+from math_tools import quaternion_math
 class RpyzController():
     def __init__(self, GainParam, DynParam):
         self.Kp_trans = GainParam['Kp_trans']
-        self.Kv_trans = GainParam['Kv_trans']
-        self.Kp_ori = GainParam['Kp_ori']
-        self.Kd_ori = GainParam['Kd_ori']
+        self.Kv_trans = GainParam['Kd_trans']
+        self.Kp_ori = GainParam['Kp_rot']
+        self.Kd_ori = GainParam['Kd_rot']
         self.m = DynParam['m']
         self.J = DynParam['J']
         self.g_vec = np.array([0,0,-9.81])

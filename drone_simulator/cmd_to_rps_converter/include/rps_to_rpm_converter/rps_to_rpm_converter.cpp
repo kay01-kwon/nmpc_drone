@@ -18,7 +18,7 @@ void RpsToRpmConverter::rpsCallback(const mav_msgs::Actuators::ConstPtr& msg)
     for (size_t i = 0; i < msg->angular_velocities.size(); ++i) 
     {
         double rps_value = msg->angular_velocities[i];
-        double rpm_value = rps_value * rps_to_rpm_;
+        double rpm_value = std::abs(rps_value * rps_to_rpm_);
         rpm_msg_.rpm[i] = rpm_value;
     }
 

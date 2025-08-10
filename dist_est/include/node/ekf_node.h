@@ -43,6 +43,10 @@ class EkfNode
 
     void publishWrench();
 
+    void setParam(const std::string param_name, EKFParams &ekf_params);
+
+    void setParam(const std::string param_name, MavParam &mav_param);
+
     rpmVector6 rpm_;
 
     ros::Rate loop_rate_{100};  // 100 Hz

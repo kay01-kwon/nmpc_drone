@@ -19,8 +19,8 @@ from ros_libcanard.msg import hexa_cmd_raw
 
 from manual_control.rc_converter.rc_converter_alt import RcConverterAlt
 from manual_control.rp_yrate_controller.rp_alt_controller import RpyzController
-from manual_control.rp_yrate_controller.inverse_dynamics import InverseDynamics
-from manual_control.rp_yrate_controller import quaternion_math
+from math_tools.inverse_dynamics import InverseDynamics
+from math_tools import quaternion_math
 from geometry_msgs.msg import Wrench
 
 def low_pass_filter(data_prev, data_current, alpha):

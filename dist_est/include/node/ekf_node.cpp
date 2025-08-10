@@ -8,17 +8,35 @@ EkfNode::EkfNode()
 EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
 {
     EKFParams ekf_params;
-    ekf_params.P = 0.010 * 0.010 * Mat10x10::Identity();  // Initial covariance
-    ekf_params.P.block(7,7,3,3) = 0.01 * Mat3x3::Identity();  // Initial covariance for tau
-    ekf_params.Q = 0.001 * 0.001 * Mat10x10::Identity();  // Process noise covariance
-    ekf_params.R = 0.001 * 0.001 * Mat7x7::Identity();  // Measurement noise covariance
-    
-
-    std::cout << "EKFParams P: " << ekf_params.P << std::endl;
-    std::cout << "EKFParams Q: " << ekf_params.Q << std::endl;
-    std::cout << "EKFParams R: " << ekf_params.R << std::endl;
-
     MavParam mav_param;
+
+    std::string node_name;
+
+    node_name = ros::this_node::getName();
+
+    ROS_INFO("node_name: %s", node_name.c_str());
+
+    std::vector<double> ekf_param_P(10);
+    
+    nh_.getParam(node_name + "/ekf_param/P", ekf_param_P);
+
+    std::string ekf_param_P_name = "/ekf_param/P";
+    std::string ekf_param_Q_name = "/ekf_param/Q";
+    std::string ekf_param_R_name = "/ekf_param/R";
+
+    setParam(ekf_param_P_name, ekf_params);
+    setParam(ekf_param_Q_name, ekf_params);
+    setParam(ekf_param_R_name, ekf_params);
+
+    std::string nominal_param_name = "/nominal_param";
+    
+    setParam(nominal_param_name, mav_param);
+
+
+    // ekf_params.P = 0.010 * 0.010 * Mat10x10::Identity();  // Initial covariance
+    // ekf_params.P.block(7,7,3,3) = 0.01 * Mat3x3::Identity();  // Initial covariance for tau
+    // ekf_params.Q = 0.001 * 0.001 * Mat10x10::Identity();  // Process noise covariance
+    // ekf_params.R = 0.001 * 0.001 * Mat7x7::Identity();  // Measurement noise covariance
 
     mav_param.C_T = 1.465e-07;  // Thrust coefficient
     mav_param.k_m = 0.01569;  // Moment constant (C_M/C_T)
@@ -77,7 +95,14 @@ void EkfNode::poseCallback(const Odometry &msg)
         return;  // Skip the first callback to avoid zero dt
     }
     t_curr_ = ros::Time::now().toSec();
-    dt_ = t_curr_ - t_prev_;
+    dt_ = t_curr_ - t_rotor_;
+    if(dt_ < 0.001)
+    {
+        // If the time difference is too small, skip the update
+        ROS_WARN("Skipping update due to small dt: %f", dt_);
+        return;
+    }
+    ROS_INFO("Current time: %f, Previous time: %f, dt: %f", t_curr_, t_prev_, dt_);
 
     QuatType q_meas(msg.pose.pose.orientation.w,
                     msg.pose.pose.orientation.x,
@@ -140,4 +165,84 @@ void EkfNode::publishState()
 void EkfNode::publishWrench()
 {
     wrench_pub_.publish(wrench_msg_);
+}
+
+void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)
+{
+    size_t num_state;
+
+    std::string node_name = ros::this_node::getName();
+
+    std::string param_total_name = node_name + param_name;
+
+    if (param_total_name == (node_name + "/ekf_param/P"))
+    {
+        num_state = 10;
+        std::vector<double> param_vector;
+        nh_.getParam(param_total_name, param_vector);
+        ekf_params.P.setZero();
+        ROS_INFO("Setting EKF initial covariance P:");
+        for (size_t i = 0; i < param_vector.size(); ++i)
+        {
+            ekf_params.P(i, i) = param_vector[i];
+            ROS_INFO("ekf_params.P(%zu): %f", i, ekf_params.P(i,i));
+        }
+        ROS_INFO("\n");
+    }
+    else if (param_total_name == (node_name + "/ekf_param/Q"))
+    {
+        num_state = 10;
+        std::vector<double> param_vector;
+        nh_.getParam(param_total_name, param_vector);
+        ekf_params.Q.setZero();
+        ROS_INFO("Setting EKF process noise covariance Q:");
+        for (size_t i = 0; i < param_vector.size(); ++i)
+        {
+            ekf_params.Q(i, i) = param_vector[i];
+            ROS_INFO("ekf_params.Q(%zu): %f", i, ekf_params.Q(i,i));
+        }
+        ROS_INFO("\n");
+    }
+    else if (param_total_name == (node_name + "/ekf_param/R"))
+    {
+        num_state = 7;
+        std::vector<double> param_vector;
+        nh_.getParam(param_total_name, param_vector);
+        ekf_params.R.setZero();
+        ROS_INFO("Setting EKF measurement noise covariance R:");
+        for (size_t i = 0; i < param_vector.size(); ++i)
+        {
+            ekf_params.R(i, i) = param_vector[i];
+            ROS_INFO("ekf_params.R(%zu): %f", i, ekf_params.R(i,i));
+        }
+        ROS_INFO("\n");
+    }
+    else
+    {
+        ROS_ERROR("Unknown EKF parameter name: %s", param_total_name.c_str());
+        return;
+    }
+}
+
+void EkfNode::setParam(const std::string param_name, MavParam &mav_param)
+{
+    std::string node_name = ros::this_node::getName();
+    std::string param_total_name = node_name + param_name;
+
+    double m;
+    double moi_xx, moi_yy, moi_zz;
+
+    nh_.param(param_total_name + "/m", m, 2.9);
+    nh_.param(param_total_name + "/moi/xx", moi_xx, 0.052);
+    nh_.param(param_total_name + "/moi/yy", moi_yy, 0.052);
+    nh_.param(param_total_name + "/moi/zz", moi_zz, 0.080);
+
+    mav_param.m = m;  // Mass
+    mav_param.J << moi_xx, 0.0, 0.0,
+                   0.0, moi_yy, 0.0,
+                   0.0, 0.0, moi_zz;  // Inertia matrix
+
+    ROS_INFO("MavParam set: m = %f, moi = [%f, %f, %f]", 
+             mav_param.m, moi_xx, moi_yy, moi_zz);
+
 }

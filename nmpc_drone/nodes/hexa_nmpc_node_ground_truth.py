@@ -17,10 +17,8 @@ from nmpc.utils import math_tools
 from nmpc.ocp import FireflyOCP
 import rospy
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu
 from ros_libcanard.msg import hexa_cmd_raw
 from nmpc_drone.msg import ref
-from std_srvs.srv import Empty
 
 class Hexa_nmpc_node():
     def __init__(self):

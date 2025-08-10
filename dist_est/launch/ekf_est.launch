@@ -1,0 +1,9 @@
+<launch>
+
+    <node name="ekf" 
+    pkg="dist_est" 
+    type="ekf_node"
+    output="screen">
+        <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+    </node>
+</launch>

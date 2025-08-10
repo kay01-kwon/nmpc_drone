@@ -49,7 +49,7 @@ AugStateVector10 EkfDistEst::predict(const rpmVector6 &rpm, const double &dt)
     QuatType q_prior;
     Vec3 w_prior, tau_prior;
     Mat10x10 P_prior;
-    
+
     q_prior << s_est_(0), s_est_(1), s_est_(2), s_est_(3);
     w_prior << s_est_(4), s_est_(5), s_est_(6);
     tau_prior << s_est_(7), s_est_(8), s_est_(9);
@@ -79,7 +79,8 @@ AugStateVector10 EkfDistEst::predict(const rpmVector6 &rpm, const double &dt)
     q_pred = otimes(q_prior, del_q);
     q_pred.normalize();  // Normalize quaternion to avoid drift
     w_pred = w_prior + J_inv_*(M - w_prior.cross(J_ * w_prior) + tau_prior)*dt;
-    tau_pred = tau_prior;
+    
+    tau_pred = tau_prior;  // Low-pass filter for disturbance
 
     // std::cout << "Moment : " << M.transpose() << std::endl;
 

@@ -49,9 +49,18 @@ static Mat10x10 I10(Mat10x10::Identity());  // 10x10 identity matrix
 struct MavParam{
 
     double l{0.265};  // arm length in meters
+    double m{2.9};  // mass in kg 
     Mat3x3 J;  // inertia matrix
     double C_T{1.465e-07};  // thrust coefficient
     double k_m{0.01569};  // moment constant (C_M/C_T)
 };
+
+struct EKFParams
+{
+    Mat10x10 P{0.01*Mat10x10::Identity()};  // initial covariance
+    Mat10x10 Q{0.01*Mat10x10::Identity()};  // process noise covariance
+    Mat7x7 R{0.01*Mat7x7::Identity()};  // measurement noise covariance
+};
+
 
 #endif

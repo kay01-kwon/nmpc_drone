@@ -1,0 +1,19 @@
+ekf_param:
+  # Initial covariance
+  P: [0.001, 0.001, 0.001, 0.001, #q
+  0.001, 0.001, 0.001,           # w
+  0.005, 0.005, 0.005]           # tau
+  # Process noise covariance
+  Q: [0.00000001, 0.00000001, 0.00000001, 0.00000001, #q
+  0.00000001, 0.00000001, 0.00000001,           # w
+  0.00000001, 0.00000001, 0.00000001]
+  # Measurement noise covariance
+  R: [0.000001, 0.000001, 0.000001, 0.000001, # q
+      0.000001, 0.000001, 0.000001]       # w
+nominal_param:
+# Nominal parameters for the EKF
+  m: 2.9
+  moi:
+    {xx: 0.052, yy: 0.052, zz: 0.080}
+  offset:
+    {x: 0.0, y: 0.0, z: 0.0}

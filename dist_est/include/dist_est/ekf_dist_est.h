@@ -2,13 +2,6 @@
 #define EKF_DIST_EST_H
 #include "utils/forward_dynamics.h"
 
-struct EKFParams
-{
-    Mat10x10 P{0.01*Mat10x10::Identity()};  // initial covariance
-    Mat10x10 Q{0.01*Mat10x10::Identity()};  // process noise covariance
-    Mat7x7 R{0.01*Mat7x7::Identity()};  // measurement noise covariance
-};
-
 class EkfDistEst
 {
     public:

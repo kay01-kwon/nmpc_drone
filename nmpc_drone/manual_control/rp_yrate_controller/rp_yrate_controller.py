@@ -1,5 +1,5 @@
 import numpy as np
-from manual_control.rp_yrate_controller import quaternion_math
+from math_tools import quaternion_math
 class RpYrateController:
     def __init__(self, Kp, Kd, J):
         self.Kp = Kp
