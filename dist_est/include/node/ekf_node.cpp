@@ -47,8 +47,8 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     ekf_dist_est_.setParam(mav_param, ekf_params);
 
     // Initialize the EKF node with a NodeHandle
-    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, &EkfNode::rpmCallback, this);
-    pose_sub_ = nh_.subscribe("/custom_hexacopter/ground_truth/odometry", 1, &EkfNode::poseCallback, this);
+    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 10, &EkfNode::rpmCallback, this);
+    pose_sub_ = nh_.subscribe("/custom_hexacopter/ground_truth/odometry", 10, &EkfNode::poseCallback, this);
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("ekf_state", 1);
     wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("ekf_wrench", 1);
 
@@ -63,26 +63,52 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
 
 void EkfNode::run()
 {
-    while(ros::ok())
-    {
+    // while(ros::ok())
+    // {
 
-        ros::spinOnce();
+    //     ros::spinOnce();
 
-        loop_rate_.sleep();
-    }
+    //     loop_rate_.sleep();
+    // }
 
-    // ros::spin();
+    ros::spin();
 
 }
 
 void EkfNode::rpmCallback(const ros_libcanard::hexa_actual_rpm &msg)
 {
     t_rotor_ = msg.stamp.toSec();
+    RotorThrustVector6 rpm_temp;
     for (size_t i = 0; i < 6; i++)
     {
-        rpm_[i] = msg.rpm[i];
+        rpm_temp[i] = double(msg.rpm[i]);
     }
     
+    rpm_buffer_.push_back(std::make_pair(t_rotor_, rpm_temp));
+
+    if(rpm_buffer_.size() > 100)
+    {
+        rpm_buffer_.pop_front();  // Keep the buffer size manageable
+    }
+}
+
+void EkfNode::interpolate_rpm(RotorThrustVector6 &interpolated_rpm, double &t_meas)
+{
+    for(size_t i = 0; i < rpm_buffer_.size() - 1; ++i)
+    {
+        if(t_meas >= rpm_buffer_[i].first && t_meas <= rpm_buffer_[i+1].first)
+        {
+            double t0 = rpm_buffer_[i].first;
+            double t1 = rpm_buffer_[i+1].first;
+            RotorThrustVector6 rpm0 = rpm_buffer_[i].second;
+            RotorThrustVector6 rpm1 = rpm_buffer_[i+1].second;
+
+            // Linear interpolation
+            double alpha = (t_meas - t0) / (t1 - t0);
+            interpolated_rpm = (1 - alpha) * rpm0 + alpha * rpm1;
+            return;
+        }
+    }
 }
 
 void EkfNode::poseCallback(const Odometry &msg)
@@ -90,19 +116,30 @@ void EkfNode::poseCallback(const Odometry &msg)
     if (!is_first_callback_)
     {
         // Initialize the previous time
-        t_prev_ = ros::Time::now().toSec();
         is_first_callback_ = true;
         return;  // Skip the first callback to avoid zero dt
     }
-    t_curr_ = ros::Time::now().toSec();
-    dt_ = t_curr_ - t_rotor_;
-    if(dt_ < 0.001)
+    t_curr_ = msg.header.stamp.toSec();
+
+    RotorThrustVector6 rpm_interpolated_double;
+    interpolate_rpm(rpm_interpolated_double, t_prev_);
+    rpm_ << rpm_interpolated_double(0),
+            rpm_interpolated_double(1),
+            rpm_interpolated_double(2),
+            rpm_interpolated_double(3),
+            rpm_interpolated_double(4),
+            rpm_interpolated_double(5);
+
+    double dt = t_curr_ - t_prev_;
+
+    if (dt <= 0.0)
     {
-        // If the time difference is too small, skip the update
-        ROS_WARN("Skipping update due to small dt: %f", dt_);
-        return;
+        ROS_WARN("Received non-positive dt: %f seconds. Skipping EKF update.", dt);
+        // return;  // Skip the update if dt is non-positive
+        std::cout << "dt: "<< dt << " seconds";
+        // std::cout<< rpm_.transpose() << std::endl; 
     }
-    ROS_INFO("Current time: %f, Previous time: %f, dt: %f", t_curr_, t_prev_, dt_);
+    // std::cout<< rpm_.transpose() << std::endl;
 
     QuatType q_meas(msg.pose.pose.orientation.w,
                     msg.pose.pose.orientation.x,
@@ -115,17 +152,7 @@ void EkfNode::poseCallback(const Odometry &msg)
 
     MeasVector7 z_meas;
     z_meas << q_meas, w_meas;
-    double dt;
 
-    dt = t_curr_-t_rotor_;
-    // std::cout << "dt: " << dt << std::endl;
-
-    if (dt < 0.001)
-    {
-        // If the time difference is too small, skip the update
-        // std::cout << "Skipping update due to small dt: " << dt << std::endl;
-        return;
-    }
     AugStateVector10 s_prior = ekf_dist_est_.predict(rpm_, dt);
 
     AugStateVector10 s_post = ekf_dist_est_.meas_update(z_meas);
@@ -185,7 +212,7 @@ void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)
         for (size_t i = 0; i < param_vector.size(); ++i)
         {
             ekf_params.P(i, i) = param_vector[i];
-            ROS_INFO("ekf_params.P(%zu): %f", i, ekf_params.P(i,i));
+            ROS_INFO("ekf_params.P(%zu): %e", i, ekf_params.P(i,i));
         }
         ROS_INFO("\n");
     }
@@ -199,7 +226,7 @@ void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)
         for (size_t i = 0; i < param_vector.size(); ++i)
         {
             ekf_params.Q(i, i) = param_vector[i];
-            ROS_INFO("ekf_params.Q(%zu): %f", i, ekf_params.Q(i,i));
+            ROS_INFO("ekf_params.Q(%zu): %e", i, ekf_params.Q(i,i));
         }
         ROS_INFO("\n");
     }
@@ -213,7 +240,7 @@ void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)
         for (size_t i = 0; i < param_vector.size(); ++i)
         {
             ekf_params.R(i, i) = param_vector[i];
-            ROS_INFO("ekf_params.R(%zu): %f", i, ekf_params.R(i,i));
+            ROS_INFO("ekf_params.R(%zu): %e", i, ekf_params.R(i,i));
         }
         ROS_INFO("\n");
     }

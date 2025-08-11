@@ -6,6 +6,7 @@
 #include "ros_libcanard/hexa_actual_rpm.h"
 #include "nav_msgs/Odometry.h"
 #include "geometry_msgs/Wrench.h"
+#include <deque>
 
 using nav_msgs::Odometry;
 using geometry_msgs::Wrench;
@@ -37,6 +38,8 @@ class EkfNode
 
     void rpmCallback(const ros_libcanard::hexa_actual_rpm &msg);
 
+    void interpolate_rpm(RotorThrustVector6 &interpolated_rpm, double &t_meas);
+
     void poseCallback(const Odometry &msg);
 
     void publishState();
@@ -48,6 +51,7 @@ class EkfNode
     void setParam(const std::string param_name, MavParam &mav_param);
 
     rpmVector6 rpm_;
+    std::deque<std::pair<double, RotorThrustVector6>> rpm_buffer_;
 
     ros::Rate loop_rate_{100};  // 100 Hz
 

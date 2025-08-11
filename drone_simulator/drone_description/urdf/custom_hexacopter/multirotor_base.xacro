@@ -57,7 +57,8 @@
         <origin xyz="0 0 0" 
         rpy="0 0 0" />
         <geometry>
-          <box size="${body_width} ${body_width} ${body_height}" /> <!-- [m] -->
+          <box size="${body_width} ${body_width} ${body_height}" /> [m]
+          <!-- <mesh filename="${mesh_file}" scale="1 1 1" /> -->
         </geometry>
       </collision>
     </link>

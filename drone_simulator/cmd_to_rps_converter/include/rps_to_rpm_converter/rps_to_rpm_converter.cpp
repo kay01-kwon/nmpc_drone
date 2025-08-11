@@ -13,7 +13,7 @@ RpsToRpmConverter::~RpsToRpmConverter()
 
 void RpsToRpmConverter::rpsCallback(const mav_msgs::Actuators::ConstPtr& msg)
 {
-    rpm_msg_.stamp = ros::Time::now();
+    rpm_msg_.stamp = msg->header.stamp;
 
     for (size_t i = 0; i < msg->angular_velocities.size(); ++i) 
     {

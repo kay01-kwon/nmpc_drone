@@ -58,6 +58,8 @@ class PosControlNode():
         self.t_now = rospy.get_time()
         self.t_prev = self.t_now
 
+        self.is_first_flight = False
+
         self.ros_setup()
 
     def ros_setup(self):
@@ -92,7 +94,7 @@ class PosControlNode():
         self.time_stamp_current = msg.header.stamp.to_sec()
         self.state[0] = msg.pose.pose.position.x
         self.state[1] = msg.pose.pose.position.y
-        self.state[2] = msg.pose.pose.position.z - 0.5
+        self.state[2] = msg.pose.pose.position.z - 0.3225
 
         # # Get current linear velocity
         self.state[3] = msg.twist.twist.linear.x
@@ -161,7 +163,6 @@ class PosControlNode():
 
 
         self.u[1:] = self.u[1:] - self.tau
-        # print(self.tau)
 
         rotor_speed = self.InverseDyn.compute_des_rpm(self.u[0],
                                                       self.u[1:])

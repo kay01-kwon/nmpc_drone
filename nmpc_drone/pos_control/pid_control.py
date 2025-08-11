@@ -38,7 +38,6 @@ class PosControl():
 
         p_error = p - p_ref
         v_error = v - v_ref
-        print(p_error)
         self.i_err = self.i_err + p_error * dt
 
         f_des = (-self.Kp_trans*p_error
@@ -47,6 +46,8 @@ class PosControl():
                  - self.m*self.g_vec)
 
         self.u[0] = np.sqrt(f_des.transpose()@f_des)
+        print('p term',-self.Kp_trans*p_error)
+        print('p',p)
         r = f_des/self.u[0]
         rx = r[0]
         ry = r[1]
