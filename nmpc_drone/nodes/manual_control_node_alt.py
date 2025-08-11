@@ -52,9 +52,9 @@ class manual_control_node_alt():
                                          z_max = 0.9, psidot_max = 10)
 
         GainParam = {'Kp_trans': np.diag([0,0,4]),
-                     'Kv_trans': np.diag([0,0,1]),
-                     'Kp_ori': np.diag([4, 4, 0.3]),
-                     'Kd_ori': np.diag([1, 1, 0.01])}
+                     'Kd_trans': np.diag([0,0,1]),
+                     'Kp_rot': np.diag([3, 3, 0.05]),
+                     'Kd_rot': np.diag([0.52, 0.52, 0.025])}
         DynParam = {'m': 2.9,
                     'J': np.diag([0.052, 0.052, 0.080])}
 
@@ -141,7 +141,7 @@ class manual_control_node_alt():
                                wrench_msg.torque.y,
                                wrench_msg.torque.z])
 
-        self.tau = low_pass_filter(self.tau, tau_signal, 0.99)
+        self.tau = low_pass_filter(self.tau, tau_signal, 0.0)
 
         # print(self.r_off)
 
