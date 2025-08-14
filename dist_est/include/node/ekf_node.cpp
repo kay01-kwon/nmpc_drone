@@ -32,7 +32,6 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     
     setParam(nominal_param_name, mav_param);
 
-
     // ekf_params.P = 0.010 * 0.010 * Mat10x10::Identity();  // Initial covariance
     // ekf_params.P.block(7,7,3,3) = 0.01 * Mat3x3::Identity();  // Initial covariance for tau
     // ekf_params.Q = 0.001 * 0.001 * Mat10x10::Identity();  // Process noise covariance
@@ -171,7 +170,6 @@ void EkfNode::poseCallback(const Odometry &msg)
 
     Vec3 tau(s_post(7), s_post(8), s_post(9));
 
-    
     wrench_msg_.force.z = u(0);  // Thrust force
     wrench_msg_.torque.x = tau(0);
     wrench_msg_.torque.y = tau(1);

@@ -10,7 +10,8 @@
                 "/opt/ros/noetic/include/**",
                 "/usr/include/**",
                 "${workspaceFolder}/opt_based_estimator/include",
-                "${workspaceFolder}/system_id/include"
+                "${workspaceFolder}/system_id/include",
+                "${workspaceFolder}/dist_est/include"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
