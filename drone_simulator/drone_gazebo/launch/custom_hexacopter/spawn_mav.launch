@@ -60,7 +60,7 @@
   <node name="odom_converter" pkg="odom_converter" type="odom_converter_node"
     respawn="false" output="screen">
     <param name="subscribe_topic" type="string" value="$(arg namespace)/ground_truth/odometry"/>
-    <param name="publish_topic" type="string" value="$/mocap"/>
+    <param name="publish_topic" type="string" value="/mocap"/>
   </node>
 
 </launch>
