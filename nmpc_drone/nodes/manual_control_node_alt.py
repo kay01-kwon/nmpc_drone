@@ -76,7 +76,7 @@ class manual_control_node_alt():
         self.rc_subscriber = rospy.Subscriber('/mavros/rc/in',
                                               RCIn,
                                               self.rc_callback)
-        self.odom_subscriber = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry'
+        self.odom_subscriber = rospy.Subscriber('/eskf_state'
                                                 , Odometry
                                                 , self.odom_callback)
         self.cmd_pub = rospy.Publisher('/uav/cmd_raw',

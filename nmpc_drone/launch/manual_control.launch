@@ -1,6 +1,6 @@
 <launch>
-    <node name="pos_control"
-          type="pos_control_node.py"
+    <node name="manual_control"
+          type="manual_control_node_alt.py"
           pkg="nmpc_drone"
           output="screen">
         <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
@@ -11,5 +11,12 @@
           pkg="dist_est"
           output="screen">
         <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+    </node>
+
+    <node name="eskf_localization"
+          type="eskf_node"
+          pkg="eskf_loc"
+          output="screen">
+          <rosparam file="$(find eskf_loc)/config/eskf_param.yaml"/>
     </node>
 </launch>

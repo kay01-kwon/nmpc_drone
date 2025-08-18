@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="eskf_loc" 
+				type="eskf_node" 
+				name="eskf_node" output="screen">
+		<rosparam file="$(find eskf_loc)/config/eskf_param.yaml"/>
+	</node>
+
+</launch>
