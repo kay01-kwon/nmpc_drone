@@ -3,6 +3,7 @@
 				type="eskf_node" 
 				name="eskf_node" output="screen">
 		<rosparam file="$(find eskf_loc)/config/eskf_param.yaml"/>
+		<remap from="/mocap/pose" to="/mocap/JetsonPlatform/pose"/>
 	</node>
 
 </launch>

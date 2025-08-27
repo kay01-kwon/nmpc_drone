@@ -1,5 +1,6 @@
 #include "eskf_ros.h"
 #include <iomanip>
+#include <tf/transform_broadcaster.h>
 
 ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 {
@@ -10,17 +11,24 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 
     eskf_loc_ = new EskfLoc(params);
 
-    imu_sub_ = nh_.subscribe("/mavros_sim/imu/data_raw", 10, &ESKF_ROS::imu_callback, this);
+    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 10, &ESKF_ROS::imu_callback, this);
     pose_sub_ = nh_.subscribe("/mocap/pose", 10, &ESKF_ROS::pose_callback, this);
 
-    state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf_state", 10);
+    state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf/Odom", 10);
+    mocap_pub_ = nh_.advertise<nav_msgs::Odometry>("/mocap/Odom", 10);
     t_pose_curr_ = ros::Time::now().toSec();
     t_pose_prev_ = t_pose_curr_;
+
+    z_meas_prev_.setZero();
+    z_meas_prev_(3) = 1.0;
+
+    v_mocap_lpf_.setZero();
 }
 
 void ESKF_ROS::run()
 {
     ros::spin();
+
 }
 
 ESKF_ROS::~ESKF_ROS()
@@ -175,6 +183,50 @@ void ESKF_ROS::pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg)
     state_msg.twist.twist.angular.z = w(2);
     
     state_pub_.publish(state_msg);
+    nav_msgs::Odometry mocap_msg;
+
+    mocap_msg.header = state_msg.header;
+    mocap_msg.pose.pose.position.x = z_meas(0);
+    mocap_msg.pose.pose.position.y = z_meas(1);
+    mocap_msg.pose.pose.position.z = z_meas(2);
+
+    mocap_msg.pose.pose.orientation.w = z_meas(3);
+    mocap_msg.pose.pose.orientation.x = z_meas(4);
+    mocap_msg.pose.pose.orientation.y = z_meas(5);
+    mocap_msg.pose.pose.orientation.z = z_meas(6);
+
+    double vx_mocap, vy_mocap, vz_mocap;
+
+    Quat q_mocap_curr, q_mocap_prev;
+    q_mocap_curr << z_meas(3), z_meas(4), z_meas(5), z_meas(6);
+    q_mocap_prev << z_meas_prev_(3), z_meas_prev_(4), z_meas_prev_(5), z_meas_prev_(6);
+
+    // Calculate the angular velocity from the quaternion difference
+    vx_mocap = (z_meas(0) - z_meas_prev_(0)) / (t_pose_curr_ - t_pose_prev_);
+    vy_mocap = (z_meas(1) - z_meas_prev_(1)) / (t_pose_curr_ - t_pose_prev_);
+    vz_mocap = (z_meas(2) - z_meas_prev_(2)) / (t_pose_curr_ - t_pose_prev_);
+
+    mocap_msg.twist.twist.linear.x = vx_mocap;
+    mocap_msg.twist.twist.linear.y = vy_mocap;
+    mocap_msg.twist.twist.linear.z = vz_mocap;
+
+    mocap_pub_.publish(mocap_msg);
+
+    static tf::TransformBroadcaster tf_broadcaster;
+    tf::Transform transform;
+
+    transform.setOrigin(tf::Vector3(state(0), state(1), state(2)));
+    double qw, qx, qy, qz;
+    qw = state(6);
+    qx = state(7);
+    qy = state(8);
+    qz = state(9);
+    tf::Quaternion q(qx, qy, qz, qw);
+    transform.setRotation(q);
+    tf_broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "eskf_frame"));
+
+    z_meas_prev_ = z_meas; // Store the current measurement for the next iteration
+    
 
     t_pose_prev_ = t_pose_curr_;
 }
