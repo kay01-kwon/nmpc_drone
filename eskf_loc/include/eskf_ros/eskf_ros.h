@@ -36,6 +36,9 @@ class ESKF_ROS{
 
     Control control_;
 
+    Meas z_meas_prev_;
+    Vec3 v_mocap_lpf_;
+
     EskfLoc *eskf_loc_;
     
     ros::NodeHandle nh_;
@@ -44,7 +47,8 @@ class ESKF_ROS{
     ros::Subscriber pose_sub_;
 
     ros::Publisher state_pub_;
-    
+    ros::Publisher mocap_pub_;
+
     bool is_meas_first_{false};
 };
 
