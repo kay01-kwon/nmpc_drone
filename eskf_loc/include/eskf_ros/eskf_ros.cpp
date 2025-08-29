@@ -10,8 +10,22 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 
     eskf_loc_ = new EskfLoc(params);
 
-    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1, &ESKF_ROS::imu_callback, this);
-    pose_sub_ = nh_.subscribe("/mocap/pose", 1, &ESKF_ROS::pose_callback, this);
+    bool nodelay = true;
+
+    ros::TransportHints transport_hint;
+    transport_hint = ros::TransportHints()
+                    .tcpNoDelay(nodelay);
+
+    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1, 
+    &ESKF_ROS::imu_callback, this, transport_hint);
+
+    pose_sub_ = nh_.subscribe("/mocap/pose", 1, 
+    &ESKF_ROS::pose_callback, this, transport_hint);
+
+    pub_timer_ = nh_.createTimer(ros::Duration(0.01), 
+    &ESKF_ROS::publish_current_state, this);
+
+
 
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf/Odom", 1);
 
@@ -91,7 +105,7 @@ void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &msg)
 
     size_t head_imu = imu_buffer_.size() - 1;
 
-    double eps = 0.005; // 10 ms
+    double eps = 0.010; // 10 ms
 
     double t_imu = imu_buffer_[head_imu].time_stamp;
 
@@ -201,47 +215,30 @@ void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &msg)
     wz = imu_buffer_[head_imu].u(5) - s_(15);
 
     // Publishing the odometry message
-    nav_msgs::Odometry odom_msg;
-    odom_msg.header.stamp = msg->header.stamp;
-    odom_msg.header.frame_id = "eskf_odom";
+    
+    eskf_msg_.header.stamp = msg->header.stamp;
+    eskf_msg_.header.frame_id = "eskf_odom";
     
     // Position
-    odom_msg.pose.pose.position.x = px;
-    odom_msg.pose.pose.position.y = py;
-    odom_msg.pose.pose.position.z = pz;
+    eskf_msg_.pose.pose.position.x = px;
+    eskf_msg_.pose.pose.position.y = py;
+    eskf_msg_.pose.pose.position.z = pz;
 
     // Quaternion
-    odom_msg.pose.pose.orientation.w = qw;
-    odom_msg.pose.pose.orientation.x = qx;
-    odom_msg.pose.pose.orientation.y = qy;
-    odom_msg.pose.pose.orientation.z = qz;
+    eskf_msg_.pose.pose.orientation.w = qw;
+    eskf_msg_.pose.pose.orientation.x = qx;
+    eskf_msg_.pose.pose.orientation.y = qy;
+    eskf_msg_.pose.pose.orientation.z = qz;
     
     // Linear velocity
-    odom_msg.twist.twist.linear.x = vx;
-    odom_msg.twist.twist.linear.y = vy;
-    odom_msg.twist.twist.linear.z = vz;
+    eskf_msg_.twist.twist.linear.x = vx;
+    eskf_msg_.twist.twist.linear.y = vy;
+    eskf_msg_.twist.twist.linear.z = vz;
 
     // Angular velocity
-    odom_msg.twist.twist.angular.x = wx;
-    odom_msg.twist.twist.angular.y = wy;
-    odom_msg.twist.twist.angular.z = wz;
-    
-    state_pub_.publish(odom_msg);
-
-    // Broadcasting the transform between "world" and "eskf_odom"
-    static tf::TransformBroadcaster br;
-
-    br.sendTransform(
-        tf::StampedTransform(
-            tf::Transform(
-                tf::Quaternion(qx, qy, qz, qw),
-                tf::Vector3(px, py, pz)
-            ),
-            ros::Time::now(),
-            "world",
-            "eskf_odom"
-        )
-    );
+    eskf_msg_.twist.twist.angular.x = wx;
+    eskf_msg_.twist.twist.angular.y = wy;
+    eskf_msg_.twist.twist.angular.z = wz;
 
 }
 
@@ -337,4 +334,37 @@ void ESKF_ROS::imu_interpolate(const Control &u0,
 {
     double alpha = (t - t0) / (t1 - t0);
     u_interp = (1 - alpha) * u0 + alpha * u1;
+}
+
+void ESKF_ROS::publish_current_state(const ros::TimerEvent&)
+{
+    double qw, qx, qy , qz;
+    double px, py, pz;
+
+    qw = eskf_msg_.pose.pose.orientation.w;
+    qx = eskf_msg_.pose.pose.orientation.x;
+    qy = eskf_msg_.pose.pose.orientation.y;
+    qz = eskf_msg_.pose.pose.orientation.z;
+
+    px = eskf_msg_.pose.pose.position.x;
+    py = eskf_msg_.pose.pose.position.y;
+    pz = eskf_msg_.pose.pose.position.z;
+
+    // Broadcasting the transform between "world" and "eskf_odom"
+    static tf::TransformBroadcaster br;
+
+    br.sendTransform(
+        tf::StampedTransform(
+            tf::Transform(
+                tf::Quaternion(qx, qy, qz, qw),
+                tf::Vector3(px, py, pz)
+            ),
+            ros::Time::now(),
+            "world",
+            "eskf_odom"
+        )
+    );
+
+
+    state_pub_.publish(eskf_msg_);
 }

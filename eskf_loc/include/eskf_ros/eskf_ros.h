@@ -48,6 +48,8 @@ class ESKF_ROS{
                          const double &t,
                          Control &u_interp);
 
+    void publish_current_state(const ros::TimerEvent&);
+
     Control control_;
 
     // Circular buffer for IMU, pose and estimation data
@@ -68,6 +70,9 @@ class ESKF_ROS{
 
     ros::Subscriber imu_sub_;
     ros::Subscriber pose_sub_;
+    ros::Timer pub_timer_;
+
+    nav_msgs::Odometry eskf_msg_;
 
     ros::Publisher state_pub_;
 
