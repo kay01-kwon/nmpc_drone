@@ -1,8 +1,8 @@
 #ifndef STATE_DEF_H
 #define STATE_DEF_H
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
 
 typedef Eigen::Matrix<double, 3, 1> Vec3;
 
