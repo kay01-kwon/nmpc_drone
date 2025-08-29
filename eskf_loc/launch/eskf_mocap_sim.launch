@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="eskf_loc" 
+				type="eskf_node" 
+				name="eskf_node" output="screen">
+		<rosparam file="$(find eskf_loc)/config/eskf_param_sim.yaml"/>
+		<remap from="/mavros/imu/data_raw" to="/mavros_sim/imu/data_raw"/>
+	</node>
+
+</launch>
