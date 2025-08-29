@@ -33,8 +33,7 @@ EskfLoc::EskfLoc(const EskfLocParams &params)
     p_meas_init.setZero();
     q_meas_init.setZero();
     q_meas_init(0) = 1.0;
-    
-    z_meas_<< p_meas_init, q_meas_init;
+
 
     P_ = params.P_init;
 
@@ -79,9 +78,11 @@ EskfLoc::~EskfLoc()
     // No dynamic memory allocation, so nothing to clean up
 }
 
-void EskfLoc::predict(const double &t_curr,
-             const double &t_prev,
-             const Control &control)
+void EskfLoc::propagate(const double &t_prev,
+             const double &t_curr,
+             const Control &control,
+             const State &state_in,
+             const Cov &P_in)
 {
     double dt;
     dt = t_curr - t_prev;
@@ -90,12 +91,12 @@ void EskfLoc::predict(const double &t_curr,
     control_ = control;
 
     // Extract the current state
-    Vec3 p = state_.head(3); // Position
-    Vec3 v = state_.segment<3>(3); // Velocity
-    Quat q = state_.segment<4>(6); // Orientation (quaternion)
-    Vec3 accel_bias = state_.segment<3>(10); // Accelerometer bias
-    Vec3 gyro_bias = state_.segment<3>(13); // Gyro bias
-    Vec3 g = state_.segment<3>(16); // Gravity vector
+    Vec3 p = state_in.head(3); // Position
+    Vec3 v = state_in.segment<3>(3); // Velocity
+    Quat q = state_in.segment<4>(6); // Orientation (quaternion)
+    Vec3 accel_bias = state_in.segment<3>(10); // Accelerometer bias
+    Vec3 gyro_bias = state_in.segment<3>(13); // Gyro bias
+    Vec3 g = state_in.segment<3>(16); // Gravity vector
 
     // Update position, velocity, and orientation
     Eigen::Matrix<double, 3, 3> rotm = quat_to_rotm(q);
@@ -146,18 +147,19 @@ void EskfLoc::predict(const double &t_curr,
     Qi_dt_.block(0, 0, 6, 6) = dt * dt * Eigen::Matrix<double, 6, 6>::Identity();
     Qi_dt_.block(6, 6, 6, 6) = dt * Eigen::Matrix<double, 6, 6>::Identity();
 
-    P_ = Fs_ * P_ * Fs_.transpose() + Fi_ * Qi_*Qi_dt_ * Fi_.transpose();
+    P_ = Fs_ * P_in * Fs_.transpose() + Fi_ * Qi_*Qi_dt_ * Fi_.transpose();
 
 }
 
-void EskfLoc::correct(const Meas &z_meas)
+void EskfLoc::correct(const Meas &z_meas,
+             const State &state_in,
+             const Cov &P_in)
 {
     // Update measurement variables
-    z_meas_ = z_meas;
-    Meas delta_s = z_meas_ - Hs_ * state_;
+    Meas delta_s = z_meas - Hs_ * state_in;
 
     Quat q;
-    q = state_.segment<4>(6); // Extract the quaternion from the state
+    q = state_in.segment<4>(6); // Extract the quaternion from the state
 
     double qw, qx, qy, qz;
     qw = q(0);
@@ -181,21 +183,21 @@ void EskfLoc::correct(const Meas &z_meas)
     // Compute the Kalman gain
     Mat18x7 K;
     Mat7x7 S, S_inv;
-    S = H_ * P_ * H_.transpose() + R_;
+    S = H_ * P_in * H_.transpose() + R_;
     S_inv = S.ldlt().solve(Eigen::Matrix<double, 7, 7>::Identity());
-    K = P_ * H_.transpose() * S_inv;
+    K = P_in * H_.transpose() * S_inv;
 
     // Update the error state
     del_state_ = K * delta_s;
 
-    P_ = (Cov::Identity() - K*H_) * P_;
+    P_ = (Cov::Identity() - K*H_) * P_in;
 
     Vec3 p_inj, v_inj;
     Quat q_inj;
     Vec3 accel_inj, gyro_inj, g_inj;
 
-    p_inj = state_.head(3) + del_state_.head(3); // Position
-    v_inj = state_.segment<3>(3) + del_state_.segment<3>(3); // Velocity
+    p_inj = state_in.head(3) + del_state_.head(3); // Position
+    v_inj = state_in.segment<3>(3) + del_state_.segment<3>(3); // Velocity
     
     Quat q_state, del_q;
     Vec3 del_theta;
@@ -204,16 +206,16 @@ void EskfLoc::correct(const Meas &z_meas)
               0.5 * del_theta(0),
               0.5 * del_theta(1), 
               0.5 * del_theta(2);
-    q_state = state_.segment<4>(6);
+    q_state = state_in.segment<4>(6);
     q_inj = otimes(q_state, del_q);
 
     // Normalize quaternion
     double norm_q = q_inj.norm();
     q_inj /= norm_q;
 
-    accel_inj = state_.segment<3>(10) + del_state_.segment<3>(9);
-    gyro_inj = state_.segment<3>(13) + del_state_.segment<3>(12);
-    g_inj = state_.segment<3>(16) + del_state_.segment<3>(15); // Gravity vector
+    accel_inj = state_in.segment<3>(10) + del_state_.segment<3>(9);
+    gyro_inj = state_in.segment<3>(13) + del_state_.segment<3>(12);
+    g_inj = state_in.segment<3>(16) + del_state_.segment<3>(15); // Gravity vector
 
     state_ << p_inj, 
               v_inj, 

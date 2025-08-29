@@ -1,6 +1,5 @@
 #include "eskf_ros.h"
 #include <iomanip>
-#include <tf/transform_broadcaster.h>
 
 ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 {
@@ -11,18 +10,38 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 
     eskf_loc_ = new EskfLoc(params);
 
-    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 10, &ESKF_ROS::imu_callback, this);
-    pose_sub_ = nh_.subscribe("/mocap/pose", 10, &ESKF_ROS::pose_callback, this);
+    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1, &ESKF_ROS::imu_callback, this);
+    pose_sub_ = nh_.subscribe("/mocap/pose", 1, &ESKF_ROS::pose_callback, this);
 
-    state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf/Odom", 10);
-    mocap_pub_ = nh_.advertise<nav_msgs::Odometry>("/mocap/Odom", 10);
-    t_pose_curr_ = ros::Time::now().toSec();
-    t_pose_prev_ = t_pose_curr_;
+    state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf/Odom", 1);
 
-    z_meas_prev_.setZero();
-    z_meas_prev_(3) = 1.0;
+    Vec3 p_init, v_init;
+    Quat q_init;
+    Vec3 ab_init, wb_init;
+    Vec3 g_init;
 
-    v_mocap_lpf_.setZero();
+    double g = 9.81;
+    g_init << 0.0, 0.0, -g;
+
+    p_init.setZero();
+    v_init.setZero();
+    q_init.setZero();
+    q_init(0) = 1.0;
+    ab_init.setZero();
+    wb_init.setZero();
+
+
+    // Initialize state and covariance
+    s_ << p_init, v_init, q_init, ab_init, wb_init, g_init;
+    P_ = params.P_init;
+
+    s_prev_ = s_;
+    P_prev_ = P_;
+
+    // Buffer setup
+    imu_buffer_ = CircularBuffer<ImuData>(10);
+    pose_buffer_ = CircularBuffer<PoseData>(10);
+
 }
 
 void ESKF_ROS::run()
@@ -38,200 +57,219 @@ ESKF_ROS::~ESKF_ROS()
 
 void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &msg)
 {
-    // Extract the control input from the IMU message
+    double time_stamp = msg->header.stamp.toSec();
+    ImuData imu_data;
 
-    imu_buffer_.push_back(*msg);
+    imu_data.time_stamp = time_stamp;
+    imu_data.u.head<3>() = Vec3(msg->linear_acceleration.x,
+                                msg->linear_acceleration.y,
+                                msg->linear_acceleration.z);
 
-    if(imu_buffer_.size() > 100)
+    imu_data.u.tail<3>() = Vec3(msg->angular_velocity.x,
+                                msg->angular_velocity.y,
+                                msg->angular_velocity.z);
+
+    if(!imu_buffer_.full())
     {
-        imu_buffer_.pop_front(); // Keep the buffer size manageable
+        imu_buffer_.push(imu_data);
     }
-}
-
-void ESKF_ROS::imu_interpolate(sensor_msgs::Imu &imu_out, double t_meas)
-{
-    // Interpolate IMU data to match the measurement time
-    if (imu_buffer_.empty())
+    else
     {
-        ROS_WARN("IMU buffer is empty, cannot interpolate.");
+        imu_buffer_.pop();
+        imu_buffer_.push(imu_data);
+    }
+
+    if(imu_buffer_.size() < 2)
+    {
+        ROS_WARN("[ESKF_ROS] Waiting for more IMU data...");
         return;
     }
 
-    // Find the closest IMU message before and after the measurement time
-    auto it_before = std::lower_bound(imu_buffer_.begin(), imu_buffer_.end(), t_meas,
-                                      [](const sensor_msgs::Imu &imu, double t) {
-                                          return imu.header.stamp.toSec() < t;
-                                      });
+    s_prev_ = s_;
+    P_prev_ = P_;
 
-    if (it_before == imu_buffer_.begin())
+
+    size_t head_imu = imu_buffer_.size() - 1;
+
+    double eps = 0.005; // 10 ms
+
+    double t_imu = imu_buffer_[head_imu].time_stamp;
+
+    double t0 = imu_buffer_[head_imu - 1].time_stamp;
+    Control u0 = imu_buffer_[head_imu - 1].u;
+    double t1 = imu_buffer_[head_imu].time_stamp;
+    Control u1 = imu_buffer_[head_imu].u;
+
+    Control um = 0.5*(u0 + u1);
+    eskf_loc_->propagate(t0, t1, um, s_, P_);
+    s_ = eskf_loc_->getState();
+    P_ = eskf_loc_->getCovariance();
+
+    if(!pose_buffer_.empty())
     {
-        imu_out = *it_before; // No interpolation needed, use the first message
-        return;
+        int idx_latest = -1;
+
+        for(size_t i = pose_buffer_.size()-1; i >= 0; --i)
+        {
+            if( pose_buffer_[i].time_stamp <= t1 + eps)
+            {
+                idx_latest = i;
+                break;
+            }
+        }
+
+        if(idx_latest >=0 )
+        {
+            double t_meas;
+            Vec3 p_meas;
+            Quat q_meas;
+            
+            t_meas = pose_buffer_[idx_latest].time_stamp;
+            p_meas = pose_buffer_[idx_latest].p;
+            q_meas = pose_buffer_[idx_latest].q;
+
+            double buffer_start = imu_buffer_[0].time_stamp;
+            if(t_meas >= buffer_start - eps)
+            {
+                if(t_meas >= t0 - eps && t_meas <= t1 + eps)
+                {
+                    Control u_m;
+                    imu_interpolate(u0, t0, u1, t1, t_meas, u_m);
+                    Control um0 = 0.5 * (u0 + u_m);
+                    Control um1 = 0.5 * (u_m + u1);
+
+                    // Replay from t0 to t_meas
+                    eskf_loc_->propagate(t0, t_meas, um0, s_prev_, P_prev_);
+                    s_ = eskf_loc_->getState();
+                    P_ = eskf_loc_->getCovariance();
+
+                    Meas z_meas;
+                    z_meas.head<3>() = p_meas;
+                    z_meas.tail<4>() = q_meas;
+                    eskf_loc_->correct(z_meas, s_, P_);
+                    s_ = eskf_loc_->getState();
+                    P_ = eskf_loc_->getCovariance();
+
+                    // Propagate from t_meas to t1
+                    eskf_loc_->propagate(t_meas, t1, um1, s_, P_);
+                    s_ = eskf_loc_->getState();
+                    P_ = eskf_loc_->getCovariance();
+
+                    for(size_t k = 0; k <= idx_latest; ++k)
+                        pose_buffer_.pop();
+
+                }
+                else if(t_meas < t0 - eps)
+                {
+                    for(size_t k = 0; k <= idx_latest; ++k)
+                        pose_buffer_.pop();
+                }
+                else
+                {
+                    // Do nothing, the measurement is too new
+                }
+            }
+        }
+        else
+        {
+            for(size_t k = 0; k < pose_buffer_.size(); ++k)
+                pose_buffer_.pop();
+        }
     }
 
-    auto it_after = it_before;
-    if (it_after != imu_buffer_.end())
-    {
-        it_after++; // Move to the next message
-    }
+    double px, py, pz;
+    double vx, vy, vz;
+    double qw, qx, qy, qz;
+    double wx, wy, wz;
 
-    if (it_after == imu_buffer_.end())
-    {
-        imu_out = *(--it_before); // Use the last message if no after message exists
-        return;
-    }
+    px = s_(0);
+    py = s_(1);
+    pz = s_(2);
 
-    // Perform linear interpolation between the two messages
-    double t_before = it_before->header.stamp.toSec();
-    double t_after = it_after->header.stamp.toSec();
+    vx = s_(3);
+    vy = s_(4);
+    vz = s_(5);
+
+    qw = s_(6);
+    qx = s_(7);
+    qy = s_(8);
+    qz = s_(9);
+
+    // Angular velocity (from IMU measurement)
+    wx = imu_buffer_[head_imu].u(3) - s_(13);
+    wy = imu_buffer_[head_imu].u(4) - s_(14);
+    wz = imu_buffer_[head_imu].u(5) - s_(15);
+
+    // Publishing the odometry message
+    nav_msgs::Odometry odom_msg;
+    odom_msg.header.stamp = msg->header.stamp;
+    odom_msg.header.frame_id = "eskf_odom";
     
-    double alpha = (t_meas - t_before) / (t_after - t_before);
+    // Position
+    odom_msg.pose.pose.position.x = px;
+    odom_msg.pose.pose.position.y = py;
+    odom_msg.pose.pose.position.z = pz;
 
-    imu_out.header.stamp = ros::Time(t_meas);
+    // Quaternion
+    odom_msg.pose.pose.orientation.w = qw;
+    odom_msg.pose.pose.orientation.x = qx;
+    odom_msg.pose.pose.orientation.y = qy;
+    odom_msg.pose.pose.orientation.z = qz;
     
-    imu_out.linear_acceleration.x = it_before->linear_acceleration.x * (1 - alpha) +
-                                     it_after->linear_acceleration.x * alpha;
+    // Linear velocity
+    odom_msg.twist.twist.linear.x = vx;
+    odom_msg.twist.twist.linear.y = vy;
+    odom_msg.twist.twist.linear.z = vz;
+
+    // Angular velocity
+    odom_msg.twist.twist.angular.x = wx;
+    odom_msg.twist.twist.angular.y = wy;
+    odom_msg.twist.twist.angular.z = wz;
     
-    imu_out.linear_acceleration.y = it_before->linear_acceleration.y * (1 - alpha) +
-                                     it_after->linear_acceleration.y * alpha;
+    state_pub_.publish(odom_msg);
 
-    imu_out.linear_acceleration.z = it_before->linear_acceleration.z * (1 - alpha) +
-                                     it_after->linear_acceleration.z * alpha;
+    // Broadcasting the transform between "world" and "eskf_odom"
+    static tf::TransformBroadcaster br;
 
-    imu_out.angular_velocity.x = it_before->angular_velocity.x * (1 - alpha) +
-                                  it_after->angular_velocity.x * alpha;
-
-    imu_out.angular_velocity.y = it_before->angular_velocity.y * (1 - alpha) +
-                                  it_after->angular_velocity.y * alpha;
-
-    imu_out.angular_velocity.z = it_before->angular_velocity.z * (1 - alpha) +
-                                  it_after->angular_velocity.z * alpha;
+    br.sendTransform(
+        tf::StampedTransform(
+            tf::Transform(
+                tf::Quaternion(qx, qy, qz, qw),
+                tf::Vector3(px, py, pz)
+            ),
+            ros::Time::now(),
+            "world",
+            "eskf_odom"
+        )
+    );
 
 }
 
 void ESKF_ROS::pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
-    if(!is_meas_first_)
+    double t_pose = msg->header.stamp.toSec();
+    PoseData pose_data;
+
+    pose_data.time_stamp = t_pose;
+    pose_data.p = Eigen::Vector3d(msg->pose.position.x,
+                                  msg->pose.position.y,
+                                  msg->pose.position.z);
+    pose_data.q = Quat(msg->pose.orientation.w,
+                       msg->pose.orientation.x,
+                       msg->pose.orientation.y,
+                       msg->pose.orientation.z);
+    
+    if(!pose_buffer_.full())
     {
-        // Initialize the previous pose time
-        t_pose_prev_ = msg->header.stamp.toSec();
-        is_meas_first_ = true;
-        return; // Skip the first measurement
+        pose_buffer_.push(pose_data);
+    }
+    else
+    {
+        pose_buffer_.pop();
+        pose_buffer_.push(pose_data);
     }
 
-    // Extract the pose from the message
-    t_pose_curr_ = msg->header.stamp.toSec();
-
-    // Interpolate IMU data if necessary
-    sensor_msgs::Imu imu_out;
-    imu_interpolate(imu_out, t_pose_prev_);
-
-    // Set the control input based on the interpolated IMU data
-    control_.head<3>() = Eigen::Vector3d(imu_out.linear_acceleration.x,
-                                          imu_out.linear_acceleration.y,
-                                          imu_out.linear_acceleration.z);
-
-    control_.tail<3>() = Eigen::Vector3d(imu_out.angular_velocity.x,
-                                          imu_out.angular_velocity.y,
-                                          imu_out.angular_velocity.z);
-
-    // Predict the state using the ESKF
-    eskf_loc_->predict(t_pose_curr_, t_pose_prev_, control_);
-
-    // std::cout << "Predicting state at time: " << t_pose_curr_ << std::endl;
-    // std::cout << "Control input: " << control_.transpose() << std::endl;
-
-    Meas z_meas;
-    z_meas.head<3>() = Eigen::Vector3d(msg->pose.position.x,
-                                      msg->pose.position.y,
-                                      msg->pose.position.z);
-    
-    z_meas.tail<4>() = Eigen::Vector4d(msg->pose.orientation.w,
-                                          msg->pose.orientation.x,
-                                          msg->pose.orientation.y,
-                                          msg->pose.orientation.z);
-    // std::cout << "Measurement at time: " << t_pose_curr_ << std::endl;
-    // std::cout << "Measurement: " << z_meas.transpose() << std::endl;
-    eskf_loc_->correct(z_meas);
-
-    // Publish the state
-    nav_msgs::Odometry state_msg;
-    state_msg.header.stamp = ros::Time(t_pose_curr_);
-    state_msg.header.frame_id = "eskf_frame";
-    
-    State state = eskf_loc_->getState();
-
-    state_msg.pose.pose.position.x = state(0);
-    state_msg.pose.pose.position.y = state(1);
-    state_msg.pose.pose.position.z = state(2);
-
-    state_msg.twist.twist.linear.x = state(3);
-    state_msg.twist.twist.linear.y = state(4);
-    state_msg.twist.twist.linear.z = state(5);
-    
-    state_msg.pose.pose.orientation.w = state(6);
-    state_msg.pose.pose.orientation.x = state(7);
-    state_msg.pose.pose.orientation.y = state(8);
-    state_msg.pose.pose.orientation.z = state(9);
-
-    Vec3 w, gyro_bias;
-    gyro_bias << state(13), state(14), state(15); // Extract angular velocity from the state
-    w = control_.tail<3>() - gyro_bias; // Corrected angular velocity
-
-    state_msg.twist.twist.angular.x = w(0);
-    state_msg.twist.twist.angular.y = w(1);
-    state_msg.twist.twist.angular.z = w(2);
-    
-    state_pub_.publish(state_msg);
-    nav_msgs::Odometry mocap_msg;
-
-    mocap_msg.header = state_msg.header;
-    mocap_msg.pose.pose.position.x = z_meas(0);
-    mocap_msg.pose.pose.position.y = z_meas(1);
-    mocap_msg.pose.pose.position.z = z_meas(2);
-
-    mocap_msg.pose.pose.orientation.w = z_meas(3);
-    mocap_msg.pose.pose.orientation.x = z_meas(4);
-    mocap_msg.pose.pose.orientation.y = z_meas(5);
-    mocap_msg.pose.pose.orientation.z = z_meas(6);
-
-    double vx_mocap, vy_mocap, vz_mocap;
-
-    Quat q_mocap_curr, q_mocap_prev;
-    q_mocap_curr << z_meas(3), z_meas(4), z_meas(5), z_meas(6);
-    q_mocap_prev << z_meas_prev_(3), z_meas_prev_(4), z_meas_prev_(5), z_meas_prev_(6);
-
-    // Calculate the angular velocity from the quaternion difference
-    vx_mocap = (z_meas(0) - z_meas_prev_(0)) / (t_pose_curr_ - t_pose_prev_);
-    vy_mocap = (z_meas(1) - z_meas_prev_(1)) / (t_pose_curr_ - t_pose_prev_);
-    vz_mocap = (z_meas(2) - z_meas_prev_(2)) / (t_pose_curr_ - t_pose_prev_);
-
-    mocap_msg.twist.twist.linear.x = vx_mocap;
-    mocap_msg.twist.twist.linear.y = vy_mocap;
-    mocap_msg.twist.twist.linear.z = vz_mocap;
-
-    mocap_pub_.publish(mocap_msg);
-
-    static tf::TransformBroadcaster tf_broadcaster;
-    tf::Transform transform;
-
-    transform.setOrigin(tf::Vector3(state(0), state(1), state(2)));
-    double qw, qx, qy, qz;
-    qw = state(6);
-    qx = state(7);
-    qy = state(8);
-    qz = state(9);
-    tf::Quaternion q(qx, qy, qz, qw);
-    transform.setRotation(q);
-    tf_broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "eskf_frame"));
-
-    z_meas_prev_ = z_meas; // Store the current measurement for the next iteration
-    
-
-    t_pose_prev_ = t_pose_curr_;
 }
-
-
 
 void ESKF_ROS::set_param(EskfLocParams &params)
 {
@@ -288,4 +326,15 @@ void ESKF_ROS::set_param(EskfLocParams &params)
     std::cout << "  sigma_w_n: " << params.sigma_w_n << std::endl;
     std::cout << "  sigma_w_w: " << params.sigma_w_w << std::endl;
 
+}
+
+void ESKF_ROS::imu_interpolate(const Control &u0,
+                             const double &t0,
+                             const Control &u1,
+                             const double &t1,
+                             const double &t,
+                             Control &u_interp)
+{
+    double alpha = (t - t0) / (t1 - t0);
+    u_interp = (1 - alpha) * u0 + alpha * u1;
 }

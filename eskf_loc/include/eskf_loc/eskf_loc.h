@@ -22,11 +22,15 @@ class EskfLoc {
 
     ~EskfLoc();
 
-    void predict(const double &t_curr, 
-                 const double &t_prev,
-                 const Control &control);
+    void propagate(const double &t_prev, 
+                 const double &t_curr,
+                 const Control &control,
+                 const State &state_in,
+                 const Cov &P_in);
 
-    void correct(const Meas &z_meas);
+    void correct(const Meas &z_meas,
+                 const State &state_in,
+                 const Cov &P_in);
 
     State getState() const;
 
@@ -37,13 +41,6 @@ class EskfLoc {
     // Initialize gravity vector
     Vec3 g_{0, 0, -9.81}; // Gravity vector in the body frame
 
-    // State vector: [position, 
-    //                velocity, 
-    //                orientation, 
-    //                accel bias, 
-    //                gyro bias, 
-    //                gravity]
-    State state_;
 
     // Control input: [linear acceleration, angular velocity]
     Control control_;
@@ -51,7 +48,8 @@ class EskfLoc {
     // Error state vector
     ErrorState del_state_;
 
-    Meas z_meas_;
+    // State vector: [p, v, q, ab, wb, g]
+    State state_;
 
     // Covariance matrix
     Cov P_;
