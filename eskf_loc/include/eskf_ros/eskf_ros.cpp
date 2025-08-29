@@ -155,13 +155,13 @@ void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &msg)
                     s_ = eskf_loc_->getState();
                     P_ = eskf_loc_->getCovariance();
 
-                    for(size_t k = 0; k <= idx_latest; ++k)
+                    for(size_t k = 0; k < idx_latest; ++k)
                         pose_buffer_.pop();
 
                 }
                 else if(t_meas < t0 - eps)
                 {
-                    for(size_t k = 0; k <= idx_latest; ++k)
+                    for(size_t k = 0; k < idx_latest; ++k)
                         pose_buffer_.pop();
                 }
                 else
