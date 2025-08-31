@@ -6,6 +6,8 @@
 
 typedef Eigen::Matrix<double, 3, 1> Vec3;
 
+typedef Eigen::Matrix<double, 6, 1> Vec6;
+
 typedef Eigen::Matrix<double, 4, 1> QuatType;
 
 typedef Eigen::Matrix<double, 4, 1> controlInputVector4;
@@ -60,6 +62,12 @@ struct EKFParams
     Mat10x10 P{0.01*Mat10x10::Identity()};  // initial covariance
     Mat10x10 Q{0.01*Mat10x10::Identity()};  // process noise covariance
     Mat7x7 R{0.01*Mat7x7::Identity()};  // measurement noise covariance
+};
+
+struct HgdoParams
+{   
+    // Gains for hgdo
+    double eps{0.01};
 };
 
 
