@@ -13,10 +13,10 @@ void FDynamics::setParam(const MavParam& param)
     set_forward_mapping(l_, k_m_);
 }
 
-void FDynamics::convert_rpm_to_control_input(const rpmVector6& rpm, 
-                                        controlInputVector4 &control_input)
+void FDynamics::convert_rpm_to_control_input(const Vec6i16& rpm, 
+                                        Vec4d &control_input)
 {
-    RotorThrustVector6 T;
+    Vec6d T;
     double rpm2 = 0;
     for (size_t i = 0; i < 6; i++)
     {

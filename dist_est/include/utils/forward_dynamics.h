@@ -2,6 +2,8 @@
 #define FORWARD_DYNAMICS_H
 #include "state_def.h"
 
+typedef Eigen::Matrix<double, 4, 6> Mat4x6;
+
 class FDynamics{
     
     public:
@@ -12,8 +14,8 @@ class FDynamics{
 
     void setParam(const MavParam& param);
 
-    void convert_rpm_to_control_input(const rpmVector6& rpm, 
-    controlInputVector4 &control_input);
+    void convert_rpm_to_control_input(const Vec6i16 &rpm, 
+    Vec4d &control_input);
 
     private:
 
