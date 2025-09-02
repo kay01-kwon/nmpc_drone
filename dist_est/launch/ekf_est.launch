@@ -4,6 +4,7 @@
     pkg="dist_est" 
     type="ekf_node"
     output="screen">
+        <param name="publish_rate" type="double" value="100.0"/>
         <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
     </node>
 </launch>

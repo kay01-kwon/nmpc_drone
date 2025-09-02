@@ -1,5 +1,7 @@
 #include "ekf_dist_est.h"
 #include "utils/quaternion_utils.h"
+#include "utils/state_demuxer.h"
+#include "utils/state_muxer.h"
 #include <cassert>
 EkfDistEst::EkfDistEst()
 {
@@ -13,19 +15,20 @@ EkfDistEst::EkfDistEst(const MavParam& param, const EKFParams &ekf_params)
 
 void EkfDistEst::setParam(const MavParam& param, const EKFParams &ekf_params)
 {
-    converter_ = new FDynamics();
-    converter_->setParam(param);
+    
+    F_.setIdentity();  // State transition matrix
 
-    s_pred_.setZero();
-    s_est_.setZero();
+    H_.setZero();
+    H_.block<3, 3>(p_start, p_start) = I3;
+    H_.block<3, 3>(v_start, v_start) = I3;
+    H_.block<4, 4>(q_start, q_start) = Mat4x4::Identity();
+    H_.block<3, 3>(w_start, w_start) = I3;
 
-    s_pred_(0) = 1;
-    s_est_(0) = 1;
-
-    P_pred_ = ekf_params.P;  // Initial covariance
-    P_est_ = ekf_params.P;  // Initial covariance
+    K_gain_.setZero();
 
     ekf_params_ = ekf_params;
+
+    m_ = param.m;  // mass
 
     J_ = param.J;  // inertia matrix
 
@@ -36,155 +39,126 @@ void EkfDistEst::setParam(const MavParam& param, const EKFParams &ekf_params)
 
 }
 
-AugStateVector10 EkfDistEst::predict(const rpmVector6 &rpm, const double &dt)
+void EkfDistEst::propagate(const Vec4d &u,
+                           const AugState &s_in,
+                           const Mat19x19 &P_in,
+                           AugState &s_out,
+                           Mat19x19 &P_out,
+                           const double &dt)
 {
 
     assert(dt >= 0.0 && "dt must be positive");
 
-    // Convert rpm to control input
-    controlInputVector4 u;
-    converter_->convert_rpm_to_control_input(rpm, u);
+    Vec3d p_in, v_in;
+    Quatd q_in;
+    Vec3d w_in;
+    Vec3d f_ext_in, tau_ext_in;
 
-    // QuatType q(s_est_(0), s_est_(1), s_est_(2), s_est_(3));
-    QuatType q_prior;
-    Vec3 w_prior, tau_prior;
-    Mat10x10 P_prior;
+    demux_state(s_in, p_in, v_in, q_in, w_in, f_ext_in, tau_ext_in);
 
-    q_prior << s_est_(0), s_est_(1), s_est_(2), s_est_(3);
-    w_prior << s_est_(4), s_est_(5), s_est_(6);
-    tau_prior << s_est_(7), s_est_(8), s_est_(9);
+    Vec3d u_T_e3(0.0, 0.0, u(0));  // thrust vector in body frame
 
-    P_prior = P_est_;
+    Mat3x3 R_wb = quaternion_to_rotm(q_in);  // rotation from body to world frame
 
-    double qw, qx, qy, qz;
-    double wx, wy, wz;
+    Vec3d a_in;
+    a_in = 1.0/m_* (R_wb * u_T_e3 + f_ext_in) + g_;  // control input in world frame
 
-    qw = q_prior(0);
-    qx = q_prior(1);
-    qy = q_prior(2);
-    qz = q_prior(3);
+    Vec3d p_out, v_out;
+    Quatd q_out;
+    Vec3d w_out;
+    Vec3d f_ext_out = f_ext_in;  // assume constant external force
+    Vec3d tau_ext_out = tau_ext_in;  // assume constant external torque
 
-    wx = w_prior(0);
-    wy = w_prior(1);
-    wz = w_prior(2);
+    p_out = p_in + v_in * dt + 0.5 * a_in * dt * dt;
+    v_out = v_in + a_in * dt;
 
-    QuatType del_q;
-    del_q << 1.0, wx*dt/2.0, wy*dt/2.0, wz*dt/2.0;
-
-    Vec3 M = u.segment(1, 3);  // control input torque
-
-    QuatType q_pred;
-    Vec3 w_pred, tau_pred;
-
-    q_pred = otimes(q_prior, del_q);
-    q_pred.normalize();  // Normalize quaternion to avoid drift
-    w_pred = w_prior + J_inv_*(M - w_prior.cross(J_ * w_prior) + tau_prior)*dt;
+    Quatd delta_q;
+    delta_q << 1.0,
+               0.5 * w_in(0) * dt,
+               0.5 * w_in(1) * dt,
+               0.5 * w_in(2) * dt;
     
-    tau_pred = tau_prior;  // Low-pass filter for disturbance
+    q_out = otimes(q_in, delta_q);
 
-    // std::cout << "Moment : " << M.transpose() << std::endl;
+    w_out = w_in 
+    + J_inv_ * (u.tail<3>() - w_in.cross(J_ * w_in) + tau_ext_in) * dt;
 
-    s_pred_ << q_pred, w_pred, tau_pred;
+    mux_state(p_out, v_out, q_out, w_out, f_ext_out, tau_ext_out, s_out);
 
-    Mat4x4 dqdq;
-    Mat4x3 dqdw, dqdtau;
+    Mat3x4 dRu_dq;
+    double qw = q_in(0), qx = q_in(1), qy = q_in(2), qz = q_in(3);
+    double wx = w_in(0), wy = w_in(1), wz = w_in(2);
+    dRu_dq << qy, qz, qw, qx,
+              -qx, -qw, qz, qy,
+              0, -2*qx, -2*qy, 0;
 
-    Mat3x4 dwdq;
-    Mat3x3 dwdw, dwdtau;
+    dRu_dq = 2*u(0) * dRu_dq;
 
-    Mat3x4 dtaudq;
-    Mat3x3 dtaudw, dtaudtau;
+    Mat3x4 da_dq = 1.0/m_ * dRu_dq;
 
-    Mat4x4 w_prior_skew;
-    w_prior_skew << 0.0, -wx, -wy, -wz,
-                     wx, 0.0, wz, -wy,
-                     wy, -wz, 0.0, wx,
-                     wz, wy, -wx, 0.0;
-
-    Mat4x3 q_prior_skew; 
-
-    q_prior_skew << -qx, -qy, -qz,
-                    qw, -qz, qy,
-                    qz, qw, -qx,
-                    -qy, qx, qw;
-
-    dqdq = Mat4x4::Identity() + 0.5*dt*w_prior_skew;
-    dqdw = 0.5*dt*q_prior_skew;
-    // dqdq << 1, -del_q_vec.transpose(),
-    //         del_q_vec, I3 - q_vec_to_skew(del_q_vec);
+    Mat4x4 dqw_dq;
+    dqw_dq << 0, -wx, -wy, -wz,
+              wx, 0, wz, -wy,
+              wy, -wz, 0, wx,
+              wz, wy, -wx, 0;
     
-    // dqdw << -0.5*q_vec.transpose()*dt,
-    //         0.5*q(0)*I3*dt 
-    //         + 0.5*dt*q_vec_to_skew(q_vec);
+    Mat4x3 dqw_dw;
+    dqw_dw << - qx, -qy, -qz,
+               qw, -qz, qy,
+               qz, qw, -qx,
+               -qy, qx, qw;
 
-    dqdtau.setZero();
+    double Jxx = J_(0,0), Jyy = J_(1,1), Jzz = J_(2,2);
 
-    dwdq.setZero();
-    dwdw = I3 - J_inv_*w_cross_J_w_derivative(J_, w_prior)*dt;
-    dwdtau = J_inv_*dt;
+    double Jz_x = Jzz - Jxx;
+    double Jx_z = Jxx - Jzz;
+    double Jy_x = Jyy - Jxx;
 
-    dtaudq.setZero();
-    dtaudw.setZero();
-    dtaudtau.setIdentity();
+    Mat3x3 dwJwdw;
+    dwJwdw << 0, Jz_x*wz, Jy_x*wy,
+            Jx_z*wz, 0, Jz_x*wx,
+            Jy_x*wy, Jy_x*wx, 0;
 
-    Mat10x10 F;
-    F << dqdq, dqdw, dqdtau,
-         dwdq, dwdw, dwdtau,
-         dtaudq, dtaudw, dtaudtau;
+    Mat3x3 dwdot_dw;
+    dwdot_dw = Mat3x3::Identity() - J_inv_*dwJwdw*dt;
 
-    P_pred_ = F * P_prior * F.transpose() + ekf_params_.Q;
+    F_.block<3,3>(p_start, v_start) = Mat3x3::Identity() * dt;
+    F_.block<3,4>(p_start, q_start) = 0.5 * da_dq * dt * dt;
+    F_.block<3,3>(p_start, fext_start) = 1.0/2.0/m_*dt*dt*Mat3x3::Identity();
 
+    F_.block<3,4>(v_start, q_start) = da_dq * dt;
+    F_.block<3,3>(v_start, fext_start) = 1.0/m_*dt*Mat3x3::Identity();
 
-    return s_pred_;
+    F_.block<4,4>(q_start, q_start) = 0.5*dqw_dq*dt;
+    F_.block<4,3>(q_start, w_start) = 0.5*dqw_dw*dt;
+
+    F_.block<3,3>(w_start, w_start) = dwdot_dw;
+    F_.block<3,3>(w_start, tau_start) = J_inv_*dt;
+
+    P_out = F_ * P_in * F_.transpose() + ekf_params_.Q;
+
 }
 
-AugStateVector10 EkfDistEst::meas_update(const StateVector7 &s_meas)
+void EkfDistEst::correct(const State &s_meas,
+                    const AugState &s_in,
+                    const Mat19x19 &P_in,
+                    AugState &s_out,
+                    Mat19x19 &P_out)
 {
 
-    // Measurement model
-    QuatType q(s_pred_(0), s_pred_(1), s_pred_(2), s_pred_(3));
-    Vec3 w(s_pred_(4), s_pred_(5), s_pred_(6));
-    Vec3 tau(s_pred_(7), s_pred_(8), s_pred_(9));
+    // Sensor model
+    State s_sensor_model = H_*s_in;
 
-    QuatType q_meas(s_meas(0), s_meas(1), s_meas(2), s_meas(3));
-    Vec3 w_meas(s_meas(4), s_meas(5), s_meas(6));
+    Mat13x13 S = H_ * P_in * H_.transpose() + ekf_params_.R;  // innovation covariance
+    Mat13x13 S_inv;
+    S_inv = S.ldlt().solve(I13);  // S = S^-1
+    K_gain_ = P_in * H_.transpose() * S_inv;  // Kalman gain
+    s_out = s_in + K_gain_ * (s_meas - s_sensor_model);
+    P_out = (I19 - K_gain_*H_)*P_in;
 
-    q_meas.normalize();  // Normalize the measurement quaternion
-
-    Mat7x10 H;
-    H.setZero();
-
-    H << Mat4x4::Identity(), Mat4x3::Zero(), Mat4x3::Zero(),
-         Mat3x4::Zero(), I3, Mat3x3::Zero();
-    
-
-    Mat7x7 S = H * P_pred_ * H.transpose() + ekf_params_.R;
-    
-    Mat10x7 K = P_pred_ * H.transpose() * S.inverse();
-
-    MeasVector7 y, h;
-    StateVector7 s_meas_normalized;
-    s_meas_normalized << q_meas, w_meas;
-
-    h << q, w;
-    y = s_meas_normalized - h;
-
-    // assert(!std::isnan(y.norm()));
-
-    // Update state
-    s_est_ = s_pred_ + K * y;
-
-    // Update covariance
-    P_est_ = (I10 - K * H) * P_pred_;
-
-
-    return s_est_;
 }
 
 EkfDistEst::~EkfDistEst()
 {
-    if (converter_) {
-        delete converter_;
-        converter_ = nullptr;
-    }
+
 }

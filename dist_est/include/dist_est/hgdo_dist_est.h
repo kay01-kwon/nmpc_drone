@@ -3,6 +3,14 @@
 
 #include "utils/forward_dynamics.h"
 #include "utils/rk4_ode_solver.h"
+#include "model/hgdo_model.h"
+
+struct HgdoParams
+{   
+    // Gains for hgdo
+    double eps_tau{0.01};
+    double eps_f{0.01};
+};
 
 class HGDO
 {
@@ -16,26 +24,22 @@ class HGDO
     void setParam(const MavParam &param,
                   const HgdoParams &hgdo_params);
 
-    void set_control_input(const rpmVector6 &rpm);
+    void set_control_input(const Vec6i16 &rpm);
 
-    void set_state(const Vec6 &state);
+    void set_state(const State &state);
 
-    void get_disturbance(Vec6 &disturbance) const;
+    void get_disturbance(Vec6d &disturbance) const;
 
     
     private:
 
-
-    Vec3 gamma_tau_, gamma_f_;
-    Vec6 disturbance_;
-
-    Rk4OdeSolver<Vec3> *gamma_tau_ode_;
-
-    Rk4OdeSolver<Vec3> *gamma_f_ode_;
-
     FDynamics *converter_;
 
-    HgdoParams hgdo_params_;
+    Vec4d u_;
+
+    HgdoModel* hgdo_model_;
+
+    Vec6d disturbance_;
 
     Mat3x3 J_, J_inv_;
 

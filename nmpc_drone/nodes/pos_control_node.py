@@ -54,7 +54,6 @@ class PosControlNode():
         self.MaxBit = 8191
         self.MaxRPM = 9800
 
-        self.is_first_callback = False
         self.t_now = rospy.get_time()
         self.t_prev = self.t_now
 
@@ -64,7 +63,7 @@ class PosControlNode():
 
     def ros_setup(self):
 
-        self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
+        self.state_sub = rospy.Subscriber('/eskf/Odom',
                                           Odometry,
                                           self.state_callback,
                                           queue_size=1)
@@ -73,7 +72,7 @@ class PosControlNode():
                                         ref,
                                         self.pid_ref_callback,
                                         queue_size=1)
-        self.wrench_sub = rospy.Subscriber('/ekf_wrench',
+        self.wrench_sub = rospy.Subscriber('/ekf/wrench',
                                            Wrench,
                                            self.wrench_callback)
 
@@ -94,7 +93,7 @@ class PosControlNode():
         self.time_stamp_current = msg.header.stamp.to_sec()
         self.state[0] = msg.pose.pose.position.x
         self.state[1] = msg.pose.pose.position.y
-        self.state[2] = msg.pose.pose.position.z - 0.3225
+        self.state[2] = msg.pose.pose.position.z - 0.325
 
         # # Get current linear velocity
         self.state[3] = msg.twist.twist.linear.x
@@ -106,27 +105,6 @@ class PosControlNode():
         self.state[7] = msg.pose.pose.orientation.x
         self.state[8] = msg.pose.pose.orientation.y
         self.state[9] = msg.pose.pose.orientation.z
-
-        qw = msg.pose.pose.orientation.w
-        qx = msg.pose.pose.orientation.x
-        qy = msg.pose.pose.orientation.y
-        qz = msg.pose.pose.orientation.z
-
-        q_ChildToParent = np.array([qw, qx, qy, qz])
-
-        rotm = quaternion_math.quaternion_to_rotm(q_ChildToParent)
-
-        vx_ChildFrame = msg.twist.twist.linear.x
-        vy_ChildFrame = msg.twist.twist.linear.y
-        vz_ChildFrame = msg.twist.twist.linear.z
-
-        v_ChildFrame = np.array([vx_ChildFrame, vy_ChildFrame, vz_ChildFrame])
-
-        v_ParentFrame = np.matmul(rotm, v_ChildFrame)
-
-        self.state[3] = v_ParentFrame[0]
-        self.state[4] = v_ParentFrame[1]
-        self.state[5] = v_ParentFrame[2]
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x
@@ -152,10 +130,6 @@ class PosControlNode():
     def publish_control_input(self):
         self.t_now = rospy.get_time()
         dt = self.t_now - self.t_prev
-        print(dt)
-        if self.is_first_callback == False:
-            self.is_first_callback = True
-            return
 
         self.u = self.PidControl.control_input_compute(ref=self.ref,
                                                   state=self.state,
@@ -169,6 +143,10 @@ class PosControlNode():
 
         for i in range(6):
             self.u_msg.raw[i] = int(rotor_speed[i]*self.MaxBit/self.MaxRPM)
+
+        if self.ref[2] == 0:
+            for i in range(6):
+                self.u_msg.raw[i] = int(2000)
 
         self.input_pub.publish(self.u_msg)
         self.t_prev = self.t_now
