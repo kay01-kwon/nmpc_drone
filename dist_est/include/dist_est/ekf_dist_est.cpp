@@ -15,8 +15,6 @@ EkfDistEst::EkfDistEst(const MavParam& param, const EKFParams &ekf_params)
 
 void EkfDistEst::setParam(const MavParam& param, const EKFParams &ekf_params)
 {
-    converter_ = new FDynamics();
-    converter_->setParam(param);
     
     F_.setIdentity();  // State transition matrix
 
@@ -41,7 +39,7 @@ void EkfDistEst::setParam(const MavParam& param, const EKFParams &ekf_params)
 
 }
 
-void EkfDistEst::propagate(const Vec6i16 &rpm,
+void EkfDistEst::propagate(const Vec4d &u,
                            const AugState &s_in,
                            const Mat19x19 &P_in,
                            AugState &s_out,
@@ -50,10 +48,6 @@ void EkfDistEst::propagate(const Vec6i16 &rpm,
 {
 
     assert(dt >= 0.0 && "dt must be positive");
-
-    // Convert rpm to control input
-    Vec4d u;
-    converter_->convert_rpm_to_control_input(rpm, u);
 
     Vec3d p_in, v_in;
     Quatd q_in;
@@ -67,7 +61,7 @@ void EkfDistEst::propagate(const Vec6i16 &rpm,
     Mat3x3 R_wb = quaternion_to_rotm(q_in);  // rotation from body to world frame
 
     Vec3d a_in;
-    a_in = R_wb * u_T_e3 + g_ + f_ext_in;  // control input in world frame
+    a_in = 1.0/m_* (R_wb * u_T_e3 + f_ext_in) + g_;  // control input in world frame
 
     Vec3d p_out, v_out;
     Quatd q_out;
@@ -166,8 +160,5 @@ void EkfDistEst::correct(const State &s_meas,
 
 EkfDistEst::~EkfDistEst()
 {
-    if (converter_) {
-        delete converter_;
-        converter_ = nullptr;
-    }
+
 }

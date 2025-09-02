@@ -32,12 +32,5 @@ struct MavParam{
     double k_m{0.01569};  // moment constant (C_M/C_T)
 };
 
-struct HgdoParams
-{   
-    // Gains for hgdo
-    double eps_tau{0.01};
-    double eps_f{0.01};
-};
-
 
 #endif

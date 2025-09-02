@@ -5,6 +5,11 @@ FDynamics::FDynamics()
     setParam(MavParam());
 }
 
+FDynamics::FDynamics(const MavParam& param)
+{
+    setParam(param);
+}
+
 void FDynamics::setParam(const MavParam& param)
 {
     double l_ = param.l;  // arm length in meters

@@ -1,6 +1,7 @@
 #ifndef EKF_DIST_EST_H
 #define EKF_DIST_EST_H
-#include "utils/forward_dynamics.h"
+
+#include "utils/state_def.h"
 
 
 typedef Eigen::Matrix<double, 3, 4> Mat3x4;
@@ -35,7 +36,7 @@ class EkfDistEst
 
     void setParam(const MavParam& param, const EKFParams &ekf_params);
 
-    void propagate(const Vec6i16 &rpm,
+    void propagate(const Vec4d &u,
                    const AugState &s_in,
                    const Mat19x19 &P_in,
                    AugState &s_out,
@@ -47,13 +48,6 @@ class EkfDistEst
                     const Mat19x19 &P_in,
                     AugState &s_out,
                     Mat19x19 &P_out);
-
-    Vec4d getControlInput(const Vec6i16 &rpm) const
-    {
-        Vec4d u;
-        converter_->convert_rpm_to_control_input(rpm, u);
-        return u;
-    }
 
     ~EkfDistEst();
 
@@ -69,8 +63,6 @@ class EkfDistEst
     Mat19x13 K_gain_;
 
     Vec3d g_{0.0, 0.0, -9.81};
-
-    FDynamics *converter_;
 
     EKFParams ekf_params_;
 

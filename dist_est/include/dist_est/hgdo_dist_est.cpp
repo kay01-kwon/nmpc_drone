@@ -34,14 +34,12 @@ void HGDO::setParam(const MavParam &mav_param,
             J_inv_(i,i) = J_(i,i);
 }
 
-void HGDO::set_control_input(const rpmVector6 &rpm)
+void HGDO::set_control_input(const Vec6i16 &rpm)
 {
     converter_->convert_rpm_to_control_input(rpm, u_);
 }
 
 void HGDO::set_state(const State &state)
 {
-    Vec3 v = state.segment<3>(3);
-    Vec4 q = state.segment<4>(6);
-    Vec3 w = state.segment<3>(10);
+    
 }

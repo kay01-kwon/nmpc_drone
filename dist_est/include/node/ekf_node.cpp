@@ -32,6 +32,7 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     setParam(nominal_param_name, mav_param);
 
     ekf_dist_est_ = new EkfDistEst(mav_param, ekf_params);
+    converter_ = new FDynamics(mav_param);
 
     // Initialize the EKF node with a NodeHandle
     rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, &EkfNode::rpmCallback, this);
@@ -41,8 +42,32 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("ekf/state", 1);
     wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("ekf/wrench", 1);
 
-    ros_t_now_ = ros::Time::now().toSec();
-    ros_t_old_ = ros_t_now_;
+    ekf_est_thread_ = thread(&EkfNode::estimate, this);
+
+
+    // State initialization
+    Vec3d p0, v0;
+    Quatd q0;
+    Vec3d w0;
+    Vec3d f_ext0, tau_ext0;
+
+    p0.setZero();
+    v0.setZero();
+    q0 << 1.0, 0.0, 0.0, 0.0;
+    w0.setZero();
+    f_ext0.setZero();
+    tau_ext0.setZero();
+
+    s_ << p0,
+          v0,
+          q0,
+          w0,
+          f_ext0,
+          tau_ext0;
+
+    s_prev_ = s_;
+    P_ = ekf_params.P;
+    P_prev_ = P_;
 
 }
 
@@ -53,6 +78,13 @@ EkfNode::~EkfNode()
         delete ekf_dist_est_;
         ekf_dist_est_ = nullptr;
     }
+
+    if (converter_ != nullptr)
+    {
+        delete converter_;
+        converter_ = nullptr;
+    }
+    ekf_est_thread_.join();
 }
 
 void EkfNode::run()
@@ -62,16 +94,156 @@ void EkfNode::run()
 
 }
 
-void EkfNode::rpmCallback(const ros_libcanard::hexa_actual_rpm &msg)
+void EkfNode::rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg)
 {
+    std::lock_guard<mutex> lk(mBuf_);
+    RpmData rpm_data;
+    rpm_data.time_stamp = rpm_msg.stamp.toSec();
+    rpm_data.rpm << rpm_msg.rpm[0], rpm_msg.rpm[1], rpm_msg.rpm[2],
+                    rpm_msg.rpm[3], rpm_msg.rpm[4], rpm_msg.rpm[5];
+    if(rpm_buffer_.full())
+    {
+        rpm_buffer_.pop();
+        rpm_buffer_.push(rpm_data);
+    }
+    else
+    {
+        rpm_buffer_.push(rpm_data);
+    }
 
+    if(state_buffer_.size() < 2)
+    {
+        ROS_INFO("Waiting state msg.");
+        return;
+    }
 }
 
-
-void EkfNode::stateCallback(const Odometry &msg)
+void EkfNode::stateCallback(const Odometry &odom_msg)
 {
+    std::lock_guard<mutex> lk(mBuf_);
+
+    // ROS_INFO("State callback");
+
+    StateData state_data;
+    state_data.time_stamp = odom_msg.header.stamp.toSec();
+
+    double eps = 0.001;
+
+    state_data.p = Vec3d(odom_msg.pose.pose.position.x,
+                        odom_msg.pose.pose.position.y,
+                        odom_msg.pose.pose.position.z);
+
+    state_data.v = Vec3d(odom_msg.twist.twist.linear.x,
+                        odom_msg.twist.twist.linear.y,
+                        odom_msg.twist.twist.linear.z);
+
+    state_data.q = Quatd(odom_msg.pose.pose.orientation.w,
+                        odom_msg.pose.pose.orientation.x,
+                        odom_msg.pose.pose.orientation.y,
+                        odom_msg.pose.pose.orientation.z);
+    
+    state_data.w = Vec3d(odom_msg.twist.twist.angular.x,
+                        odom_msg.twist.twist.angular.y,
+                        odom_msg.twist.twist.angular.z);
+                        
+    if(state_buffer_.full())
+    {
+        state_buffer_.pop();
+        state_buffer_.push(state_data);
+    }
+    else
+    {
+        state_buffer_.push(state_data);
+    }
+
+    if(rpm_buffer_.size() <= 2)
+    {
+        ROS_INFO("Waiting rpm msg.");
+        return;
+    }
+
+    if( t_curr_ <= (state_data.time_stamp + eps) )
+    {
+        state_ready_ = true;
+    }
+}
+
+void EkfNode::estimate()
+{
+    while(ros::ok())
+    {
+        if(state_buffer_.size() <= 2 || rpm_buffer_.size() <= 2)
+        {
+            // ROS_INFO("Waiting for data...");
+            continue;
+        }
+
+        size_t rpm_head = rpm_buffer_.get_head_idx();
+        t_curr_ = rpm_buffer_[rpm_head].time_stamp;
+
+        std::unique_lock<mutex> lock(mBuf_);
+        auto dead_line = std::chrono::steady_clock::now() 
+        + std::chrono::milliseconds(5);
+
+        if(cvBuf_.wait_until(lock, dead_line, [this]{ return state_ready_; }))
+        {
+            size_t idx_rpm;
+
+            for(size_t i = rpm_buffer_.size() - 1; i > 0; --i)
+            {
+                if( (rpm_buffer_[i].time_stamp >= t_curr_) && 
+                    (rpm_buffer_[i-1].time_stamp < t_curr_) )
+                {
+                    idx_rpm = i;
+                    break;
+                }
+            }
+
+            Vec4d u0;
+            Vec4d u1;
+            size_t state_head = state_buffer_.get_head_idx();
+            double t_meas = state_buffer_[state_head].time_stamp;
+            double dt = t_meas - t_curr_;
+
+            double eps = 0.001;
+
+            if(dt <= eps)
+            {
+                State s_meas;
+                s_meas << state_buffer_[state_head].p,
+                state_buffer_[state_head].v,
+                state_buffer_[state_head].q,
+                state_buffer_[state_head].w;
+
+                ekf_dist_est_->correct(s_meas, s_prev_, P_prev_, s_, P_);
+                s_prev_ = s_;
+                P_prev_ = P_;
+            }
+            else
+            {
+                converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm-1].rpm, u0);
+                converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm].rpm, u1);
+                Vec4d um = interpolate_vec4(rpm_buffer_[idx_rpm-1].time_stamp, u0,
+                                                    rpm_buffer_[idx_rpm].time_stamp, u1,
+                                                    t_meas);
+                ekf_dist_est_->propagate(um, s_prev_, P_prev_, s_, P_, dt);
+                s_prev_ = s_;
+                P_prev_ = P_;
+                State s_meas;
+                s_meas << state_buffer_[state_head].p,
+                state_buffer_[state_head].v,
+                state_buffer_[state_head].q,
+                state_buffer_[state_head].w;
+                ekf_dist_est_->correct(s_meas, s_prev_, P_prev_, s_, P_);
+                s_prev_ = s_;
+                P_prev_ = P_;
+            }
+            state_ready_ = false;
+        }
 
 
+
+    }
 }
 
 void EkfNode::publishCallback(const ros::TimerEvent&)
@@ -82,12 +254,52 @@ void EkfNode::publishCallback(const ros::TimerEvent&)
 
 void EkfNode::publishState()
 {
+    state_msg_.header.stamp = ros::Time::now();
+    state_msg_.header.frame_id = "world";
+    state_msg_.child_frame_id = "EKF";
+    state_msg_.pose.pose.position.x = s_(0);
+    state_msg_.pose.pose.position.y = s_(1);
+    state_msg_.pose.pose.position.z = s_(2);
+
+    state_msg_.twist.twist.linear.x = s_(3);
+    state_msg_.twist.twist.linear.y = s_(4);
+    state_msg_.twist.twist.linear.z = s_(5);
+    
+    state_msg_.pose.pose.orientation.w = s_(6);
+    state_msg_.pose.pose.orientation.x = s_(7);
+    state_msg_.pose.pose.orientation.y = s_(8);
+    state_msg_.pose.pose.orientation.z = s_(9);
+
+    state_msg_.twist.twist.angular.x = s_(10);
+    state_msg_.twist.twist.angular.y = s_(11);
+    state_msg_.twist.twist.angular.z = s_(12);
+
     state_pub_.publish(state_msg_);
 }
 
 void EkfNode::publishWrench()
 {
+    wrench_msg_.force.x = s_(13);
+    wrench_msg_.force.y = s_(14);
+    wrench_msg_.force.z = s_(15);
+
+    wrench_msg_.torque.x = s_(16);
+    wrench_msg_.torque.y = s_(17);
+    wrench_msg_.torque.z = s_(18);
+
     wrench_pub_.publish(wrench_msg_);
+}
+
+Vec4d EkfNode::interpolate_vec4(const double &t0,
+                             const Vec4d &v0,
+                             const double &t1,
+                             const Vec4d &v1,
+                             const double &tm)
+{
+    double alpha = (tm - t0) / (t1 - t0);
+    Vec4d vm;
+    vm = (1 - alpha) * v0 + alpha * v1;
+    return vm;
 }
 
 void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)

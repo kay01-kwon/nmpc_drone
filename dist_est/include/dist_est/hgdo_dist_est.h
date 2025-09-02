@@ -5,6 +5,13 @@
 #include "utils/rk4_ode_solver.h"
 #include "model/hgdo_model.h"
 
+struct HgdoParams
+{   
+    // Gains for hgdo
+    double eps_tau{0.01};
+    double eps_f{0.01};
+};
+
 class HGDO
 {
     public:
@@ -17,22 +24,22 @@ class HGDO
     void setParam(const MavParam &param,
                   const HgdoParams &hgdo_params);
 
-    void set_control_input(const rpmVector6 &rpm);
+    void set_control_input(const Vec6i16 &rpm);
 
     void set_state(const State &state);
 
-    void get_disturbance(Vec6 &disturbance) const;
+    void get_disturbance(Vec6d &disturbance) const;
 
     
     private:
 
     FDynamics *converter_;
 
-    Vec4 u_;
+    Vec4d u_;
 
     HgdoModel* hgdo_model_;
 
-    Vec6 disturbance_;
+    Vec6d disturbance_;
 
     Mat3x3 J_, J_inv_;
 

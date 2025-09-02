@@ -61,12 +61,27 @@ public:
     T operator[](size_t index) const {
         if (index >= size_) throw std::out_of_range("Index out of range");
         size_t pos = (tail_ + index) % capacity_;
-        return buffer_[pos]; // 필요하면 const T& 로 바꿔도 됨
+        return buffer_[pos];
     }
 
-    // 디버그용
+    T front() const {
+        if (empty()) throw std::out_of_range("Buffer is empty");
+        return buffer_[tail_];
+    }
+
+    T back() const{
+        if (empty()) throw std::out_of_range("Buffer is empty");
+        size_t pos = (head_ + capacity_ - 1) % capacity_;
+        return buffer_[pos];
+    }
+
+    // For debugging
     size_t get_head() const noexcept { return head_; }
     size_t get_tail() const noexcept { return tail_; }
+
+    size_t get_head_idx() const noexcept {return (size_ - 1);}
+
+    size_t get_tail_idx() const noexcept {return 0;}
 
 private:
     static size_t check_cap_(size_t c) {
