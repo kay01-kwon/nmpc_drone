@@ -103,12 +103,6 @@ void EkfNode::rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg)
     {
         rpm_buffer_.push(rpm_data);
     }
-
-    if(state_buffer_.size() < 2)
-    {
-        ROS_INFO("Waiting state msg.");
-        return;
-    }
 }
 
 void EkfNode::stateCallback(const Odometry &odom_msg)
