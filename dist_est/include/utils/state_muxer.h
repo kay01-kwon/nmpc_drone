@@ -2,6 +2,15 @@
 #define STATE_MUXER_H
 #include "state_def.h"
 
+/**
+ * @brief Mux the state vector from position, velocity, orientation (quaternion), and angular velocity.
+ * 
+ * @param p position
+ * @param v linear velocity (World frame)
+ * @param q quaternion (Body to world)
+ * @param w angular velocity (Body frame)
+ * @param s_out 
+ */
 void mux_state(const Vec3d &p,
                const Vec3d &v,
                const Quatd &q,
@@ -25,6 +34,18 @@ void mux_state(const Vec3d &p,
     s_out(11) = w(1);
     s_out(12) = w(2);
 }
+
+/**
+ * @brief Mux the state vector from position, velocity, orientation (quaternion), angular velocity, external force and torque.
+ * 
+ * @param p position
+ * @param v linear velocity (World frame)
+ * @param q quaternion (Body to world)
+ * @param w angular velocity (Body frame)
+ * @param f_ext External force estimate (World frame)
+ * @param tau_ext External moment estimate (Body frame)
+ * @param s_out 
+ */
 
 void mux_state(const Vec3d &p,
                const Vec3d &v,
