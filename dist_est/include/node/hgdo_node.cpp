@@ -38,9 +38,9 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
     transport_hint = ros::TransportHints()
                     .tcpNoDelay(true);
 
-    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, 
+    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 10, 
     &HgdoNode::rpmCallback, this, transport_hint);
-    odom_sub_ = nh_.subscribe("/uav/odometry", 1, 
+    odom_sub_ = nh_.subscribe("/eskf/Odom", 10, 
     &HgdoNode::stateCallback, this, transport_hint);
 
     wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 1);
@@ -150,7 +150,7 @@ void HgdoNode::estimate()
         // Lock the buffer for recent state data
         std::unique_lock<mutex> lock(mBuf_);
         auto dead_line = std::chrono::system_clock::now()
-        + std::chrono::milliseconds(10);
+        + std::chrono::milliseconds(7);
 
         if(cvBuf_.wait_until(lock, dead_line,[this]{return state_ready_;}))
         {
@@ -172,6 +172,7 @@ void HgdoNode::estimate()
 
             if(t_new_state - t_input_ <= eps)
             {
+                ROS_WARN("No interpolation needed, t_new_state <= t_input");
                 // Do nothing
                 continue;
             }
@@ -189,20 +190,22 @@ void HgdoNode::estimate()
                     }
                 }
 
-                double t_state_prev = state_buffer_[idx_state_prev].time_stamp;
+                double t_prev_state = state_buffer_[idx_state_prev].time_stamp;
                 Vec4d u0, u1, u_interpl;
                 converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm-1].rpm, u0);
                 converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm].rpm, u1);
                 u_interpl = interpolate_vec4(rpm_buffer_[idx_rpm-1].time_stamp, u0,
                                             rpm_buffer_[idx_rpm].time_stamp, u1,
-                                            t_state_prev);
+                                            t_prev_state);
                 State s_prev;
                 s_prev << state_buffer_[idx_state_prev].p,
                           state_buffer_[idx_state_prev].v,
                           state_buffer_[idx_state_prev].q,
                           state_buffer_[idx_state_prev].w;
 
-                hgdo_dist_est_->updateStateControlTime(s_prev, u_interpl, t_state_prev, t_new_state);
+                ROS_INFO("dt: %f", t_new_state - t_prev_state);
+
+                hgdo_dist_est_->updateStateControlTime(s_prev, u_interpl, t_prev_state, t_new_state);
                 hgdo_dist_est_->getDisturbance(f_tau_ext_);
             }
             state_ready_ = false;
