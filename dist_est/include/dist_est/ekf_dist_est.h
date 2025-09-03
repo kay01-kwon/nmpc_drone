@@ -26,6 +26,11 @@ struct EKFParams
     Mat13x13 R{0.01*Mat13x13::Identity()};  // measurement noise covariance
 };
 
+struct EkfData{
+    AugState s;
+    Mat19x19 P;
+};
+
 class EkfDistEst
 {
     public:
@@ -37,17 +42,11 @@ class EkfDistEst
     void setParam(const MavParam& param, const EKFParams &ekf_params);
 
     void propagate(const Vec4d &u,
-                   const AugState &s_in,
-                   const Mat19x19 &P_in,
-                   AugState &s_out,
-                   Mat19x19 &P_out,
+                   EkfData &ekf_data,
                    const double &dt);
 
     void correct(const State &s_meas,
-                    const AugState &s_in,
-                    const Mat19x19 &P_in,
-                    AugState &s_out,
-                    Mat19x19 &P_out);
+                 EkfData &ekf_data);
 
     ~EkfDistEst();
 
