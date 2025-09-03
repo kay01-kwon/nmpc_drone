@@ -127,7 +127,7 @@ void EkfNode::stateCallback(const Odometry &odom_msg)
     StateData state_data;
     state_data.time_stamp = odom_msg.header.stamp.toSec();
 
-    double eps = 0.001;
+    double eps = 0.005;
 
     state_data.p = Vec3d(odom_msg.pose.pose.position.x,
                         odom_msg.pose.pose.position.y,
@@ -162,7 +162,7 @@ void EkfNode::stateCallback(const Odometry &odom_msg)
         return;
     }
 
-    if( t_curr_ <= (state_data.time_stamp + eps) )
+    if( t_curr_  + eps <= state_data.time_stamp )
     {
         state_ready_ = true;
     }
@@ -183,16 +183,15 @@ void EkfNode::estimate()
 
         std::unique_lock<mutex> lock(mBuf_);
         auto dead_line = std::chrono::steady_clock::now() 
-        + std::chrono::milliseconds(5);
+        + std::chrono::milliseconds(10);
 
         if(cvBuf_.wait_until(lock, dead_line, [this]{ return state_ready_; }))
         {
             size_t idx_rpm;
 
-            for(size_t i = rpm_buffer_.size() - 1; i > 0; --i)
+            for(size_t i = rpm_buffer_.get_head_idx(); i > 0; --i)
             {
-                if( (rpm_buffer_[i].time_stamp >= t_curr_) && 
-                    (rpm_buffer_[i-1].time_stamp < t_curr_) )
+                if(rpm_buffer_[i].time_stamp == t_curr_)
                 {
                     idx_rpm = i;
                     break;
@@ -206,6 +205,8 @@ void EkfNode::estimate()
             double dt = t_meas - t_curr_;
 
             double eps = 0.001;
+
+            // ROS_INFO("t_curr_: %f, t_meas: %f, dt: %f", t_curr_, t_meas, dt);
 
             if(dt <= eps)
             {
