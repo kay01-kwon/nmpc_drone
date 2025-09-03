@@ -170,7 +170,7 @@ void HgdoNode::estimate()
             
             double eps = 1e-6;
 
-            if(t_new_state - t_input_ <= eps)
+            if(t_new_state - t_input_ <= eps && idx_rpm - 1 < 0)
             {
                 ROS_WARN("No interpolation needed, t_new_state <= t_input");
                 // Do nothing
@@ -178,7 +178,7 @@ void HgdoNode::estimate()
             }
             else
             {
-                int idx_state_prev;
+                int idx_state_prev = -1;
                 // Find the previous state index
                 for(size_t i = state_head; i > 0; --i)
                 {
@@ -188,6 +188,12 @@ void HgdoNode::estimate()
                         idx_state_prev = i;
                         break;
                     }
+                }
+
+                if(idx_state_prev == -1)
+                {
+                    ROS_WARN("No valid previous state found for interpolation.");
+                    continue;
                 }
 
                 double t_prev_state = state_buffer_[idx_state_prev].time_stamp;
@@ -203,7 +209,7 @@ void HgdoNode::estimate()
                           state_buffer_[idx_state_prev].q,
                           state_buffer_[idx_state_prev].w;
 
-                ROS_INFO("dt: %f", t_new_state - t_prev_state);
+                // ROS_INFO("dt: %f", t_new_state - t_prev_state);
 
                 hgdo_dist_est_->updateStateControlTime(s_prev, u_interpl, t_prev_state, t_new_state);
                 hgdo_dist_est_->getDisturbance(f_tau_ext_);
