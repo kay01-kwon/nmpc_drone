@@ -1,5 +1,5 @@
 hgdo_param:
-  eps_f: 0.01
+  eps_f: 0.05
   eps_tau: 0.01
 
 nominal_param:

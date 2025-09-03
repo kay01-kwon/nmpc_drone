@@ -1,9 +1,9 @@
 <launch>
-    <node name="ekf" 
+    <node name="hgdo" 
     pkg="dist_est" 
-    type="ekf_node"
+    type="hgdo_node"
     output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
-        <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+        <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
     </node>
 </launch>

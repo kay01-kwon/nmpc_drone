@@ -15,6 +15,8 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
     double publish_rate;
     std::string node_name = ros::this_node::getName();
     double duration = 1.0/publish_rate;
+    std::string publish_rate_param_name = node_name + "/publish_rate";
+    nh_.param(publish_rate_param_name, publish_rate, 100.0);
     ROS_INFO("HGDO publish rate: %f Hz", publish_rate);
 
     // Set hgdo parameters
@@ -30,6 +32,8 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
 
     // Initialize HGDO
     hgdo_dist_est_ = new HGDO(mav_param, hgdo_param);
+
+    hgdo_est_thread_ = thread(&HgdoNode::estimate, this);
 
     f_tau_ext_.setZero();
 
@@ -55,6 +59,21 @@ void HgdoNode::run()
 
 void HgdoNode::rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg)
 {
+    std::lock_guard<mutex> lock(mBuf_);
+    RpmData rpm_data;
+    rpm_data.time_stamp = rpm_msg.stamp.toSec();
+    rpm_data.rpm << rpm_msg.rpm[0], rpm_msg.rpm[1], rpm_msg.rpm[2],
+                    rpm_msg.rpm[3], rpm_msg.rpm[4], rpm_msg.rpm[5];
+    
+    if(rpm_buffer_.full())
+    {
+        rpm_buffer_.pop();
+        rpm_buffer_.push(rpm_data);
+    }
+    else
+    {
+        rpm_buffer_.push(rpm_data);
+    }
 
 }
 
@@ -65,17 +84,30 @@ void HgdoNode::stateCallback(const Odometry &state_msg)
 
 void HgdoNode::estimate()
 {
+    while(ros::ok())
+    {
+
+
+    }
 
 }
 
 void HgdoNode::publishCallback(const ros::TimerEvent&)
 {
-
+    publishWrench();
 }
 
 void HgdoNode::publishWrench()
 {
+    wrench_msg_.force.x = f_tau_ext_(0);
+    wrench_msg_.force.y = f_tau_ext_(1);
+    wrench_msg_.force.z = f_tau_ext_(2);
 
+    wrench_msg_.torque.x = f_tau_ext_(3);
+    wrench_msg_.torque.y = f_tau_ext_(4);
+    wrench_msg_.torque.z = f_tau_ext_(5);
+
+    wrench_pub_.publish(wrench_msg_);
 }
 
 void HgdoNode::setParam(const std::string param_name, MavParam &mav_param)
