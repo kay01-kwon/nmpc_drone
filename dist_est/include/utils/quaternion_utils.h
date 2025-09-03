@@ -2,6 +2,8 @@
 #define QUATERNION_UTILS_H
 #include "state_def.h"
 
+typedef Eigen::Matrix<double, 4, 4> Mat4x4;
+
 Quatd otimes(const Quatd &q1, const Quatd &q2)
 {
     double qw, qx, qy, qz;

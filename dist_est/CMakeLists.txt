@@ -23,10 +23,19 @@ include
   ${catkin_Devel_Include_DIRS}
 )
 
+# 1. Add libraries for EKF
 add_library(ekf_dist_est_lib
   include/utils/forward_dynamics.cpp
   include/dist_est/ekf_dist_est.cpp
   include/node/ekf_node.cpp
+)
+
+# 2. Add libraries for HGDO
+add_library(hgdo_lib
+  include/utils/forward_dynamics.cpp
+  include/model/hgdo_model.cpp
+  include/dist_est/hgdo_dist_est.cpp
+  include/node/hgdo_node.cpp
 )
 
 add_executable(ekf_node
@@ -34,5 +43,14 @@ add_executable(ekf_node
 )
 target_link_libraries(ekf_node
   ekf_dist_est_lib
+  ${catkin_LIBRARIES}
+)
+
+add_executable(hgdo_node
+  src/ros_hgdo.cpp
+)
+
+target_link_libraries(hgdo_node
+  hgdo_lib
   ${catkin_LIBRARIES}
 )
