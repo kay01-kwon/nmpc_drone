@@ -61,8 +61,6 @@ class EkfDistEst
     // Kalman gain
     Mat19x13 K_gain_;
 
-    Vec3d g_{0.0, 0.0, -9.81};
-
     EKFParams ekf_params_;
 
     double m_;
