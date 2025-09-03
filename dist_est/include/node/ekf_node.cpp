@@ -34,9 +34,15 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     ekf_dist_est_ = new EkfDistEst(mav_param, ekf_params);
     converter_ = new FDynamics(mav_param);
 
+    ros::TransportHints transport_hint;
+    transport_hint = ros::TransportHints()
+                    .tcpNoDelay(true);
+
     // Initialize the EKF node with a NodeHandle
-    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, &EkfNode::rpmCallback, this);
-    odom_sub_ = nh_.subscribe("/eskf/Odom", 1, &EkfNode::stateCallback, this);
+    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, 
+    &EkfNode::rpmCallback, this, transport_hint);
+    odom_sub_ = nh_.subscribe("/eskf/Odom", 1, 
+    &EkfNode::stateCallback, this, transport_hint);
 
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &EkfNode::publishCallback, this); // 100 Hz
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("ekf/state", 1);
@@ -114,8 +120,6 @@ void EkfNode::stateCallback(const Odometry &odom_msg)
     StateData state_data;
     state_data.time_stamp = odom_msg.header.stamp.toSec();
 
-    double eps = 0.005;
-
     state_data.p = Vec3d(odom_msg.pose.pose.position.x,
                         odom_msg.pose.pose.position.y,
                         odom_msg.pose.pose.position.z);
@@ -148,6 +152,8 @@ void EkfNode::stateCallback(const Odometry &odom_msg)
         ROS_INFO("Waiting rpm msg.");
         return;
     }
+
+    double eps = 0.005; // 5 ms tolerance for time synchronization
 
     if( t_input_  + eps <= state_data.time_stamp )
     {
