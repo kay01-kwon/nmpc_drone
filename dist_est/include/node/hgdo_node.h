@@ -49,6 +49,32 @@ class HgdoNode{
 
     double t_input_{0.0};
 
+    HGDO* hgdo_dist_est_;
+    FDynamics* converter_;
+
+    CircularBuffer<StateData> state_buffer_;
+    CircularBuffer<RpmData> rpm_buffer_;
+
+    thread hgdo_est_thread_;
+
+    mutex mBuf_;
+
+    condition_variable cvBuf_;
+
+    bool state_ready_{false};
+
+    void rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg);
+    void stateCallback(const Odometry &state_msg);
+
+    void estimate();
+
+    void publishCallback(const ros::TimerEvent&);
+
+    void publishWrench();
+
+    void setParam(const std::string param_name, const MavParam &mav_param);
+    void setParam(const std::string param_name, const HgdoParam &hgdo_param);
+
 
 
 

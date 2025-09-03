@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include "dist_est/ekf_dist_est.h"
 #include "utils/forward_dynamics.h"
+#include "utils/interpolate_tool.h"
 #include "utils/circular_buffer.h"
 
 #include "ros_libcanard/hexa_actual_rpm.h"
@@ -50,7 +51,6 @@ class EkfNode
     Wrench wrench_msg_;
 
     double t_input_{0.0};
-    double t_prev_{0.0};
 
     EkfDistEst* ekf_dist_est_;
     FDynamics* converter_;
@@ -79,12 +79,6 @@ class EkfNode
     void publishState();
 
     void publishWrench();
-
-    Vec4d interpolate_vec4(const double &t0,
-                       const Vec4d &v0,
-                       const double &t1,
-                       const Vec4d &v1,
-                       const double &tm);
 
     void setParam(const std::string param_name, EKFParams &ekf_params);
 

@@ -281,18 +281,6 @@ void EkfNode::publishWrench()
     wrench_pub_.publish(wrench_msg_);
 }
 
-Vec4d EkfNode::interpolate_vec4(const double &t0,
-                             const Vec4d &v0,
-                             const double &t1,
-                             const Vec4d &v1,
-                             const double &tm)
-{
-    double alpha = (tm - t0) / (t1 - t0);
-    Vec4d vm;
-    vm = (1 - alpha) * v0 + alpha * v1;
-    return vm;
-}
-
 void EkfNode::setParam(const std::string param_name, EKFParams &ekf_params)
 {
 
