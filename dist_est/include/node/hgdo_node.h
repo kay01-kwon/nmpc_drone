@@ -51,6 +51,8 @@ class HgdoNode{
 
     HGDO* hgdo_dist_est_;
     FDynamics* converter_;
+    
+    Vec6d f_tau_ext_;
 
     CircularBuffer<StateData> state_buffer_;
     CircularBuffer<RpmData> rpm_buffer_;
@@ -72,11 +74,8 @@ class HgdoNode{
 
     void publishWrench();
 
-    void setParam(const std::string param_name, const MavParam &mav_param);
-    void setParam(const std::string param_name, const HgdoParam &hgdo_param);
-
-
-
+    void setParam(const std::string param_name, MavParam &mav_param);
+    void setParam(const std::string param_name, HgdoParam &hgdo_param);
 
 };
 

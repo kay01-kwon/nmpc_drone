@@ -1,0 +1,13 @@
+hgdo_param:
+  eps_f: 0.01
+  eps_tau: 0.01
+
+nominal_param:
+  m: 2.9
+  moi:
+    {xx: 0.052, yy: 0.052, zz: 0.080}
+  offset:
+    {x: 0.0, y: 0.0, z: 0.0}
+  l: 0.265
+  C_T: 0.0000001465
+  k_m: 0.01569
