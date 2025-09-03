@@ -34,5 +34,19 @@ struct MavParam{
     double k_m{0.01569};  // moment constant (C_M/C_T)
 };
 
+struct StateData{
+    double time_stamp;
+    Vec3d p;
+    Vec3d v;
+    Quatd q;
+    Vec3d w;
+};
+
+struct RpmData{
+    double time_stamp;
+    Vec6i16 rpm;
+};
+
+
 
 #endif
