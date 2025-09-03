@@ -72,7 +72,7 @@ class PosControlNode():
                                         ref,
                                         self.pid_ref_callback,
                                         queue_size=1)
-        self.wrench_sub = rospy.Subscriber('/ekf/wrench',
+        self.wrench_sub = rospy.Subscriber('/wrench',
                                            Wrench,
                                            self.wrench_callback)
 
@@ -144,9 +144,9 @@ class PosControlNode():
         for i in range(6):
             self.u_msg.raw[i] = int(rotor_speed[i]*self.MaxBit/self.MaxRPM)
 
-        if self.ref[2] == 0:
-            for i in range(6):
-                self.u_msg.raw[i] = int(2000)
+        # if self.ref[2] == 0:
+        #     for i in range(6):
+        #         self.u_msg.raw[i] = int(2000)
 
         self.input_pub.publish(self.u_msg)
         self.t_prev = self.t_now

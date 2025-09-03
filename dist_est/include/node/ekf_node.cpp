@@ -176,7 +176,7 @@ void EkfNode::estimate()
 
         std::unique_lock<mutex> lock(mBuf_);
         auto dead_line = std::chrono::steady_clock::now() 
-        + std::chrono::milliseconds(10);
+        + std::chrono::milliseconds(7);
 
         if(cvBuf_.wait_until(lock, dead_line, [this]{ return state_ready_; }))
         {

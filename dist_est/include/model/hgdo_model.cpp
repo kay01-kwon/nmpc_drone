@@ -61,6 +61,7 @@ void HgdoModel::do_simulate_one_step(const double &t_prev,
                                     const double &t_curr)
 {
     double dt = t_curr - t_prev;
+ 
     rk4_solver_->do_step(
         [this](const Vec6d &gamma, Vec6d &gamma_dot, const double &t_prev)
             {
@@ -71,8 +72,8 @@ void HgdoModel::do_simulate_one_step(const double &t_prev,
 
 void HgdoModel::getDisturbance(Vec6d &d) const
 {
-    d.head<3>() = m_ * (gamma_.tail<3>() + 1.0/eps_f_*v_);
-    d.tail<3>() = J_ * (gamma_.head<3>() + 1.0/eps_tau_*w_);
+    d.head<3>() = m_ * (gamma_.head<3>() + 1.0/eps_f_*v_);
+    d.tail<3>() = J_ * (gamma_.tail<3>() + 1.0/eps_tau_*w_);
 }
 
 HgdoModel::~HgdoModel()
@@ -94,11 +95,11 @@ void HgdoModel::compute_dynamics(const Vec6d& gamma,
     
 
     gamma_dot.head<3>() = -1.0/eps_f_*
-    (gamma_.head<3>() + 1.0/eps_f_*v_)
+    (gamma.head<3>() + 1.0/eps_f_*v_)
     + 1.0/eps_f_*(-u_T -g);
 
     gamma_dot.tail<3>() = -1.0/eps_tau_*
-    (gamma_.tail<3>() + 1.0/eps_tau_*w_)
-    +1.0/eps_tau_*(-u_.tail<3>() + J_inv_*w_.cross(J_*w_));
+    (gamma.tail<3>() + 1.0/eps_tau_*w_)
+    + 1.0/eps_tau_*(-J_inv_*u_.tail<3>() + J_inv_*w_.cross(J_*w_));
 
 }

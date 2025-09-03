@@ -4,14 +4,15 @@
           pkg="nmpc_drone"
           output="screen">
         <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
+        <remap from="/wrench" to="/hgdo/wrench"/>
     </node>
 
-    <node name="ekf_dist"
-          type="ekf_node"
+    <node name="hgdo"
+          type="hgdo_node"
           pkg="dist_est"
           output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
-        <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+        <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
     </node>
 
 	<node pkg="eskf_loc"
