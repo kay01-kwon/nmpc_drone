@@ -22,19 +22,6 @@ using std::thread;
 using std::mutex;
 using std::condition_variable;
 
-struct StateData{
-    double time_stamp;
-    Vec3d p;
-    Vec3d v;
-    Quatd q;
-    Vec3d w;
-};
-
-struct RpmData{
-    double time_stamp;
-    Vec6i16 rpm;
-};
-
 class EkfNode
 {
 
@@ -52,17 +39,17 @@ class EkfNode
 
     ros::NodeHandle nh_;
     ros::Subscriber rpm_sub_;
-    ros::Subscriber pose_sub_;
+    ros::Subscriber odom_sub_;
 
     ros::Timer publish_timer_;
     ros::Publisher state_pub_;
     ros::Publisher wrench_pub_;
 
-    nav_msgs::Odometry state_msg_;
+    Odometry state_msg_;
 
-    geometry_msgs::Wrench wrench_msg_;
+    Wrench wrench_msg_;
 
-    double t_curr_{0.0};
+    double t_input_{0.0};
     double t_prev_{0.0};
 
     EkfDistEst* ekf_dist_est_;

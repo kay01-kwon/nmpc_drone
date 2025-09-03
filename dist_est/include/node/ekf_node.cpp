@@ -36,7 +36,7 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
 
     // Initialize the EKF node with a NodeHandle
     rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, &EkfNode::rpmCallback, this);
-    pose_sub_ = nh_.subscribe("/eskf/Odom", 1, &EkfNode::stateCallback, this);
+    odom_sub_ = nh_.subscribe("/eskf/Odom", 1, &EkfNode::stateCallback, this);
 
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &EkfNode::publishCallback, this); // 100 Hz
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("ekf/state", 1);
@@ -155,7 +155,7 @@ void EkfNode::stateCallback(const Odometry &odom_msg)
         return;
     }
 
-    if( t_curr_  + eps <= state_data.time_stamp )
+    if( t_input_  + eps <= state_data.time_stamp )
     {
         state_ready_ = true;
     }
@@ -172,7 +172,7 @@ void EkfNode::estimate()
         }
 
         size_t rpm_head = rpm_buffer_.get_head_idx();
-        t_curr_ = rpm_buffer_[rpm_head].time_stamp;
+        t_input_ = rpm_buffer_[rpm_head].time_stamp;
 
         std::unique_lock<mutex> lock(mBuf_);
         auto dead_line = std::chrono::steady_clock::now() 
@@ -184,7 +184,7 @@ void EkfNode::estimate()
 
             for(size_t i = rpm_buffer_.get_head_idx(); i > 0; --i)
             {
-                if(rpm_buffer_[i].time_stamp == t_curr_)
+                if(rpm_buffer_[i].time_stamp == t_input_)
                 {
                     idx_rpm = i;
                     break;
@@ -195,11 +195,11 @@ void EkfNode::estimate()
             Vec4d u1;
             size_t state_head = state_buffer_.get_head_idx();
             double t_meas = state_buffer_[state_head].time_stamp;
-            double dt = t_meas - t_curr_;
+            double dt = t_meas - t_input_;
 
             double eps = 0.001;
 
-            // ROS_INFO("t_curr_: %f, t_meas: %f, dt: %f", t_curr_, t_meas, dt);
+            // ROS_INFO("t_input_: %f, t_meas: %f, dt: %f", t_input_, t_meas, dt);
 
             if(dt <= eps)
             {
