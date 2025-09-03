@@ -68,8 +68,7 @@ class EkfNode
     EkfDistEst* ekf_dist_est_;
     FDynamics* converter_;
 
-    AugState s_, s_prev_;
-    Mat19x19 P_, P_prev_;
+    EkfData ekf_data_;
 
     CircularBuffer<StateData> state_buffer_;
     CircularBuffer<RpmData> rpm_buffer_;

@@ -40,10 +40,7 @@ void EkfDistEst::setParam(const MavParam& param, const EKFParams &ekf_params)
 }
 
 void EkfDistEst::propagate(const Vec4d &u,
-                           const AugState &s_in,
-                           const Mat19x19 &P_in,
-                           AugState &s_out,
-                           Mat19x19 &P_out,
+                           EkfData &ekf_data,
                            const double &dt)
 {
 
@@ -54,7 +51,7 @@ void EkfDistEst::propagate(const Vec4d &u,
     Vec3d w_in;
     Vec3d f_ext_in, tau_ext_in;
 
-    demux_state(s_in, p_in, v_in, q_in, w_in, f_ext_in, tau_ext_in);
+    demux_state(ekf_data.s, p_in, v_in, q_in, w_in, f_ext_in, tau_ext_in);
 
     Vec3d u_T_e3(0.0, 0.0, u(0));  // thrust vector in body frame
 
@@ -83,7 +80,7 @@ void EkfDistEst::propagate(const Vec4d &u,
     w_out = w_in 
     + J_inv_ * (u.tail<3>() - w_in.cross(J_ * w_in) + tau_ext_in) * dt;
 
-    mux_state(p_out, v_out, q_out, w_out, f_ext_out, tau_ext_out, s_out);
+    mux_state(p_out, v_out, q_out, w_out, f_ext_out, tau_ext_out, ekf_data.s);
 
     Mat3x4 dRu_dq;
     double qw = q_in(0), qx = q_in(1), qy = q_in(2), qz = q_in(3);
@@ -135,27 +132,23 @@ void EkfDistEst::propagate(const Vec4d &u,
     F_.block<3,3>(w_start, w_start) = dwdot_dw;
     F_.block<3,3>(w_start, tau_start) = J_inv_*dt;
 
-    P_out = F_ * P_in * F_.transpose() + ekf_params_.Q;
+    ekf_data.P = F_ * ekf_data.P * F_.transpose() + ekf_params_.Q;
 
 }
 
-void EkfDistEst::correct(const State &s_meas,
-                    const AugState &s_in,
-                    const Mat19x19 &P_in,
-                    AugState &s_out,
-                    Mat19x19 &P_out)
+void EkfDistEst::correct(const State &s_meas, EkfData &ekf_data)
 {
 
-    // Sensor model
-    State s_sensor_model = H_*s_in;
 
-    Mat13x13 S = H_ * P_in * H_.transpose() + ekf_params_.R;  // innovation covariance
+    // Sensor model
+    State s_sensor_model = H_*ekf_data.s;
+
+    Mat13x13 S = H_ * ekf_data.P * H_.transpose() + ekf_params_.R;  // innovation covariance
     Mat13x13 S_inv;
     S_inv = S.ldlt().solve(I13);  // S = S^-1
-    K_gain_ = P_in * H_.transpose() * S_inv;  // Kalman gain
-    s_out = s_in + K_gain_ * (s_meas - s_sensor_model);
-    P_out = (I19 - K_gain_*H_)*P_in;
-
+    K_gain_ = ekf_data.P * H_.transpose() * S_inv;  // Kalman gain
+    ekf_data.s = ekf_data.s + K_gain_ * (s_meas - s_sensor_model);
+    ekf_data.P = (I19 - K_gain_*H_)*ekf_data.P;
 }
 
 EkfDistEst::~EkfDistEst()

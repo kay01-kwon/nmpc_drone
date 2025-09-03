@@ -58,16 +58,9 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
     f_ext0.setZero();
     tau_ext0.setZero();
 
-    s_ << p0,
-          v0,
-          q0,
-          w0,
-          f_ext0,
-          tau_ext0;
+    ekf_data_.s << p0, v0, q0, w0, f_ext0, tau_ext0;
 
-    s_prev_ = s_;
-    P_ = ekf_params.P;
-    P_prev_ = P_;
+    ekf_data_.P = ekf_params.P;
 
 }
 
@@ -216,9 +209,8 @@ void EkfNode::estimate()
                 state_buffer_[state_head].q,
                 state_buffer_[state_head].w;
 
-                ekf_dist_est_->correct(s_meas, s_prev_, P_prev_, s_, P_);
-                s_prev_ = s_;
-                P_prev_ = P_;
+                ekf_dist_est_->correct(s_meas, ekf_data_);
+                
             }
             else
             {
@@ -227,17 +219,15 @@ void EkfNode::estimate()
                 Vec4d um = interpolate_vec4(rpm_buffer_[idx_rpm-1].time_stamp, u0,
                                                     rpm_buffer_[idx_rpm].time_stamp, u1,
                                                     t_meas);
-                ekf_dist_est_->propagate(um, s_prev_, P_prev_, s_, P_, dt);
-                s_prev_ = s_;
-                P_prev_ = P_;
+                
+                ekf_dist_est_->propagate(um, ekf_data_, dt);
+                
                 State s_meas;
                 s_meas << state_buffer_[state_head].p,
                 state_buffer_[state_head].v,
                 state_buffer_[state_head].q,
                 state_buffer_[state_head].w;
-                ekf_dist_est_->correct(s_meas, s_prev_, P_prev_, s_, P_);
-                s_prev_ = s_;
-                P_prev_ = P_;
+                ekf_dist_est_->correct(s_meas, ekf_data_);
             }
             state_ready_ = false;
         }
@@ -258,35 +248,35 @@ void EkfNode::publishState()
     state_msg_.header.stamp = ros::Time::now();
     state_msg_.header.frame_id = "world";
     state_msg_.child_frame_id = "EKF";
-    state_msg_.pose.pose.position.x = s_(0);
-    state_msg_.pose.pose.position.y = s_(1);
-    state_msg_.pose.pose.position.z = s_(2);
+    state_msg_.pose.pose.position.x = ekf_data_.s(0);
+    state_msg_.pose.pose.position.y = ekf_data_.s(1);
+    state_msg_.pose.pose.position.z = ekf_data_.s(2);
 
-    state_msg_.twist.twist.linear.x = s_(3);
-    state_msg_.twist.twist.linear.y = s_(4);
-    state_msg_.twist.twist.linear.z = s_(5);
+    state_msg_.twist.twist.linear.x = ekf_data_.s(3);
+    state_msg_.twist.twist.linear.y = ekf_data_.s(4);
+    state_msg_.twist.twist.linear.z = ekf_data_.s(5);
     
-    state_msg_.pose.pose.orientation.w = s_(6);
-    state_msg_.pose.pose.orientation.x = s_(7);
-    state_msg_.pose.pose.orientation.y = s_(8);
-    state_msg_.pose.pose.orientation.z = s_(9);
+    state_msg_.pose.pose.orientation.w = ekf_data_.s(6);
+    state_msg_.pose.pose.orientation.x = ekf_data_.s(7);
+    state_msg_.pose.pose.orientation.y = ekf_data_.s(8);
+    state_msg_.pose.pose.orientation.z = ekf_data_.s(9);
 
-    state_msg_.twist.twist.angular.x = s_(10);
-    state_msg_.twist.twist.angular.y = s_(11);
-    state_msg_.twist.twist.angular.z = s_(12);
+    state_msg_.twist.twist.angular.x = ekf_data_.s(10);
+    state_msg_.twist.twist.angular.y = ekf_data_.s(11);
+    state_msg_.twist.twist.angular.z = ekf_data_.s(12);
 
     state_pub_.publish(state_msg_);
 }
 
 void EkfNode::publishWrench()
 {
-    wrench_msg_.force.x = s_(13);
-    wrench_msg_.force.y = s_(14);
-    wrench_msg_.force.z = s_(15);
+    wrench_msg_.force.x = ekf_data_.s(13);
+    wrench_msg_.force.y = ekf_data_.s(14);
+    wrench_msg_.force.z = ekf_data_.s(15);
 
-    wrench_msg_.torque.x = s_(16);
-    wrench_msg_.torque.y = s_(17);
-    wrench_msg_.torque.z = s_(18);
+    wrench_msg_.torque.x = ekf_data_.s(16);
+    wrench_msg_.torque.y = ekf_data_.s(17);
+    wrench_msg_.torque.z = ekf_data_.s(18);
 
     wrench_pub_.publish(wrench_msg_);
 }
