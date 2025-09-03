@@ -58,7 +58,7 @@ void EkfDistEst::propagate(const Vec4d &u,
     Mat3x3 R_wb = quaternion_to_rotm(q_in);  // rotation from body to world frame
 
     Vec3d a_in;
-    a_in = 1.0/m_* (R_wb * u_T_e3 + f_ext_in) + g_;  // control input in world frame
+    a_in = 1.0/m_* (R_wb * u_T_e3 + f_ext_in) + g;  // control input in world frame
 
     Vec3d p_out, v_out;
     Quatd q_out;

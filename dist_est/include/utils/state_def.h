@@ -23,6 +23,8 @@ typedef Eigen::Matrix<double, 3, 3> Mat3x3;
 
 static Mat3x3 I3(Mat3x3::Identity());  // 3x3 identity matrix
 
+static Vec3d g{0, 0, -9.81};  // gravity vector
+
 struct MavParam{
 
     double l{0.265};  // arm length in meters
