@@ -9,30 +9,31 @@
 template <typename T>
 class CircularBuffer {
 public:
-    // 생성자
-    CircularBuffer() : CircularBuffer(10) {}                 // 기본 용량 10
+    // Constructor
+    CircularBuffer() : CircularBuffer(10) {}       // Default capacity: 10
     explicit CircularBuffer(size_t capacity)
         : buffer_(std::make_unique<T[]>(check_cap_(capacity))),
           head_(0), tail_(0), capacity_(capacity), size_(0) {}
 
-    // 복사 금지(고유 소유), 이동 허용
+    // Rule of Five
+    // Not allow copy to avoid shallow copy issues
     CircularBuffer(const CircularBuffer&) = delete;
     CircularBuffer& operator=(const CircularBuffer&) = delete;
     CircularBuffer(CircularBuffer&&) noexcept = default;
     CircularBuffer& operator=(CircularBuffer&&) noexcept = default;
 
-    ~CircularBuffer() = default; // unique_ptr가 알아서 해제
+    ~CircularBuffer() = default; // Smart pointer - automatically deallocates
 
-    // 속성
+    // Properties
     size_t capacity() const noexcept { return capacity_; }
     size_t size()     const noexcept { return size_; }
     bool   empty()    const noexcept { return size_ == 0; }
     bool   full()     const noexcept { return size_ == capacity_; }
 
-    // 메모리는 유지, 인덱스만 리셋
+    // Maintain memry, just reset indices
     void clear() noexcept { head_ = tail_ = size_ = 0; }
 
-    // 비덮어쓰기 push (가득 차면 false)
+    // Do not overwrite when full
     bool push(const T& item) {
         if (full()) return false;
         buffer_[head_] = item;
@@ -48,7 +49,7 @@ public:
         return true;
     }
 
-    // FIFO pop (값 반환 없음) — 가장 오래된 항목을 버리고 한 칸 전진
+    // FIFO pop (Not return value) - Discard the oldest item and advance one step
     bool pop() {
         if (empty()) return false;
         advance_tail_();
@@ -56,16 +57,31 @@ public:
         return true;
     }
 
-    // 0=가장 오래된, size-1=가장 최신 (읽기 전용)
+    // 0=outdated data, size-1=recent data (Read-Only)
     T operator[](size_t index) const {
         if (index >= size_) throw std::out_of_range("Index out of range");
         size_t pos = (tail_ + index) % capacity_;
-        return buffer_[pos]; // 필요하면 const T& 로 바꿔도 됨
+        return buffer_[pos];
     }
 
-    // 디버그용
+    T front() const {
+        if (empty()) throw std::out_of_range("Buffer is empty");
+        return buffer_[tail_];
+    }
+
+    T back() const{
+        if (empty()) throw std::out_of_range("Buffer is empty");
+        size_t pos = (head_ + capacity_ - 1) % capacity_;
+        return buffer_[pos];
+    }
+
+    // For debugging
     size_t get_head() const noexcept { return head_; }
     size_t get_tail() const noexcept { return tail_; }
+
+    size_t get_head_idx() const noexcept {return (size_ - 1);}
+
+    size_t get_tail_idx() const noexcept {return 0;}
 
 private:
     static size_t check_cap_(size_t c) {

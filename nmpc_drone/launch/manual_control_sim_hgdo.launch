@@ -6,11 +6,12 @@
         <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
     </node>
 
-    <node name="ekf_dist"
-          type="ekf_node"
+    <node name="hgdo"
+          type="hgdo_node"
           pkg="dist_est"
           output="screen">
-        <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+        <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
+        <remap from="/wrench" to="/hgdo/wrench"/>
     </node>
 
     <node name="eskf_localization"
@@ -18,5 +19,6 @@
           pkg="eskf_loc"
           output="screen">
           <rosparam file="$(find eskf_loc)/config/eskf_param.yaml"/>
+          <remap from="/mavros/imu/data_raw" to="/mavros_sim/imu/data_raw"/>
     </node>
 </launch>
