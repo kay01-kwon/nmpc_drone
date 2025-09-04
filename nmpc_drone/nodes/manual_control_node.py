@@ -19,7 +19,7 @@ from mavros_msgs.msg import RCIn
 from ros_libcanard.msg import hexa_cmd_raw
 from manual_control.rc_converter.rc_converter import RcConverter
 from manual_control.rp_yrate_controller.rp_yrate_controller import RpYrateController
-from manual_control.rp_yrate_controller.inverse_dynamics import InverseDynamics
+from math_tools.inverse_dynamics import InverseDynamics
 class manual_control_node():
     def __init__(self):
 

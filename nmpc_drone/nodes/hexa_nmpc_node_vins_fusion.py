@@ -75,10 +75,6 @@ class Hexa_nmpc_node():
         :return: None
         '''
 
-        # To do list
-        # Construct message filter to subscribe
-        # odometry, imu (quaternion and angular velocity), and reference
-
         self.state_sub = rospy.Subscriber('/vins_estimator/imu_propagate',
                                           Odometry,
                                           self.state_callback,

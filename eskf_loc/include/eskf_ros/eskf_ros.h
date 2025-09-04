@@ -1,23 +1,39 @@
 #ifndef ESKF_ROS_H
 #define ESKF_ROS_H
 #include "eskf_loc/eskf_loc.h"
+#include "utils/interpolation_tool.h"
 #include "utils/circular_buffer.h"
 #include <ros/ros.h>
-#include <deque>
+
+#include <thread>
+#include <mutex>
+#include <chrono>
+#include <condition_variable>
+
+
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 
+using std::thread;
+using std::mutex;
+using std::condition_variable;
+
 struct ImuData{
     double time_stamp;
-    Control u;
+    Vec6d u;
 };
 
 struct PoseData{
     double time_stamp;
-    Vec3 p;
-    Quat q;
+    Vec3d p;
+    Quatd q;
+};
+
+struct EskfData{
+    State s;
+    Mat18x18 P;
 };
 
 
@@ -29,55 +45,51 @@ class ESKF_ROS{
 
     ESKF_ROS(ros::NodeHandle &nh);
 
-    void run();
-
     ~ESKF_ROS();
+
+    void run();
 
     private:
 
-    void imu_callback(const sensor_msgs::Imu::ConstPtr &msg);
+    ros::NodeHandle nh_;
+    ros::Subscriber imu_sub_;
+    ros::Subscriber pose_sub_;
+    ros::Timer pub_timer_;
 
-    void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
+    ros::Publisher state_pub_;
+    tf::Transform transform_;
 
-    void set_param(EskfLocParams &params);
+    nav_msgs::Odometry eskf_msg_;
 
-    void imu_interpolate(const Control &u0,
-                         const double &t0,
-                         const Control &u1,
-                         const double &t1,
-                         const double &t,
-                         Control &u_interp);
+    double dt_imu_debug_{0.0};
+    double dt_pose_debug_{0.0};
 
-    void publish_current_state(const ros::TimerEvent&);
+    // Error state Kalman filter instance
+    EskfLoc *eskf_loc_;
 
-    Control control_;
 
     // Circular buffer for IMU, pose and estimation data
     CircularBuffer<ImuData> imu_buffer_;
     CircularBuffer<PoseData> pose_buffer_;
 
-    Meas z_meas_prev_;
-    Vec3 v_mocap_lpf_;
+    EskfData eskf_data_;
 
-    // Error state Kalman filter instance
-    EskfLoc *eskf_loc_;
+    thread ekf_estimate_thread_;
+    mutex m_buf_;
+    condition_variable cvBuf_;\
+    bool imu_ready_{false};
+    bool pose_ready_{false};
 
-    State s_, s_prev_;
+    void imu_callback(const sensor_msgs::Imu::ConstPtr &msg);
 
-    Cov P_, P_prev_;
-    
-    ros::NodeHandle nh_;
+    void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
-    ros::Subscriber imu_sub_;
-    ros::Subscriber pose_sub_;
-    ros::Timer pub_timer_;
+    void estimate();
 
-    nav_msgs::Odometry eskf_msg_;
+    void publish_current_state(const ros::TimerEvent&);
 
-    ros::Publisher state_pub_;
+    void set_param(EskfLocParams &params);
 
-    tf::Transform transform_;
-    
 };
 
 

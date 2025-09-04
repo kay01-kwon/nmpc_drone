@@ -2,7 +2,7 @@
 #define MATH_TOOL_H
 #include "state_def.h"
 
-Eigen::Matrix<double, 3, 3> vec3toSkew(const Vec3 &vec)
+Eigen::Matrix<double, 3, 3> vec3toSkew(const Vec3d &vec)
 {
     Eigen::Matrix<double, 3, 3> skew;
     skew << 0, -vec(2), vec(1),
@@ -11,14 +11,14 @@ Eigen::Matrix<double, 3, 3> vec3toSkew(const Vec3 &vec)
     return skew;
 }
 
-Eigen::Matrix<double, 3, 3> angle_axis_vec_to_rotm(const Vec3 &angle_axis_vec)
+Eigen::Matrix<double, 3, 3> angle_axis_vec_to_rotm(const Vec3d &angle_axis_vec)
 {
     double angle = angle_axis_vec.norm();
     
-    Vec3 axis;
+    Vec3d axis;
     if (angle < 1e-30)
     {
-        axis = Vec3::Zero();
+        axis = Vec3d::Zero();
     }
     else
     {
@@ -36,7 +36,7 @@ Eigen::Matrix<double, 3, 3> angle_axis_vec_to_rotm(const Vec3 &angle_axis_vec)
     return rotm;
 }
 
-Eigen::Matrix<double, 3, 3 > quat_to_rotm(const Quat &q)
+Eigen::Matrix<double, 3, 3 > quat_to_rotm(const Quatd &q)
 {
     double qw = q(0);
     double qx = q(1);
@@ -52,7 +52,7 @@ Eigen::Matrix<double, 3, 3 > quat_to_rotm(const Quat &q)
     return rotm;
 }
 
-Quat otimes(const Quat &q1, const Quat &q2)
+Quatd otimes(const Quatd &q1, const Quatd &q2)
 {
     double qw, qx, qy, qz;
     qw = q1(0);
