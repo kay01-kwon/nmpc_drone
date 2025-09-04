@@ -86,6 +86,8 @@ class ESKF_ROS{
 
     void estimate();
 
+    void find_past_imu_data(int &idx0, const double &t_est_old);
+
     void publish_current_state(const ros::TimerEvent&);
 
     void set_param(EskfLocParams &params);

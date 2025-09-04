@@ -16,10 +16,10 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
     transport_hint = ros::TransportHints()
                     .tcpNoDelay(nodelay);
 
-    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1, 
+    imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 10, 
     &ESKF_ROS::imu_callback, this, transport_hint);
 
-    pose_sub_ = nh_.subscribe("/mocap/pose", 1, 
+    pose_sub_ = nh_.subscribe("/mocap/pose", 10, 
     &ESKF_ROS::pose_callback, this, transport_hint);
 
     pub_timer_ = nh_.createTimer(ros::Duration(0.01), 
@@ -49,6 +49,18 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 
     eskf_data_.s << p_init, v_init, q_init, ab_init, wb_init, g_init;
     eskf_data_.P = params.P_init;
+
+    eskf_msg_.header.frame_id = "world";
+    eskf_msg_.child_frame_id = "eskf_odom";
+
+    eskf_msg_.pose.pose.position.x = eskf_data_.s(0);
+    eskf_msg_.pose.pose.position.y = eskf_data_.s(1);
+    eskf_msg_.pose.pose.position.z = eskf_data_.s(2);
+
+    eskf_msg_.pose.pose.orientation.w = eskf_data_.s(6);
+    eskf_msg_.pose.pose.orientation.x = eskf_data_.s(7);
+    eskf_msg_.pose.pose.orientation.y = eskf_data_.s(8);
+    eskf_msg_.pose.pose.orientation.z = eskf_data_.s(9);
 
 
     // Buffer setup
@@ -169,7 +181,7 @@ void ESKF_ROS::estimate()
         }
         );
 
-        if(dt_imu_debug_ > 5.0)
+        if(dt_imu_debug_ > 6.0)
             ROS_INFO("dt_imu: %.2f ms, dt_pose: %.2f ms", dt_imu_debug_, dt_pose_debug_);
         imu_ready_ = false;
         pose_ready_ = false;
@@ -181,23 +193,20 @@ void ESKF_ROS::estimate()
         double t_pose_latest = pose_buffer_[pose_head].time_stamp;
         double t_diff = t_pose_latest - t_imu_latest;
 
-        double epsilon = 0.010; // 10 ms tolerance
+
+
+        int imu_idx;
 
         if(t_diff >= 0.0)
         {
             t_est_now = t_pose_latest;
+            ROS_INFO(" time interval: %.2f ms", (t_est_now - t_est_old)*1000.0);
             dt_est = t_est_now - t_est_old;
 
-            int imu_idx = -1;
-            for(size_t i = imu_head; i > 0; --i)
-            {
-                if(imu_buffer_[i].time_stamp <= t_est_old + epsilon &&
-                   imu_buffer_[i].time_stamp >= t_est_old - epsilon)
-                {
-                    imu_idx = i;
-                    break;
-                }
-            }
+            find_past_imu_data(imu_idx, t_est_old);
+
+            ROS_INFO("imu_idx: %d", imu_idx);
+            t_est_old = t_est_now;
             if(imu_idx == -1)
             {
                 continue;
@@ -221,9 +230,6 @@ void ESKF_ROS::estimate()
         }
 
         // ROS_INFO("[ESKF_ROS] t_diff: %.4f s", t_diff*1000.0);
-
-        
-        t_est_old = t_est_now;
 
 
         // ROS_INFO(" dt_est: %.2f ms", dt_est*1000.0);
@@ -249,6 +255,25 @@ void ESKF_ROS::estimate()
     
 }
 
+void ESKF_ROS::find_past_imu_data(int &idx0, const double &t_est_old)
+{
+    double epsilon = 0.005; // 5 ms tolerance
+    size_t imu_head = imu_buffer_.get_head_idx();
+    idx0 = -1;
+    for(size_t i = imu_head; i > 0; --i)
+    {
+        if(imu_buffer_[i].time_stamp <= t_est_old + epsilon
+        && imu_buffer_[i].time_stamp >= t_est_old - epsilon)
+        {
+            idx0 = i;
+            break;
+        }
+    }
+
+    ROS_INFO("time_imu_head - t_est_old: %.4f ms", (imu_buffer_[imu_head].time_stamp - t_est_old)*1000.0);
+
+}
+
 void ESKF_ROS::publish_current_state(const ros::TimerEvent&)
 {
 
@@ -267,17 +292,17 @@ void ESKF_ROS::publish_current_state(const ros::TimerEvent&)
     // Broadcasting the transform between "world" and "eskf_odom"
     static tf::TransformBroadcaster br;
 
-    // br.sendTransform(
-    //     tf::StampedTransform(
-    //         tf::Transform(
-    //             tf::Quaternion(qx, qy, qz, qw),
-    //             tf::Vector3(px, py, pz)
-    //         ),
-    //         ros::Time::now(),
-    //         "world",
-    //         "eskf_odom"
-    //     )
-    // );
+    br.sendTransform(
+        tf::StampedTransform(
+            tf::Transform(
+                tf::Quaternion(qx, qy, qz, qw),
+                tf::Vector3(px, py, pz)
+            ),
+            ros::Time::now(),
+            "world",
+            "eskf_odom"
+        )
+    );
 
     state_pub_.publish(eskf_msg_);
 }
