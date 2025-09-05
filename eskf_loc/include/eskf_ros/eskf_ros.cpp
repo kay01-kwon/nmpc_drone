@@ -232,10 +232,15 @@ void ESKF_ROS::estimate()
             double t_pose_latest = pose_buffer_.back().time_stamp;
             double t_imu_latest = imu_buffer_.back().time_stamp;
 
-            if(t_pose_latest >= t_imu_latest)
+            if(t_pose_latest >= t_est_now_ + 0.002)
             {
+                // ROS_INFO("Propagation + Correction");
                 t_est_now_ = t_pose_latest;
                 double dt = t_est_now_ - t_est_old_;
+                if(dt <= 0)
+                {
+                    ROS_WARN("[ESKF_ROS] Negative dt: %.6f", dt);
+                }
 
                 Vec6d u_old, u_old_matched, u_avg;
 
@@ -268,8 +273,14 @@ void ESKF_ROS::estimate()
             }
             else
             {
+                ROS_INFO("Propagation only");
                 t_est_now_ = t_imu_latest;
                 double dt = t_est_now_ - t_est_old_;
+
+                if(dt <= 0)
+                {
+                    ROS_WARN("[ESKF_ROS] Negative dt: %.6f", dt);
+                }
 
                 Vec6d u_old, u_old_matched, u_avg;
                 u_old_matched.setZero();

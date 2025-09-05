@@ -13,5 +13,5 @@ measurement_noise:
 process_noise:
   sigma_accel_n: 0.09031012302391266
   sigma_accel_w: 0.00520558881
-  sigma_gyro_n: 0.005489146622928529
+  sigma_gyro_n: 0.05489146622928529
   sigma_gyro_w: 0.0028629616
