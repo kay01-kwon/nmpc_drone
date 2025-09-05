@@ -81,7 +81,7 @@ class ESKF_ROS{
 
     thread ekf_estimate_thread_;
     mutex m_buf_;
-    condition_variable cvBuf_;\
+    condition_variable cvBuf_;
     bool imu_ready_{false};
     bool pose_ready_{false};
 
@@ -92,6 +92,8 @@ class ESKF_ROS{
     void estimate();
 
     void find_past_imu_data(int &idx0, const double &t_est_old);
+
+    void put_eskf_data_to_msg();
 
     void publish_current_state(const ros::TimerEvent&);
 
