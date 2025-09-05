@@ -64,6 +64,11 @@ class ESKF_ROS{
     double dt_imu_debug_{0.0};
     double dt_pose_debug_{0.0};
 
+    bool is_first_estimate_{false};
+
+    double t_est_now_;
+    double t_est_old_;
+
     // Error state Kalman filter instance
     EskfLoc *eskf_loc_;
 
