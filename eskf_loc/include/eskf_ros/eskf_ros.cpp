@@ -226,88 +226,47 @@ void ESKF_ROS::estimate()
         std::unique_lock<std::mutex> lock(m_buf_);
         auto time_out = std::chrono::system_clock::now() 
         + std::chrono::milliseconds(2);
-
         if(cvBuf_.wait_until(lock, time_out, [this]{return (imu_ready_ && pose_ready_);}))
         {
             double t_pose_latest = pose_buffer_.back().time_stamp;
             double t_imu_latest = imu_buffer_.back().time_stamp;
 
-            if(t_pose_latest >= t_est_now_ + 0.002)
+            t_est_now_ = ros::Time::now().toSec();
+
+            if(t_pose_latest <= t_est_now_ + 0.002)
             {
-                // ROS_INFO("Propagation + Correction");
-                t_est_now_ = t_pose_latest;
+                ROS_INFO("Prop + Corr");
                 double dt = t_est_now_ - t_est_old_;
-                if(dt <= 0)
-                {
-                    ROS_WARN("[ESKF_ROS] Negative dt: %.6f", dt);
-                }
 
-                Vec6d u_old, u_old_matched, u_avg;
+                Vec6d u_old;
+                int idx0;
+                find_past_imu_data(idx0, t_est_old_);
+                u_old = imu_buffer_[idx0].u;
 
-                u_old_matched.setZero();
-
-                int idx_old;
-                find_past_imu_data(idx_old, t_est_old_);
-                u_old = imu_buffer_[idx_old].u;
-
-                if(idx_old > 0 && idx_old < imu_buffer_.get_head_idx())
-                {
-                    double t0 = imu_buffer_[idx_old-1].time_stamp;
-                    double t1 = imu_buffer_[idx_old+1].time_stamp;
-                    Vec6d u0 = imu_buffer_[idx_old-1].u;
-                    Vec6d u1 = imu_buffer_[idx_old+1].u;
-                    u_old_matched = interpolate(t0, u0, t1, u1, t_est_old_);
-                    u_avg = 0.5*(imu_buffer_.back().u + u_old_matched);
-                }
-                else
-                {
-                    u_avg = 0.5*(imu_buffer_.back().u + u_old);
-                }
-
-                eskf_loc_->propagate(u_avg, eskf_data_.s, eskf_data_.P, dt);
+                eskf_loc_->propagate(u_old, eskf_data_.s, eskf_data_.P, dt);
                 Meas z_meas;
                 z_meas.p_meas = pose_buffer_.back().p;
                 z_meas.q_meas = pose_buffer_.back().q;
                 eskf_loc_->correct(z_meas, eskf_data_.s, eskf_data_.P);
+
                 t_est_old_ = t_est_now_;
             }
             else
             {
-                ROS_INFO("Propagation only");
-                t_est_now_ = t_imu_latest;
+                ROS_INFO("Prop");
                 double dt = t_est_now_ - t_est_old_;
 
-                if(dt <= 0)
-                {
-                    ROS_WARN("[ESKF_ROS] Negative dt: %.6f", dt);
-                }
+                Vec6d u_old;
+                int idx0;
+                find_past_imu_data(idx0, t_est_old_);
+                u_old = imu_buffer_[idx0].u;
 
-                Vec6d u_old, u_old_matched, u_avg;
-                u_old_matched.setZero();
-                int idx_old;
-                find_past_imu_data(idx_old, t_est_old_);
-                u_old = imu_buffer_[idx_old].u;
+                eskf_loc_->propagate(u_old, eskf_data_.s, eskf_data_.P, dt);
 
-                if(idx_old > 0 && idx_old < imu_buffer_.get_head_idx())
-                {
-                    double t0 = imu_buffer_[idx_old-1].time_stamp;
-                    double t1 = imu_buffer_[idx_old+1].time_stamp;
-                    Vec6d u0 = imu_buffer_[idx_old-1].u;
-                    Vec6d u1 = imu_buffer_[idx_old+1].u;
-                    u_old_matched = interpolate(t0, u0, t1, u1, t_est_old_);
-                    u_avg = 0.5*(imu_buffer_.back().u + u_old_matched);
-                }
-                else
-                {
-                    u_avg = 0.5*(imu_buffer_.back().u + u_old);
-                }
-                eskf_loc_->propagate(u_avg, eskf_data_.s, eskf_data_.P, dt);
                 t_est_old_ = t_est_now_;
             }
             put_eskf_data_to_msg();
         }
-
-
 
         if(dt_pose_debug_ >= 15.0)
             ROS_INFO("dt_imu: %.2f ms, dt_pose: %.2f ms", dt_imu_debug_, dt_pose_debug_);
