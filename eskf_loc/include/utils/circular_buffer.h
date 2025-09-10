@@ -59,7 +59,11 @@ public:
 
     // 0=outdated data, size-1=recent data (Read-Only)
     T operator[](size_t index) const {
-        if (index >= size_) throw std::out_of_range("Index out of range");
+        if (index >= size_) 
+        {
+            std::cout << "index: " << index << ", size_: " << size_ << std::endl;
+            throw std::out_of_range("Index out of range");
+        }
         size_t pos = (tail_ + index) % capacity_;
         return buffer_[pos];
     }

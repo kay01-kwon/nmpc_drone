@@ -15,6 +15,7 @@ sys.path.append(pkg_dir)
 import numpy as np
 import rospy
 from math_tools.inverse_dynamics import InverseDynamics
+from nmpc.utils import math_tools
 from pos_control.pid_control import PosControl
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Wrench
@@ -62,6 +63,10 @@ class PosControlNode():
 
     def ros_setup(self):
 
+        # self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
+        #                                   Odometry,
+        #                                   self.state_callback,
+        #                                   queue_size=1)
         self.state_sub = rospy.Subscriber('/eskf/Odom',
                                           Odometry,
                                           self.state_callback,
@@ -94,16 +99,35 @@ class PosControlNode():
         self.state[1] = msg.pose.pose.position.y
         self.state[2] = msg.pose.pose.position.z - 0.325
 
-        # # Get current linear velocity
-        self.state[3] = msg.twist.twist.linear.x
-        self.state[4] = msg.twist.twist.linear.y
-        self.state[5] = msg.twist.twist.linear.z
-
         # Get current quaternion
         self.state[6] = msg.pose.pose.orientation.w
         self.state[7] = msg.pose.pose.orientation.x
         self.state[8] = msg.pose.pose.orientation.y
         self.state[9] = msg.pose.pose.orientation.z
+
+        qw = msg.pose.pose.orientation.w
+        qx = msg.pose.pose.orientation.x
+        qy = msg.pose.pose.orientation.y
+        qz = msg.pose.pose.orientation.z
+
+        q_ChildToParent = np.array([qw, qx, qy, qz])
+
+        rotm = math_tools.quaternion2rotm(q_ChildToParent)
+
+        vx_ChildFrame = msg.twist.twist.linear.x
+        vy_ChildFrame = msg.twist.twist.linear.y
+        vz_ChildFrame = msg.twist.twist.linear.z
+
+        v_ChildFrame = np.array([vx_ChildFrame, vy_ChildFrame, vz_ChildFrame])
+
+        v_ParentFrame = rotm@v_ChildFrame
+
+        # self.state[3] = v_ParentFrame[0]
+        # self.state[4] = v_ParentFrame[1]
+        # self.state[5] = v_ParentFrame[2]
+        self.state[3] = msg.twist.twist.linear.x
+        self.state[4] = msg.twist.twist.linear.y
+        self.state[5] = msg.twist.twist.linear.z
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x

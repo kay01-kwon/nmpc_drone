@@ -5,20 +5,10 @@
 #include "utils/circular_buffer.h"
 #include <ros/ros.h>
 
-#include <thread>
-#include <mutex>
-#include <chrono>
-#include <condition_variable>
-
-
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
-
-using std::thread;
-using std::mutex;
-using std::condition_variable;
 
 struct ImuData{
     double time_stamp;
@@ -64,8 +54,10 @@ class ESKF_ROS{
     double dt_imu_debug_{0.0};
     double dt_pose_debug_{0.0};
 
-    bool is_first_estimate_{false};
+    Vec6d u_lpf_;
 
+    bool is_first_estimate_{false};
+    bool is_time_ready_{false};
     double t_est_now_;
     double t_est_old_;
 
@@ -79,9 +71,6 @@ class ESKF_ROS{
 
     EskfData eskf_data_;
 
-    thread ekf_estimate_thread_;
-    mutex m_buf_;
-    condition_variable cvBuf_;
     bool imu_ready_{false};
     bool pose_ready_{false};
 
@@ -89,9 +78,7 @@ class ESKF_ROS{
 
     void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
-    void estimate();
-
-    void find_past_imu_data(int &idx0, const double &t_est_old);
+    void find_past_imu_data(size_t &idx0, const double &t_est_old);
 
     void put_eskf_data_to_msg();
 
