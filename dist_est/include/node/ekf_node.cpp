@@ -39,9 +39,9 @@ EkfNode::EkfNode(ros::NodeHandle &nh) : nh_(nh)
                     .tcpNoDelay(true);
 
     // Initialize the EKF node with a NodeHandle
-    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 1, 
+    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 10, 
     &EkfNode::rpmCallback, this, transport_hint);
-    odom_sub_ = nh_.subscribe("/eskf/Odom", 1, 
+    odom_sub_ = nh_.subscribe("/mavros/odometry/in", 10, 
     &EkfNode::stateCallback, this, transport_hint);
 
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &EkfNode::publishCallback, this); // 100 Hz
