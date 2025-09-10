@@ -46,8 +46,8 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
     wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 10);
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &HgdoNode::publishCallback, this);
 
-    state_buffer_ = CircularBuffer<StateData>(20);
-    rpm_buffer_ = CircularBuffer<RpmData>(20);
+    state_buffer_ = CircularBuffer<StateData>(10);
+    rpm_buffer_ = CircularBuffer<RpmData>(10);
 
     f_tau_ext_.setZero();
 
@@ -162,7 +162,7 @@ void HgdoNode::processState()
         {
             first_run_ = false;
             t_est_curr_ = state_buffer_.back().time_stamp;
-            t_est_prev_ = -1;
+            t_est_prev_ = t_est_curr_ - 0.005;
             std::chrono::milliseconds duration(10);
             std::this_thread::sleep_for(duration);
             continue;
@@ -172,7 +172,7 @@ void HgdoNode::processState()
 
         if(t_est_curr_ == t_est_prev_)
         {
-            std::chrono::milliseconds duration(1);
+            std::chrono::milliseconds duration(5);
             std::this_thread::sleep_for(duration);
             continue;
         }
@@ -188,7 +188,7 @@ void HgdoNode::processState()
             }
             else
             {
-                ROS_WARN("Wait for more rpm data...");
+                // ROS_WARN("Wait for more rpm data...");
                 std::chrono::milliseconds duration(2);
                 std::this_thread::sleep_for(duration);
             }
@@ -275,7 +275,7 @@ bool HgdoNode::getRpmInterval(const double &t_prev, const double &t_curr,
     }
     else
     {
-        ROS_WARN("Wait for more rpm data...");
+        // ROS_WARN("Wait for more rpm data...");
     }
     return false;
 }

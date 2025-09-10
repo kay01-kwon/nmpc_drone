@@ -5,6 +5,9 @@
 #include "utils/circular_buffer.h"
 #include <ros/ros.h>
 
+#include <thread>
+#include <mutex>
+
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
@@ -54,15 +57,17 @@ class ESKF_ROS{
     double dt_imu_debug_{0.0};
     double dt_pose_debug_{0.0};
 
-    Vec6d u_lpf_;
+    bool is_first_estimate_{true};
+    bool is_first_run_{true};
 
-    bool is_first_estimate_{false};
-    bool is_time_ready_{false};
     double t_est_now_;
     double t_est_old_;
 
     // Error state Kalman filter instance
     EskfLoc *eskf_loc_;
+
+    std::thread eskf_thread_;
+    std::mutex m_buf_;
 
 
     // Circular buffer for IMU, pose and estimation data
@@ -71,14 +76,16 @@ class ESKF_ROS{
 
     EskfData eskf_data_;
 
-    bool imu_ready_{false};
-    bool pose_ready_{false};
-
     void imu_callback(const sensor_msgs::Imu::ConstPtr &msg);
-
     void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
-    void find_past_imu_data(size_t &idx0, const double &t_est_old);
+    void processMeasurement();
+
+    bool IMUAvailable(const double &t_curr);
+
+    bool getIMUInterval(const double &t_start);
+
+    void integrateIMU();
 
     void put_eskf_data_to_msg();
 

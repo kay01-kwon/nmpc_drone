@@ -3,6 +3,8 @@
 #include "utils/muxer.h"
 #include "utils/demuxer.h"
 
+#define SQ(x) ((x)*(x))
+
 EskfLoc::EskfLoc(const EskfLocParams &params)
 {
     // Initialize state and covariance
@@ -15,24 +17,31 @@ EskfLoc::EskfLoc(const EskfLocParams &params)
 
     Fs_.setIdentity();
 
+    // Fi_ matrix
+    // Fi_ = [0 0 0 0
+    //        I 0 0 0
+    //        0 I 0 0
+    //        0 0 I 0
+    //        0 0 0 I
+    //        0 0 0 0]
+
     Fi_.setZero();
     Fi_.block(3,0,3,3) = Eigen::Matrix<double, 3, 3>::Identity();
     Fi_.block(6,3,3,3) = Eigen::Matrix<double, 3, 3>::Identity();
     Fi_.block(9,6,3,3) = Eigen::Matrix<double, 3, 3>::Identity();
     Fi_.block(12,9,3,3) = Eigen::Matrix<double, 3, 3>::Identity();
 
+    // Qi_ matrix
+    // Qi_ = diag(V_i, Theta_i, AIi, Omega_i)
+
     Qi_.setIdentity();
-    Qi_.block(0, 0, 3, 3) = params.sigma_a_n 
-                            * params.sigma_a_n 
+    Qi_.block(0, 0, 3, 3) = SQ(params.sigma_a_n) 
                             * Eigen::Matrix<double, 3, 3>::Identity();
-    Qi_.block(3, 3, 3, 3) = params.sigma_w_n 
-                            * params.sigma_w_n 
+    Qi_.block(3, 3, 3, 3) = SQ(params.sigma_w_n)
                             * Eigen::Matrix<double, 3, 3>::Identity();
-    Qi_.block(6, 6, 3, 3) = params.sigma_a_w
-                            * params.sigma_a_w 
+    Qi_.block(6, 6, 3, 3) = SQ(params.sigma_a_w)
                             * Eigen::Matrix<double, 3, 3>::Identity();
-    Qi_.block(9, 9, 3, 3) = params.sigma_w_w 
-                            * params.sigma_w_w
+    Qi_.block(9, 9, 3, 3) = SQ(params.sigma_w_w)
                             * Eigen::Matrix<double, 3, 3>::Identity();
 
     Qi_dt_.setIdentity();
@@ -40,6 +49,11 @@ EskfLoc::EskfLoc(const EskfLocParams &params)
     R_ = params.measurement_noise_cov;    
 
     H_.setZero();
+
+    // Hs_ matrix
+    // Hs_ = [I3 033 034 033 033 033 033
+    //        043 043 I4 043 043 043 043]
+
     Hs_.setZero();
     Hs_.block(0, 0, 3, 3) = Eigen::Matrix<double, 3, 3>::Identity();
     Hs_.block(3, 6, 4, 4) = Eigen::Matrix<double, 4, 4>::Identity();
@@ -85,7 +99,7 @@ void EskfLoc::propagate(const Vec6d &u,
     w = w - gyro_bias;
     
     // Eq (260a - b)
-    p += v * dt + 0.5 * rotm*(acc_input + g) * dt * dt;
+    p += v * dt + 0.5 * (rotm * acc_input + g) * dt * dt;
     v += (rotm*acc_input + g) * dt;
     
     Quatd dq;
@@ -106,7 +120,7 @@ void EskfLoc::propagate(const Vec6d &u,
     q = otimes(q, dq);
 
     // Normalize quaternion
-    double norm_q = sqrt(q(0)*q(0) + q(1)*q(1) + q(2)*q(2) + q(3)*q(3));
+    double norm_q = q.norm();
     q /= norm_q;
 
     // Do not update bias and gravity vector in propagation step
@@ -208,8 +222,8 @@ void EskfLoc::correct(const Meas &meas,
     q_inj = otimes(q, del_q);
 
     // Normalize quaternion
-    double norm_q = sqrt(q_inj(0)*q_inj(0) + q_inj(1)*q_inj(1) + q_inj(2)*q_inj(2) + q_inj(3)*q_inj(3));
-    q_inj /= norm_q;
+    double norm_q_inj = q_inj.norm();
+    q_inj /= norm_q_inj;
 
     accel_inj = accel_bias + ab_err;
     gyro_inj = gyro_bias + wb_err;
@@ -222,8 +236,9 @@ void EskfLoc::correct(const Meas &meas,
     Mat3x3 temp;
     temp = Mat3x3::Identity() - 0.5 * vec3toSkew(del_theta);
     G_.block(6, 6, 3, 3) = temp;
-
     P_in = G_*P_in*G_.transpose();
 
     del_state_.setZero(); // Reset the delta state after correction
+
+
 }

@@ -10,15 +10,8 @@
           type="hgdo_node"
           pkg="dist_est"
           output="screen">
+        <param name="publish_rate" type="double" value="100.0"/>
         <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
         <remap from="/wrench" to="/hgdo/wrench"/>
-    </node>
-
-    <node name="eskf_localization"
-          type="eskf_node"
-          pkg="eskf_loc"
-          output="screen">
-          <rosparam file="$(find eskf_loc)/config/eskf_param.yaml"/>
-          <remap from="/mavros/imu/data_raw" to="/mavros_sim/imu/data_raw"/>
     </node>
 </launch>

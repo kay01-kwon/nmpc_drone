@@ -13,12 +13,6 @@
           output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
         <rosparam file="$(find dist_est)/config/ekf_param.yaml"/>
+        <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
-
-	<node pkg="eskf_loc"
-				type="eskf_node"
-				name="eskf_node" output="screen">
-		<rosparam file="$(find eskf_loc)/config/eskf_param_sim.yaml"/>
-		<remap from="/mavros/imu/data_raw" to="/mavros_sim/imu/data_raw"/>
-	</node>
 </launch>

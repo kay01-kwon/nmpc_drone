@@ -27,7 +27,8 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
 
     state_pub_ = nh_.advertise<nav_msgs::Odometry>("/eskf/Odom", 10);
 
-    State s;
+    eskf_thread_ = std::thread(&ESKF_ROS::processMeasurement, this);
+
 
     Vec3d p_init, v_init;
     Quatd q_init;
@@ -54,10 +55,8 @@ ESKF_ROS::ESKF_ROS(ros::NodeHandle &nh) : nh_(nh)
     put_eskf_data_to_msg();
 
     // Buffer setup
-    imu_buffer_ = CircularBuffer<ImuData>(50);
-    pose_buffer_ = CircularBuffer<PoseData>(50);
-
-    u_lpf_ << 0,0,0,0,0,9.81;
+    imu_buffer_ = CircularBuffer<ImuData>(20);
+    pose_buffer_ = CircularBuffer<PoseData>(20);
 
 }
 
@@ -65,7 +64,12 @@ ESKF_ROS::~ESKF_ROS()
 {
     std::cout<<"ESKF_ROS destructor called."<<std::endl;
 
+    if(eskf_thread_.joinable())
+    {
+        eskf_thread_.join();
+    }
     delete eskf_loc_;
+    
     
 }
 
@@ -77,6 +81,7 @@ void ESKF_ROS::run()
 
 void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu_msg)
 {
+    std::lock_guard<std::mutex> lock(m_buf_);
     ImuData imu_data;
     imu_data.time_stamp = imu_msg->header.stamp.toSec();
     imu_data.u.head<3>() = Vec3d(imu_msg->linear_acceleration.x,
@@ -97,8 +102,6 @@ void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu_msg)
         imu_buffer_.push(imu_data);
     }
 
-    // ROS_INFO("imu callback");
-
     if(imu_buffer_.size() < 3)
     {
         return;
@@ -108,25 +111,13 @@ void ESKF_ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu_msg)
     ROS_ASSERT(imu_head > 1);
     dt_imu_debug_ = imu_buffer_[imu_head].time_stamp - imu_buffer_[imu_head-1].time_stamp;
     dt_imu_debug_ = dt_imu_debug_*1000.0;
-    imu_ready_ = true;
-
-    // if(is_first_estimate_)
-    // {
-    //     Vec6d u0, u1, um;
-    //     u1 = imu_buffer_.back().u;
-    //     u0 = imu_buffer_[imu_head-1].u;
-    //     um = 0.5*(u0 + u1);
-    //     u_lpf_ = 0.99*u_lpf_ + 0.01*um;
-    //     double dt = imu_buffer_.back().time_stamp - imu_buffer_[imu_head-1].time_stamp;
-    //     eskf_loc_->propagate(um, eskf_data_.s, eskf_data_.P, dt);
-    // }
 
 
 }
 
 void ESKF_ROS::pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_msg)
 {
-    // std::lock_guard<std::mutex> lock(m_buf_);
+    std::lock_guard<std::mutex> lock(m_buf_);
     PoseData pose_data;
 
     pose_data.time_stamp = pose_msg->header.stamp.toSec();
@@ -138,6 +129,21 @@ void ESKF_ROS::pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_ms
                         pose_msg->pose.orientation.y,
                         pose_msg->pose.orientation.z);
     
+
+    // Initialize eskf state with the first pose measurement
+    if(is_first_estimate_)
+    {
+        eskf_data_.s(0) = pose_data.p(0);
+        eskf_data_.s(1) = pose_data.p(1);
+        eskf_data_.s(2) = pose_data.p(2);
+
+        eskf_data_.s(6) = pose_data.q(0);
+        eskf_data_.s(7) = pose_data.q(1);
+        eskf_data_.s(8) = pose_data.q(2);
+        eskf_data_.s(9) = pose_data.q(3);
+        is_first_estimate_ = false;
+    }
+
     if(!pose_buffer_.full())
     {
         pose_buffer_.push(pose_data);
@@ -158,69 +164,169 @@ void ESKF_ROS::pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_ms
     dt_pose_debug_ = pose_buffer_[pose_head].time_stamp - pose_buffer_[pose_head-1].time_stamp;
     dt_pose_debug_ = dt_pose_debug_*1000.0;
 
+}
 
-    // Initialize eskf state with the first pose measurement
-    if(!is_first_estimate_)
+void ESKF_ROS::processMeasurement()
+{
+    double dt = 0.010; // 10 ms
+
+    double current_time = ros::Time::now().toSec();
+    double previous_time = current_time;
+
+    while(ros::ok())
     {
-        eskf_data_.s(0) = pose_data.p(0);
-        eskf_data_.s(1) = pose_data.p(1);
-        eskf_data_.s(2) = pose_data.p(2);
 
-        eskf_data_.s(6) = pose_data.q(0);
-        eskf_data_.s(7) = pose_data.q(1);
-        eskf_data_.s(8) = pose_data.q(2);
-        eskf_data_.s(9) = pose_data.q(3);
-        is_first_estimate_ = true;
+        current_time = ros::Time::now().toSec();
+
+        // ROS_INFO("t_loop: %.3f ms", (current_time - previous_time)*1000.0);
+
+        if(imu_buffer_.empty() || pose_buffer_.empty())
+        {
+            // ROS_INFO("No measurement available");
+            std::chrono::milliseconds dura(10);
+            std::this_thread::sleep_for(dura);
+            continue;
+        }
+
+        if(is_first_run_)
+        {
+            t_est_now_ = pose_buffer_.back().time_stamp;
+            t_est_old_ = t_est_now_ - dt;
+            is_first_run_ = false;
+        }
+
+
+        if(!pose_buffer_.empty())
+        {
+            // ROS_INFO("Pose available");
+            // Latest pose data available
+            t_est_now_ = pose_buffer_.back().time_stamp;
+
+            // ROS_INFO("dt: %.3f ms", (t_est_now_ - t_est_old_)*1000.0);
+
+            while(1)
+            {
+                if(IMUAvailable(t_est_now_))
+                {
+                    break;
+                }
+                else
+                {
+                    std::chrono::milliseconds dura(5);
+                    std::this_thread::sleep_for(dura);
+                }
+            }
+
+            m_buf_.lock();
+            getIMUInterval(t_est_old_);
+            Meas z_meas;
+            z_meas.p_meas = pose_buffer_.back().p;
+            z_meas.q_meas = pose_buffer_.back().q;
+            pose_buffer_.clear();
+            integrateIMU();
+            eskf_loc_->correct(z_meas, eskf_data_.s, eskf_data_.P);
+            m_buf_.unlock();
+        }
+        else
+        {
+            // ROS_INFO("Pose not avaiable");
+            // No latest pose data
+            t_est_now_ += dt;
+            while(1)
+            {
+                if(IMUAvailable(t_est_now_))
+                {
+                    m_buf_.lock();
+                    getIMUInterval(t_est_old_);
+                    integrateIMU();
+                    m_buf_.unlock();
+                    break;
+                }
+                else
+                {
+                    std::chrono::milliseconds dura(5);
+                    std::this_thread::sleep_for(dura);
+                }
+            }
+
+        }
+
+        t_est_old_ = t_est_now_;
+
+        put_eskf_data_to_msg();
+
+        previous_time = current_time;
+
+                    // Wait for 10 ms
+        // std::chrono::milliseconds dura(10);
+        // std::this_thread::sleep_for(dura);
+
     }
-
-    // ROS_INFO("pose callback");
-
-    // pose_ready_ = true;
-    // cvBuf_.notify_all();
-
-    // Meas z_meas;
-    // z_meas.p_meas = pose_buffer_.back().p;
-    // z_meas.q_meas = pose_buffer_.back().q;
-
-    // eskf_loc_->correct(z_meas, eskf_data_.s, eskf_data_.P);
 
 }
 
-void ESKF_ROS::find_past_imu_data(size_t &idx0, const double &t)
+bool ESKF_ROS::IMUAvailable(const double &t_curr)
 {
-    double epsilon = 0.002; // 1 ms tolerance
-    size_t imu_head = imu_buffer_.get_head_idx();
-    
-    idx0 = imu_head;
-
-    if(imu_buffer_[imu_head].time_stamp <= t - epsilon)
+    if(imu_buffer_.empty())
     {
-        idx0 = imu_head;
-        ROS_ASSERT(idx0 == imu_head);
-        ROS_ASSERT(idx0 >= 0);
-        return;
+        return false;
     }
-
-    if(imu_buffer_[0].time_stamp >= t + epsilon)
+    else if(!imu_buffer_.empty() 
+    && imu_buffer_.back().time_stamp >= t_curr)
     {
-        idx0 = 0;
-        ROS_ASSERT(idx0 == 0);
-        return;
+        return true;
     }
-
-    for(size_t i = 0; i <= imu_head; ++i)
+    else
     {
-        ROS_ASSERT(i >= 0);
-        if((imu_buffer_[i].time_stamp <= t + epsilon)
-        && (imu_buffer_[i].time_stamp >= t - epsilon))
+        return false;
+    }
+}
+
+bool ESKF_ROS::getIMUInterval(const double &t_start)
+{
+    if(imu_buffer_.empty())
+    {
+        return false;
+    }
+    while(imu_buffer_.front().time_stamp < t_start)
+    {
+        imu_buffer_.pop();
+    }
+    return true;
+}
+
+void ESKF_ROS::integrateIMU()
+{
+    if(imu_buffer_.size() < 2)
+    {
+        Vec6d u_temp;
+        u_temp = imu_buffer_.back().u;
+        double dt = t_est_now_ - imu_buffer_.back().time_stamp;
+        if( dt > 1e-6)
         {
-            idx0 = i;
-            // ROS_INFO("Found imu data at idx0: %ld", idx0);
-            ROS_ASSERT(idx0 >= 0);
-            break;
+            eskf_loc_->propagate(u_temp, eskf_data_.s, eskf_data_.P, dt);
         }
+
+        return;
     }
-    return;
+    Vec6d u_temp;
+    // ROS_INFO("Integrate IMU: %d samples", (int)imu_buffer_.size());
+    for(size_t i = 0; i < imu_buffer_.size() - 1; ++i)
+    {
+        u_temp = imu_buffer_[i].u;
+        double dt = imu_buffer_[i+1].time_stamp - imu_buffer_[i].time_stamp;
+        if(imu_buffer_[i+1].time_stamp > t_est_now_)
+        {
+            dt = t_est_now_ - imu_buffer_[i].time_stamp;
+        }
+
+        if(imu_buffer_[i].time_stamp < t_est_old_)
+        {
+            dt = imu_buffer_[i+1].time_stamp - t_est_old_;
+        }
+        eskf_loc_->propagate(u_temp, eskf_data_.s, eskf_data_.P, dt);
+        // ROS_INFO("  IMU %d: dt = %.3f ms", (int)i, dt*1000.0);
+    }
 }
 
 void ESKF_ROS::put_eskf_data_to_msg()
@@ -252,89 +358,15 @@ void ESKF_ROS::put_eskf_data_to_msg()
     }
 
     // Subtract bias from angular velocity
-    eskf_msg_.twist.twist.angular.x = imu_buffer_.back().u(3) - eskf_data_.s(13);
-    eskf_msg_.twist.twist.angular.y = imu_buffer_.back().u(4) - eskf_data_.s(14);
-    eskf_msg_.twist.twist.angular.z = imu_buffer_.back().u(5) - eskf_data_.s(15);
+    // eskf_msg_.twist.twist.angular.x = imu_buffer_.back().u(3) - eskf_data_.s(13);
+    // eskf_msg_.twist.twist.angular.y = imu_buffer_.back().u(4) - eskf_data_.s(14);
+    // eskf_msg_.twist.twist.angular.z = imu_buffer_.back().u(5) - eskf_data_.s(15);
 
 
 }
 
 void ESKF_ROS::publish_current_state(const ros::TimerEvent&)
 {
-    if(pose_buffer_.empty() || imu_buffer_.empty())
-    {
-        // ROS_WARN("[ESKF_ROS] Waiting for more data to publish...");
-        return;
-    }
-
-    double t_pose_latest = pose_buffer_.back().time_stamp;
-    double t_imu_latest = imu_buffer_.back().time_stamp;
-
-    // ROS_INFO("dt_imu_debug_: %.2f ms, dt_pose_debug: %.2f ms", 
-    // dt_imu_debug_, dt_pose_debug_);
-
-    t_est_now_ = std::max(t_pose_latest, 
-    t_imu_latest);
-
-    if(!is_time_ready_)
-    {
-        t_est_old_ = t_est_now_;
-        is_time_ready_ = true;
-        return;
-    }
-
-    if(t_pose_latest >= t_imu_latest)
-    {
-        // ROS_INFO("Propagate + Correct");
-        size_t idx0;
-        find_past_imu_data(idx0, t_est_old_);
-        Vec6d u0;
-        u0 = imu_buffer_[idx0].u;
-        double dt1 = t_pose_latest - t_est_old_;
-        double t_diff = t_pose_latest - t_imu_latest;
-        // ROS_INFO("idx0: %ld, pose - imu: %.3f ms, dt1: %.3f ms", 
-        // idx0, t_diff*1000.0, dt1*1000.0);
-        // ROS_INFO("dt1: %.3f ms", dt1*1000.0);
-        if(idx0 < imu_buffer_.get_head_idx())
-        {
-            u0 = 0.5*(imu_buffer_[idx0].u + imu_buffer_[idx0+1].u);
-        }
-        eskf_loc_->propagate(u0, eskf_data_.s, eskf_data_.P, dt1);
-        Meas z_meas;
-        z_meas.p_meas = pose_buffer_.back().p;
-        z_meas.q_meas = pose_buffer_.back().q;
-        eskf_loc_->correct(z_meas, eskf_data_.s, eskf_data_.P);
-        ROS_ASSERT(!isnan(eskf_data_.s(9)));
-    }
-    else
-    {
-        // ROS_INFO("Only Propagate");
-        // ROS_INFO("t_imu_latest - t_pose_latest: %.3f ms",
-        // (t_imu_latest - t_pose_latest)*1000.0);
-        size_t idx0;
-        find_past_imu_data(idx0, t_est_old_);
-        Vec6d u0;
-
-        ROS_ASSERT(idx0 >= 0 && idx0 <= imu_buffer_.size());
-        u0 = imu_buffer_[idx0].u;
-        if(idx0 < imu_buffer_.get_head_idx())
-        {
-            u0 = 0.5*(imu_buffer_[idx0].u + imu_buffer_[idx0+1].u);
-        }
-        double dt1 = t_imu_latest - t_est_old_;
-        // ROS_INFO("dt: %f3 ms", dt1*1000.0);
-        double t_diff = t_imu_latest - t_pose_latest;
-        ROS_INFO("idx0: %ld, imu - pose: %.3f ms, dt1: %.3f ms", 
-        idx0, t_diff*1000.0, dt1*1000.0);
-
-        eskf_loc_->propagate(u0, eskf_data_.s, eskf_data_.P, dt1);
-        ROS_ASSERT(!isnan(eskf_data_.s(9)));
-    }
-    put_eskf_data_to_msg();
-    // ROS_INFO("dt : %.2f ms", dt*1000.0);
-
-
-
     double qw, qx, qy , qz;
     double px, py, pz;
 
@@ -363,7 +395,6 @@ void ESKF_ROS::publish_current_state(const ros::TimerEvent&)
     );
 
     state_pub_.publish(eskf_msg_);
-    t_est_old_ = t_est_now_;
 }
 
 
