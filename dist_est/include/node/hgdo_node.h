@@ -12,15 +12,12 @@
 
 #include <thread>
 #include <mutex>
-#include <chrono>
-#include <condition_variable>
 
 using nav_msgs::Odometry;
 using geometry_msgs::Wrench;
 
 using std::thread;
 using std::mutex;
-using std::condition_variable;
 
 class HgdoNode{
 
@@ -43,7 +40,13 @@ class HgdoNode{
     ros::Timer publish_timer_;
     ros::Publisher wrench_pub_;
 
+    double t_est_curr_;
+    double t_est_prev_;
+
     Odometry state_msg_;
+
+    bool state_ready_{false};
+    bool rpm_ready_{false};
 
     Wrench wrench_msg_;
 
@@ -61,18 +64,19 @@ class HgdoNode{
 
     mutex mBuf_;
 
-    condition_variable cvBuf_;
-
-    bool state_ready_{false};
+    bool first_run_{true};
 
     void rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg);
     void stateCallback(const Odometry &state_msg);
-
-    void estimate();
-
     void publishCallback(const ros::TimerEvent&);
-
     void publishWrench();
+
+    void processState();
+
+
+    bool getRpmInterval(const double &t_prev, 
+    const double &t_curr, size_t &idx_curr);
+    bool RpmAvailable(const double &t);
 
     void setParam(const std::string param_name, MavParam &mav_param);
     void setParam(const std::string param_name, HgdoParam &hgdo_param);

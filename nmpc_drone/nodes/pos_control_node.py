@@ -63,14 +63,14 @@ class PosControlNode():
 
     def ros_setup(self):
 
-        # self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
-        #                                   Odometry,
-        #                                   self.state_callback,
-        #                                   queue_size=1)
-        self.state_sub = rospy.Subscriber('/eskf/Odom',
+        self.state_sub = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry',
                                           Odometry,
                                           self.state_callback,
                                           queue_size=1)
+        # self.state_sub = rospy.Subscriber('/eskf/Odom',
+        #                                   Odometry,
+        #                                   self.state_callback,
+        #                                   queue_size=1)
 
         self.ref_sub = rospy.Subscriber('/pid_hexa/ref',
                                         ref,
@@ -122,12 +122,12 @@ class PosControlNode():
 
         v_ParentFrame = rotm@v_ChildFrame
 
-        # self.state[3] = v_ParentFrame[0]
-        # self.state[4] = v_ParentFrame[1]
-        # self.state[5] = v_ParentFrame[2]
-        self.state[3] = msg.twist.twist.linear.x
-        self.state[4] = msg.twist.twist.linear.y
-        self.state[5] = msg.twist.twist.linear.z
+        self.state[3] = v_ParentFrame[0]
+        self.state[4] = v_ParentFrame[1]
+        self.state[5] = v_ParentFrame[2]
+        # self.state[3] = msg.twist.twist.linear.x
+        # self.state[4] = msg.twist.twist.linear.y
+        # self.state[5] = msg.twist.twist.linear.z
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x

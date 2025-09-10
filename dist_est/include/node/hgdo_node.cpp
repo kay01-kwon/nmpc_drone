@@ -32,19 +32,22 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
 
     // Initialize HGDO
     hgdo_dist_est_ = new HGDO(mav_param, hgdo_param);
-    hgdo_est_thread_ = thread(&HgdoNode::estimate, this);
+    hgdo_est_thread_ = thread(&HgdoNode::processState, this);
 
     ros::TransportHints transport_hint;
     transport_hint = ros::TransportHints()
                     .tcpNoDelay(true);
 
-    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 10, 
+    rpm_sub_ = nh_.subscribe("/uav/actual_rpm", 100, 
     &HgdoNode::rpmCallback, this, transport_hint);
-    odom_sub_ = nh_.subscribe("/eskf/Odom", 10, 
+    odom_sub_ = nh_.subscribe("/mavros/odometry/in", 100, 
     &HgdoNode::stateCallback, this, transport_hint);
 
-    wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 1);
+    wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 10);
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &HgdoNode::publishCallback, this);
+
+    state_buffer_ = CircularBuffer<StateData>(20);
+    rpm_buffer_ = CircularBuffer<RpmData>(20);
 
     f_tau_ext_.setZero();
 
@@ -121,104 +124,6 @@ void HgdoNode::stateCallback(const Odometry &state_msg)
     {
         state_buffer_.push(state_data);
     }
-
-    if(rpm_buffer_.size() <= 2)
-    {
-        ROS_INFO("Waiting for more rpm data...");
-        return;
-    }
-    
-    double eps = 0.005; // 5 ms tolerance for time synchronization
-    if(t_input_ + eps <= state_data.time_stamp)
-    {
-        state_ready_ = true;
-    }
-}
-
-void HgdoNode::estimate()
-{
-    while(ros::ok())
-    {
-        if(state_buffer_.size() <= 5 || rpm_buffer_.size() <= 5)
-        {
-            continue;
-        }
-
-        size_t rpm_head = rpm_buffer_.get_head_idx();
-        t_input_ = rpm_buffer_[rpm_head].time_stamp;
-
-        // Lock the buffer for recent state data
-        std::unique_lock<mutex> lock(mBuf_);
-        auto dead_line = std::chrono::system_clock::now()
-        + std::chrono::milliseconds(7);
-
-        if(cvBuf_.wait_until(lock, dead_line,[this]{return state_ready_;}))
-        {
-            size_t idx_rpm;
-
-            for(size_t i = rpm_buffer_.get_head_idx(); i > 0; --i)
-            {
-                if(rpm_buffer_[i].time_stamp <= t_input_)
-                {
-                    idx_rpm = i;
-                    break;
-                }
-            }
-
-            size_t state_head = state_buffer_.get_head_idx();
-            double t_new_state = state_buffer_[state_head].time_stamp;
-            
-            double eps = 1e-6;
-
-            if(t_new_state - t_input_ <= eps && idx_rpm - 1 < 0)
-            {
-                ROS_WARN("No interpolation needed, t_new_state <= t_input");
-                // Do nothing
-                continue;
-            }
-            else
-            {
-                int idx_state_prev = -1;
-                // Find the previous state index
-                for(size_t i = state_head; i > 0; --i)
-                {
-                    if(state_buffer_[i].time_stamp <= t_input_ &&
-                        state_buffer_[i].time_stamp >= rpm_buffer_[idx_rpm-1].time_stamp)
-                    {
-                        idx_state_prev = i;
-                        break;
-                    }
-                }
-
-                if(idx_state_prev == -1)
-                {
-                    ROS_WARN("No valid previous state found for interpolation.");
-                    continue;
-                }
-
-                double t_prev_state = state_buffer_[idx_state_prev].time_stamp;
-                Vec4d u0, u1, u_interpl;
-                converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm-1].rpm, u0);
-                converter_->convert_rpm_to_control_input(rpm_buffer_[idx_rpm].rpm, u1);
-                u_interpl = interpolate_vec4(rpm_buffer_[idx_rpm-1].time_stamp, u0,
-                                            rpm_buffer_[idx_rpm].time_stamp, u1,
-                                            t_prev_state);
-                State s_prev;
-                s_prev << state_buffer_[idx_state_prev].p,
-                          state_buffer_[idx_state_prev].v,
-                          state_buffer_[idx_state_prev].q,
-                          state_buffer_[idx_state_prev].w;
-
-                // ROS_INFO("dt: %f", t_new_state - t_prev_state);
-
-                hgdo_dist_est_->updateStateControlTime(s_prev, u_interpl, t_prev_state, t_new_state);
-                hgdo_dist_est_->getDisturbance(f_tau_ext_);
-            }
-            state_ready_ = false;
-        }
-
-    }
-
 }
 
 void HgdoNode::publishCallback(const ros::TimerEvent&)
@@ -237,6 +142,159 @@ void HgdoNode::publishWrench()
     wrench_msg_.torque.z = f_tau_ext_(5);
 
     wrench_pub_.publish(wrench_msg_);
+}
+
+
+void HgdoNode::processState()
+{
+    
+    while(ros::ok())
+    {
+        if(state_buffer_.empty() || rpm_buffer_.empty())
+        {
+            ROS_INFO("Wait for more data...");
+            std::chrono::milliseconds duration(10);
+            std::this_thread::sleep_for(duration);
+            continue;
+        }
+
+        if(first_run_)
+        {
+            first_run_ = false;
+            t_est_curr_ = state_buffer_.back().time_stamp;
+            t_est_prev_ = -1;
+            std::chrono::milliseconds duration(10);
+            std::this_thread::sleep_for(duration);
+            continue;
+        }
+
+        t_est_curr_ = state_buffer_.back().time_stamp;
+
+        if(t_est_curr_ == t_est_prev_)
+        {
+            std::chrono::milliseconds duration(1);
+            std::this_thread::sleep_for(duration);
+            continue;
+        }
+
+        // ROS_ASSERT(t_est_curr_ > t_est_prev_);
+
+        while(1)
+        {
+            if(RpmAvailable(t_est_curr_))
+            {
+                // ROS_INFO("RPM available!");
+                break;
+            }
+            else
+            {
+                ROS_WARN("Wait for more rpm data...");
+                std::chrono::milliseconds duration(2);
+                std::this_thread::sleep_for(duration);
+            }
+        }
+
+        // ROS_ASSERT(state_buffer_.empty() == false);
+        // ROS_ASSERT(rpm_buffer_.empty() == false);
+        
+
+        mBuf_.lock();
+        size_t idx_rpm_curr = 0;
+        getRpmInterval(t_est_prev_, t_est_curr_, idx_rpm_curr);
+
+        while(state_buffer_.front().time_stamp < t_est_prev_)
+        {
+            state_buffer_.pop();
+        }
+
+        StateData state_prev;
+        state_prev.p = state_buffer_.front().p;
+        state_prev.v = state_buffer_.front().v;
+        state_prev.q = state_buffer_.front().q;
+        state_prev.w = state_buffer_.front().w;
+
+        Vec4d u_est;
+
+        // ROS_INFO("idx_rpm_curr: %zu", idx_rpm_curr);
+        // ROS_INFO("rpm buffer size: %zu", rpm_buffer_.size());
+        // ROS_INFO("state buffer size: %zu", state_buffer_.size());
+
+        if(idx_rpm_curr >= 1)
+        {
+            RpmData rpm_prev, rpm_curr;
+            rpm_prev.rpm = rpm_buffer_.front().rpm;
+            rpm_curr.rpm = rpm_buffer_.back().rpm;
+            Vec4d u_prev, u_curr;
+            converter_->convert_rpm_to_control_input(rpm_prev.rpm, u_prev);
+            converter_->convert_rpm_to_control_input(rpm_curr.rpm, u_curr);
+            u_est = (u_prev + u_curr) / 2.0;
+        }
+        else
+        {
+            RpmData rpm;
+            rpm.rpm = rpm_buffer_.back().rpm;
+            converter_->convert_rpm_to_control_input(rpm.rpm, u_est);
+        }
+        State s_prev;
+        s_prev << state_prev.p, state_prev.v, state_prev.q, state_prev.w;
+        hgdo_dist_est_->updateStateControlTime(s_prev, 
+        u_est, t_est_prev_, t_est_curr_);
+        mBuf_.unlock();
+
+        hgdo_dist_est_->getDisturbance(f_tau_ext_);
+
+        t_est_prev_ = t_est_curr_;
+
+    }
+
+}
+
+bool HgdoNode::getRpmInterval(const double &t_prev, const double &t_curr,
+                            size_t &idx_curr)
+{
+    if(rpm_buffer_.empty())
+    {
+        return false;
+    }
+
+    if(rpm_buffer_.back().time_stamp <= t_curr)
+    {
+        while(rpm_buffer_.front().time_stamp <= t_prev)
+        {
+            rpm_buffer_.pop();
+        }
+
+        for(size_t i = 0; i < rpm_buffer_.size(); i++)
+        {
+            if(rpm_buffer_[i].time_stamp >= t_curr)
+            {
+                idx_curr = i;
+                return true;
+            }
+        }
+    }
+    else
+    {
+        ROS_WARN("Wait for more rpm data...");
+    }
+    return false;
+}
+
+
+bool HgdoNode::RpmAvailable(const double &t)
+{
+    if(rpm_buffer_.empty())
+    {
+        return false;
+    }
+    else if(!rpm_buffer_.empty() && rpm_buffer_.back().time_stamp >= t)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void HgdoNode::setParam(const std::string param_name, MavParam &mav_param)

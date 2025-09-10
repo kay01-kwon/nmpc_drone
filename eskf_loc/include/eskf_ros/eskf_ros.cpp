@@ -208,13 +208,13 @@ void ESKF_ROS::find_past_imu_data(size_t &idx0, const double &t)
         return;
     }
 
-    for(int i = imu_head; i > 0; --i)
+    for(size_t i = 0; i <= imu_head; ++i)
     {
         ROS_ASSERT(i >= 0);
         if((imu_buffer_[i].time_stamp <= t + epsilon)
         && (imu_buffer_[i].time_stamp >= t - epsilon))
         {
-            idx0 = size_t(i);
+            idx0 = i;
             // ROS_INFO("Found imu data at idx0: %ld", idx0);
             ROS_ASSERT(idx0 >= 0);
             break;
