@@ -76,6 +76,10 @@ void EskfLoc::propagate(const Vec6d &u,
 
     demux_imu(u, acc_input, w);
 
+    // std::cout << "Raw gyro: "<< w.transpose() << std::endl;
+    // std::cout << "gyro bias: "<< gyro_bias.transpose() << std::endl;
+    // std::cout << "dt: "   << dt << std::endl;
+
     // Corrected acceleration and angular velocity
     acc_input = acc_input - accel_bias;
     w = w - gyro_bias;
@@ -85,16 +89,24 @@ void EskfLoc::propagate(const Vec6d &u,
     v += (rotm*acc_input + g) * dt;
     
     Quatd dq;
-    dq << 1.0,
-          0.5 * w(0) * dt,
-          0.5 * w(1) * dt, 
-          0.5 * w(2) * dt;
+    if(w.norm() < 1e-12)
+    {
+        dq << 1.0, 0.5 * w(0) * dt, 0.5 * w(1) * dt, 0.5 * w(2) * dt;
+    }
+    else
+    {
+        dq << cos(0.5 * w.norm() * dt),
+          w(0)/w.norm() * sin(0.5 * w.norm() * dt),
+          w(1)/w.norm() * sin(0.5 * w.norm() * dt), 
+          w(2)/w.norm() * sin(0.5 * w.norm() * dt);
+    }
+
     
     // Eq (260c)
     q = otimes(q, dq);
 
     // Normalize quaternion
-    double norm_q = q.norm();
+    double norm_q = sqrt(q(0)*q(0) + q(1)*q(1) + q(2)*q(2) + q(3)*q(3));
     q /= norm_q;
 
     // Do not update bias and gravity vector in propagation step
@@ -178,6 +190,7 @@ void EskfLoc::correct(const Meas &meas,
     demux_error_state(del_state_, p_err, v_err,
     del_theta, ab_err, wb_err, g_err);
 
+    // std::cout << "Delta theta: "<< del_theta << std::endl;
 
     Vec3d p_inj, v_inj;
     Quatd q_inj;
@@ -195,7 +208,7 @@ void EskfLoc::correct(const Meas &meas,
     q_inj = otimes(q, del_q);
 
     // Normalize quaternion
-    double norm_q = q_inj.norm();
+    double norm_q = sqrt(q_inj(0)*q_inj(0) + q_inj(1)*q_inj(1) + q_inj(2)*q_inj(2) + q_inj(3)*q_inj(3));
     q_inj /= norm_q;
 
     accel_inj = accel_bias + ab_err;
