@@ -54,3 +54,12 @@ target_link_libraries(hgdo_node
   hgdo_lib
   ${catkin_LIBRARIES}
 )
+
+add_executable(sync_example_node
+  src/ros_sync_example.cpp
+  include/node/sync_node_example.cpp
+)
+
+target_link_libraries(sync_example_node
+  ${catkin_LIBRARIES}
+)
