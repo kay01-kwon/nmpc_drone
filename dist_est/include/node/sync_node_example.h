@@ -95,6 +95,7 @@ class SyncNodeExample {
 
         double time_latest_[2]; // 1: state, 2: rpm
         double time_out_[2];
+        double last_rx_wall_[2];
 
         void stateCallback(const Odometry::ConstPtr &state_msg);
         void rpmCallback(const hexa_actual_rpm::ConstPtr &rpm_msg);
@@ -103,7 +104,9 @@ class SyncNodeExample {
 
         void process_thread();
 
-        double watermark_time();
+        bool freshByTTL(int i, double now_wall);
+
+        double watermark_event_time();
 
         void publishCallback(const ros::TimerEvent&);
 

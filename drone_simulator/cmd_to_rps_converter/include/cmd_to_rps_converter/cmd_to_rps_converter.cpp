@@ -3,8 +3,10 @@
 CmdToRpsConverter::CmdToRpsConverter(ros::NodeHandle& nh) 
 : nh_(nh)
 {
-    cmd_sub_ = nh_.subscribe("/uav/cmd_raw", 1, &CmdToRpsConverter::cmdCallback, this);
-    rps_pub_ = nh_.advertise<mav_msgs::Actuators>("/custom_hexacopter/command/motor_speed", 1);
+    ros::TransportHints transport_hints;
+    transport_hints = ros::TransportHints().tcpNoDelay(true);
+    cmd_sub_ = nh_.subscribe("/uav/cmd_raw", 10, &CmdToRpsConverter::cmdCallback, this, transport_hints);
+    rps_pub_ = nh_.advertise<mav_msgs::Actuators>("/custom_hexacopter/command/motor_speed", 10);
 
     rps_msg_.angular_velocities.reserve(6);  // Resize to match the number of motors
     rps_msg_.angular_velocities.assign(6, 0.0); // Initialize all velocities to zero

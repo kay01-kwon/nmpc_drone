@@ -15,8 +15,6 @@ class RpsToRpmConverter
 
     private:
 
-        void rpsCallback(const mav_msgs::Actuators::ConstPtr& msg);
-        
         ros::NodeHandle nh_;
         ros::Subscriber rps_sub_;
         ros::Publisher rpm_pub_;
@@ -26,6 +24,8 @@ class RpsToRpmConverter
         double rps_to_rpm_{60.0 / (2.0 * M_PI)}; // Convert RPS to RPM
 
         ros_libcanard::hexa_actual_rpm rpm_msg_;
+
+        void rpsCallback(const mav_msgs::Actuators::ConstPtr& msg);
 
 };
 

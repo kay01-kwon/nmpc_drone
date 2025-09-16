@@ -38,6 +38,13 @@ add_library(hgdo_lib
   include/node/hgdo_node.cpp
 )
 
+add_library(hgdo_v2_lib
+  include/utils/forward_dynamics.cpp
+  include/model/hgdo_model.cpp
+  include/dist_est/hgdo_dist_est.cpp
+  include/node/hgdo_node_v2.cpp
+)
+
 add_executable(ekf_node
   src/ros_ekf.cpp
 )
@@ -52,6 +59,15 @@ add_executable(hgdo_node
 
 target_link_libraries(hgdo_node
   hgdo_lib
+  ${catkin_LIBRARIES}
+)
+
+add_executable(hgdo_node_v2
+  src/ros_hgdo_v2.cpp
+)
+
+target_link_libraries(hgdo_node_v2
+  hgdo_v2_lib
   ${catkin_LIBRARIES}
 )
 
