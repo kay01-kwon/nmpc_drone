@@ -26,6 +26,12 @@ SyncNodeExample::SyncNodeExample(ros::NodeHandle &nh)
     time_latest_[0] = -0.01;
     time_latest_[1] = -0.01;
 
+    last_rx_wall_[0] = 0;
+    last_rx_wall_[1] = 0;
+
+    fresh_data_[0] = false;
+    fresh_data_[1] = false;
+
     time_out_[0] = 0.015; // state
     time_out_[1] = 0.015;  // rpm
 
@@ -71,7 +77,7 @@ void SyncNodeExample::stateCallback(const Odometry::ConstPtr& msg)
     state_buffer_.push_back(state_data);
 
     time_latest_[0] = std::max(time_latest_[0], state_data.time_stamp);
-
+    last_rx_wall_[0] = ros::WallTime::now().toSec();
     cv_.notify_one();
 
 }
@@ -88,7 +94,7 @@ void SyncNodeExample::rpmCallback(const hexa_actual_rpm::ConstPtr &rpm_msg)
     rpm_buffer_.push_back(rpm_data);
 
     time_latest_[1] = std::max(time_latest_[1], rpm_data.time_stamp);
-
+    last_rx_wall_[1] = ros::WallTime::now().toSec();
     cv_.notify_one();
 }
 
@@ -106,20 +112,20 @@ void SyncNodeExample::aggregate_thread()
         {
             if(!ros::ok())
                 ROS_INFO("Shutting down aggregate thread...");
-            return ( (watermark_time() - t_prev_ >= period_) || !ros::ok() );
+            return ( (watermark_event_time() - t_prev_ >= period_) || !ros::ok() );
         });
 
-        t_curr_ = watermark_time();
+        t_curr_ = watermark_event_time();
 
         t_loop = t_curr_ - t_prev_;
 
 
-        if(t_loop <= 0.0)
-        {
-            ROS_INFO("t_curr: %.4f, t_prev: %.4f, t_loop: %.4f", t_curr_, t_prev_, t_loop);
-        }
+        // if(t_loop <= 0.0)
+        // {
+        //     ROS_INFO("t_curr: %.4f, t_prev: %.4f, t_loop: %.4f", t_curr_, t_prev_, t_loop);
+        // }
 
-        
+        ROS_INFO("t_curr: %.4f, t_prev: %.4f, t_loop: %.4f", t_curr_, t_prev_, t_loop);        
 
         t_prev_ = t_curr_;
         // std::string s;
@@ -136,24 +142,20 @@ void SyncNodeExample::process_thread()
 {
 }
 
-double SyncNodeExample::watermark_time()
+bool SyncNodeExample::freshByTTL(int i, double now_wall)
+{
+    return (now_wall - last_rx_wall_[i] < time_out_[i]);
+}
+
+double SyncNodeExample::watermark_event_time()
 {
     double watermark;
-
-    for(int i = 0; i < 2; ++i)
-    {
-        if(time_latest_[i] - t_prev_ < time_out_[i])
-            fresh_data_[i] = false;
-        else
-            fresh_data_[i] = true;
-    }
-
 
     watermark = time_latest_[0];
 
     for(int i = 0; i < 2; ++i)
     {
-        if(fresh_data_[i])
+        if(freshByTTL(i, ros::WallTime::now().toSec()))
             watermark = std::min(watermark, time_latest_[i]);
     }
 

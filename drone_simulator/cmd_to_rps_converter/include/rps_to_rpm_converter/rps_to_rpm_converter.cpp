@@ -2,7 +2,10 @@
 
 RpsToRpmConverter::RpsToRpmConverter(ros::NodeHandle& nh) : nh_(nh)
 {
-    rps_sub_ = nh_.subscribe("/custom_hexacopter/motor_speed", 1, &RpsToRpmConverter::rpsCallback, this);
+    ros::TransportHints transport_hints;
+    transport_hints = ros::TransportHints().tcpNoDelay(true);
+    rps_sub_ = nh_.subscribe("/custom_hexacopter/motor_speed", 10, 
+    &RpsToRpmConverter::rpsCallback, this, transport_hints);
     rpm_pub_ = nh_.advertise<ros_libcanard::hexa_actual_rpm>("/uav/actual_rpm", 1);
 }
 
