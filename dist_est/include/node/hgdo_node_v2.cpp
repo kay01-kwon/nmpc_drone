@@ -165,6 +165,7 @@ void HgdoNode2::stateCallback(const Odometry &msg)
 
 void HgdoNode2::publishCallback(const ros::TimerEvent& event)
 {
+    std::lock_guard<mutex> lock(mProc_);
     wrench_msg_.header.stamp = ros::Time(t_curr_);
     wrench_msg_.wrench.force.x = f_tau_ext_[0];
     wrench_msg_.wrench.force.y = f_tau_ext_[1];
@@ -307,7 +308,7 @@ bool HgdoNode2::getRpmInterval(double &t_start, double &t_end, size_t &idx_end)
             return true;
         }
     }
-    // idx_end = rpm_buffer_.get_head_idx();
+
     return false;
 }
 
@@ -336,7 +337,6 @@ bool HgdoNode2::getStateInterval(double &t_start, double &t_end, size_t &idx_end
         }
     }
 
-    // idx_end = state_buffer_.get_head_idx();
     return false;
 }
 
