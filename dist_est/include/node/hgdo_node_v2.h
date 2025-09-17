@@ -8,14 +8,14 @@
 
 #include "ros_libcanard/hexa_actual_rpm.h"
 #include <nav_msgs/Odometry.h>
-#include <geometry_msgs/Wrench.h>
+#include <geometry_msgs/WrenchStamped.h>
 
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
 using nav_msgs::Odometry;
-using geometry_msgs::Wrench;
+using geometry_msgs::WrenchStamped;
 
 using std::thread;
 using std::mutex;
@@ -48,7 +48,7 @@ class HgdoNode2{
     double last_rx_wall_[2];
     double time_out_[2];
 
-    Wrench wrench_msg_;
+    WrenchStamped wrench_msg_;
 
     HGDO* hgdo_dist_est_;
     FDynamics* converter_;
@@ -60,13 +60,20 @@ class HgdoNode2{
 
     thread hgdo_est_thread_;
     mutex mBuf_;
+    mutex mProc_;
     condition_variable cv_;
+
+    bool linear_vel_transform_required_{false};
 
     void rpmCallback(const ros_libcanard::hexa_actual_rpm &rpm_msg);
     void stateCallback(const Odometry &state_msg);
     void publishCallback(const ros::TimerEvent&);
 
     void processState();
+
+    bool getRpmInterval(double &t_start, double &t_end, size_t &idx_end);
+
+    bool getStateInterval(double &t_start, double &t_end, size_t &idx_end);
 
     double watermark_time();
 

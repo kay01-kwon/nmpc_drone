@@ -26,6 +26,7 @@ include
 # 1. Add libraries for EKF
 add_library(ekf_dist_est_lib
   include/utils/forward_dynamics.cpp
+  include/utils/quaternion_utils.cpp
   include/dist_est/ekf_dist_est.cpp
   include/node/ekf_node.cpp
 )
@@ -33,6 +34,7 @@ add_library(ekf_dist_est_lib
 # 2. Add libraries for HGDO
 add_library(hgdo_lib
   include/utils/forward_dynamics.cpp
+  include/utils/quaternion_utils.cpp
   include/model/hgdo_model.cpp
   include/dist_est/hgdo_dist_est.cpp
   include/node/hgdo_node.cpp
@@ -40,6 +42,7 @@ add_library(hgdo_lib
 
 add_library(hgdo_v2_lib
   include/utils/forward_dynamics.cpp
+  include/utils/quaternion_utils.cpp
   include/model/hgdo_model.cpp
   include/dist_est/hgdo_dist_est.cpp
   include/node/hgdo_node_v2.cpp

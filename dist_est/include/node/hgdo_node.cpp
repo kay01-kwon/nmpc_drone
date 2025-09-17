@@ -1,5 +1,7 @@
 #include "hgdo_node.h"
 #include "utils/interpolate_tool.h"
+#include "utils/quaternion_utils.h"
+
 HgdoNode::HgdoNode()
 {
     // Default constructor
@@ -16,9 +18,15 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
     std::string node_name = ros::this_node::getName();
     std::string publish_rate_param_name = node_name + "/publish_rate";
     nh_.param(publish_rate_param_name, publish_rate, 100.0);
+
+    std::string tf_required_param_name = node_name + "/linear_vel_tf_required";
+    nh_.param(tf_required_param_name, linear_vel_transform_required_, false);
+
     ROS_INFO("HGDO publish rate: %f Hz", publish_rate);
     double duration = 1.0/publish_rate;
-
+    
+    ROS_INFO("HGDO linear vel transform required: %s", 
+             linear_vel_transform_required_ ? "true" : "false");
     // Set hgdo parameters
     std::string hgdo_param_name = "/hgdo_param";
     setParam(hgdo_param_name, hgdo_param);
@@ -43,7 +51,7 @@ HgdoNode::HgdoNode(ros::NodeHandle &nh)
     odom_sub_ = nh_.subscribe("/mavros/odometry/in", 100, 
     &HgdoNode::stateCallback, this, transport_hint);
 
-    wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 10);
+    wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("/hgdo/wrench", 10);
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &HgdoNode::publishCallback, this);
 
     state_buffer_ = CircularBuffer<StateData>(10);
@@ -102,9 +110,28 @@ void HgdoNode::stateCallback(const Odometry &state_msg)
                     state_msg.pose.pose.position.y,
                     state_msg.pose.pose.position.z;
                 
-    state_data.v << state_msg.twist.twist.linear.x,
-                    state_msg.twist.twist.linear.y,
-                    state_msg.twist.twist.linear.z;
+    if(linear_vel_transform_required_)
+    {
+        Vec3d v_body, v_world;
+        v_body << state_msg.twist.twist.linear.x,
+                  state_msg.twist.twist.linear.y,
+                  state_msg.twist.twist.linear.z;
+        Quatd q;
+        q << state_msg.pose.pose.orientation.w,
+             state_msg.pose.pose.orientation.x,
+             state_msg.pose.pose.orientation.y,
+             state_msg.pose.pose.orientation.z;
+        Mat3x3 R = quaternion_to_rotm(q);
+        v_world = R * v_body;
+
+        state_data.v = v_world;
+    }
+    else
+    {
+        state_data.v << state_msg.twist.twist.linear.x,
+                        state_msg.twist.twist.linear.y,
+                        state_msg.twist.twist.linear.z;
+    }
 
     state_data.w << state_msg.twist.twist.angular.x,
                     state_msg.twist.twist.angular.y,
@@ -133,13 +160,14 @@ void HgdoNode::publishCallback(const ros::TimerEvent&)
 
 void HgdoNode::publishWrench()
 {
-    wrench_msg_.force.x = f_tau_ext_(0);
-    wrench_msg_.force.y = f_tau_ext_(1);
-    wrench_msg_.force.z = f_tau_ext_(2);
+    wrench_msg_.header.stamp = ros::Time(t_est_curr_);
+    wrench_msg_.wrench.force.x = f_tau_ext_(0);
+    wrench_msg_.wrench.force.y = f_tau_ext_(1);
+    wrench_msg_.wrench.force.z = f_tau_ext_(2);
 
-    wrench_msg_.torque.x = f_tau_ext_(3);
-    wrench_msg_.torque.y = f_tau_ext_(4);
-    wrench_msg_.torque.z = f_tau_ext_(5);
+    wrench_msg_.wrench.torque.x = f_tau_ext_(3);
+    wrench_msg_.wrench.torque.y = f_tau_ext_(4);
+    wrench_msg_.wrench.torque.z = f_tau_ext_(5);
 
     wrench_pub_.publish(wrench_msg_);
 }

@@ -3,7 +3,6 @@
 
 #include "utils/state_def.h"
 #include "utils/rk4_ode_solver.h"
-
 struct HgdoParam
 {   
     // Gains for hgdo
