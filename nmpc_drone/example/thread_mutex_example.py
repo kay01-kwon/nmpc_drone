@@ -1,7 +1,7 @@
 import numpy as np
 import threading
 import time
-
+from enum import Enum
 buffer = []
 MAX_BUFFER_SIZE = 5
 condition = threading.Condition()

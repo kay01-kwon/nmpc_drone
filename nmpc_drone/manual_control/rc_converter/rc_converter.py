@@ -1,40 +1,99 @@
 import numpy as np
+from enum import Enum
+
+class FlightMode(Enum):
+    ARMED = 1
+    AUTO = 2
+    MANUAL_STAB = 3
+    KILL = 4
 
 class RcConverter:
-    def __init__(self, f_max, phi_max, psidot_max):
-        # Maximum collective thrust, phi max (deg), psidot_max (deg/s)
-        # Initialize rc input as zeros
+    def __init__(self, manualParam):
+        # Set flight mode
+        self.mode_ = FlightMode.AUTO
 
-        self.throttle_in = 0.0
-        # r[0]: rx
-        # r[1]: ry
-        self.r = np.zeros((2,))
-        self.yaw_rate = 0.0
+        # Set maximum acceleration and altitude
+        self.a_max_ = manualParam['a_max']
+        self.z_max_ = manualParam['z_max']
 
-        self.rc_in_mid = 1500
-        self.rc_in_delta = 512
-        self.rc_in_min = self.rc_in_mid - self.rc_in_delta
-        self.rc_in_max = self.rc_in_mid + self.rc_in_delta
+        self.R_max_ = np.sqrt(2*self.a_max_**2)
 
-        self.f_max = f_max
-        self.phi_max = phi_max
-        self.psidot_max = np.deg2rad(psidot_max)
+        self.dpsi_dt_max_ = manualParam['dpsi_dt_max']
 
-        self.R_max = np.sin(np.deg2rad(phi_max))
+        self.rc_in_mid_ = 1500
+        self.rc_in_delta_ = 512
+        self.rc_in_min_ = self.rc_in_mid_ - self.rc_in_delta_
+        self.rc_in_max_ = self.rc_in_mid_ + self.rc_in_delta_
 
-    def set_throttle_rp_y_rate(self, rc_in):
-        self.throttle_in = (self.f_max * float(rc_in[2] - self.rc_in_min)
-                            / float(2*self.rc_in_delta))
+        # a_des_ = [ax_des, ay_des]
+        self.a_des_ = np.zeros((2,))
+        self.z_des_ = np.zeros((1,))
+        self.dpsi_dt_des_ = np.zeros((1,))
 
-        self.r[0] = (float(rc_in[1] - self.rc_in_mid)
-                     /float(self.rc_in_delta)
-                     *self.R_max)
-        self.r[1] = (float(rc_in[0] - self.rc_in_mid)
-                     / float(self.rc_in_delta)
-                     *self.R_max)
-        self.yaw_rate = (self.psidot_max
-                         * float(rc_in[3] - self.rc_in_mid)
-                         /self.rc_in_delta)
+    def set_rc(self, rc_in):
 
-    def get_throttle_rp_y_rate(self):
-        return self.throttle_in, self.r, self.yaw_rate
+        ax_temp = -self.a_max_ * self._constrain(rc_in[0])
+        ay_temp = self.a_max_ * self._constrain(rc_in[1])
+
+        R_temp = np.sqrt(ax_temp**2 + ay_temp**2)
+
+        if R_temp > self.R_max_ and R_temp > 1e-9:
+            ax_des = self.R_max_ * ax_temp / R_temp
+            ay_des = self.R_max_ * ay_temp / R_temp
+        else:
+            ax_des = ax_temp
+            ay_des = ay_temp
+
+        self.a_des_[0] = ax_des
+        self.a_des_[1] = ay_des
+        self.z_des_ = (self.z_max_
+                       * self._altitude_constrain(rc_in[2]))
+        self.dpsi_dt_des_ = (- self.dpsi_dt_max_
+                             * self._constrain(rc_in[3]))
+
+        if self._two_pos(rc_in[10]) == 'LOW':
+            self.mode_ = FlightMode.KILL
+        else:
+            if self._three_pos(rc_in[5]) == 'LOW':
+                self.mode_ = FlightMode.MANUAL_STAB
+            elif self._three_pos(rc_in[5]) == 'HIGH':
+                self.mode_ = FlightMode.AUTO
+            else:
+                self.mode_ = FlightMode.ARMED
+
+    def get_rc_state(self):
+        return self.a_des_, self.z_des_, self.dpsi_dt_des_, self.mode_
+
+    def _constrain(self, input):
+        temp = (float(input-self.rc_in_mid_)/
+        float(self.rc_in_delta_))
+        return temp
+
+    def _altitude_constrain(self, input):
+        temp = (float(input - self.rc_in_min_)/
+                float(2*self.rc_in_delta_))
+        return temp
+
+    def _two_pos(self, pwm:int) -> str:
+        '''
+        Return 'LOW' | 'HIGH'
+        :param pwd:
+        :return:
+        '''
+        if pwm < 1200:
+            return 'LOW'
+        elif pwm > 1700:
+            return 'HIGH'
+
+    def _three_pos(self, pwm:int) -> str:
+        '''
+        Return 'LOW' | 'MID' |'HIGH'
+        :param pwm:
+        :return:
+        '''
+        if pwm < 1200:
+            return 'LOW'
+        elif pwm > 1700:
+            return 'HIGH'
+        else:
+            return 'MID'

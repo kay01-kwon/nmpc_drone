@@ -213,15 +213,7 @@ class Hexa_nmpc_node():
             self.publish_control_input()
             self.ros_rate.sleep()
 
-# def main():
-#     rospy.init_node('nmpc_quad', anonymous=True)
-#     nmpc_quad = nmpc_quad_node()
-#     ros_rate = rospy.Rate(100)
-#     while not rospy.is_shutdown():
-#         ros_rate.sleep()
-#     # nmpc_quad.publish_zero_control_input()
 
 if __name__ == '__main__':
-    # main()
     nmpc_hexa_node = Hexa_nmpc_node()
     nmpc_hexa_node.run()
