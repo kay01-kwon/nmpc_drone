@@ -6,7 +6,6 @@ from queue import Queue
 import rospy
 import threading
 
-
 from nmpc_drone.msg import ref
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import WrenchStamped
@@ -46,7 +45,6 @@ def rcIn_parsing(msg):
                      msg.channels])
 class RosSyncExample():
     def __init__(self):
-        rospy.init_node('ros_sync_example')
 
         self.ref_buffer_ = Queue(maxsize=10)
         self.state_buffer_ = Queue(maxsize=10)
@@ -78,18 +76,18 @@ class RosSyncExample():
                                                 tcp_nodelay=True)
 
         self.cv_ = threading.Condition()
-        self.aggregate_thread = threading.Thread(target=self.aggregate)
-
-        self.aggregate_thread.start()
-
         self.period_ = 0.010
 
-        self.t_curr_  = 0.0
-        self.t_prev_ = -0.01
+        self.t_curr_  = rospy.get_time()
+        self.t_prev_ = self.t_curr_
 
-        self.time_latest_ = np.zeros((4,))
+        self.time_latest_ = np.array([-1e3, -1e3, -1e3, -1e3])
         self.last_rx_wall_ = np.zeros((4,))
         self.time_out_ = np.array([0.015, 0.015, 0.015, 0.015])
+        self.aggregate_thread_ = threading.Thread(target=self.aggregate,
+                                                  name='aggregate_thread',
+                                                  daemon=True)
+        self.aggregate_thread_.start()
 
     def refCallback(self, msg):
         with self.cv_:
@@ -103,8 +101,7 @@ class RosSyncExample():
 
             self.time_latest_[0] = max(self.time_latest_[0], ref_temp[0])
             self.last_rx_wall_[0] = rospy.get_time()
-            self.cv_.notify()
-
+            self.cv_.notify_all()
 
     def odomCallback(self, msg):
         with self.cv_:
@@ -117,7 +114,7 @@ class RosSyncExample():
 
             self.time_latest_[1] = max(self.time_latest_[1], odom_temp[0])
             self.last_rx_wall_[1] = rospy.get_time()
-            self.cv_.notify()
+            self.cv_.notify_all()
 
     def wrenchCallback(self, msg):
         with self.cv_:
@@ -129,8 +126,7 @@ class RosSyncExample():
                 self.wrench_buffer_.put(wrench_temp)
             self.time_latest_[2] = max(self.time_latest_[2], wrench_temp[0])
             self.last_rx_wall_[2] = rospy.get_time()
-            self.cv_.notify()
-
+            self.cv_.notify_all()
 
     def rcInCallback(self, msg):
         with self.cv_:
@@ -142,41 +138,44 @@ class RosSyncExample():
                 self.rc_in_buffer_.put(rcIn_temp)
             self.time_latest_[3] = max(self.time_latest_[3], rcIn_temp[0])
             self.last_rx_wall_[3] = rospy.get_time()
-            self.cv_.notify()
+            self.cv_.notify_all()
 
     def aggregate(self):
 
         t_loop = 0.0
+        steps = 0
+        MAX_CATCHUP_STEPS = 3
         rospy.loginfo("Starting aggregate thread")
         while not rospy.is_shutdown():
 
+            steps = 0
             with self.cv_:
                 self.cv_.wait_for(timeout=2*self.period_,
                               predicate =
                               lambda : (self.watermark_time() - self.t_prev_ >= self.period_)
                               or rospy.is_shutdown())
+                w = self.watermark_time()
 
-            self.t_curr_ = self.watermark_time()
+            while self.t_prev_ + self.period_ <= w and steps < MAX_CATCHUP_STEPS:
 
-            t_loop = self.t_curr_ - self.t_prev_
-            rospy.loginfo("t_curr: %.2f, t_loop: %.2f", self.t_curr_, t_loop)
-            # print('t_loop: %.2f', t_loop)
+                self.t_curr_ = self.t_prev_ + self.period_
 
-            self.t_prev_ = self.t_curr_
+                t_loop = self.t_curr_ - self.t_prev_
+                if t_loop >= 11:
+                    rospy.loginfo('loop time: %.3f', t_loop*1000.0)
 
-        self.aggregate_thread.join()
-
+                self.t_prev_ = self.t_curr_
+                steps = steps + 1
 
     def watermark_time(self):
-        water_mark = self.time_latest_[1]
 
-        for i in range(len(self.time_latest_)):
+        now = rospy.get_time()
 
-            if self.freshByTTL(i, rospy.get_time()):
-                water_mark = min(water_mark, self.time_latest_[i])
+        fresh_idxs = [i for i in range(len(self.time_latest_)) if self.freshByTTL(i, now)]
 
-        return water_mark
-
+        if not fresh_idxs:
+            return self.t_prev_
+        return min(self.time_latest_[i] for i in fresh_idxs)
 
     def freshByTTL(self, i, now_wall):
         return bool(now_wall - self.last_rx_wall_[i] <= self.time_out_[i])
@@ -185,3 +184,4 @@ if __name__ == '__main__':
     rospy.init_node('ros_sync_example')
     ros_sync_example = RosSyncExample()
     rospy.spin()
+    ros_sync_example.aggregate_thread_.join()
