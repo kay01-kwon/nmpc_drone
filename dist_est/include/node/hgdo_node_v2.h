@@ -60,6 +60,7 @@ class HgdoNode2{
 
     thread hgdo_est_thread_;
     mutex mBuf_;
+    mutex mProc_;
     condition_variable cv_;
 
     bool linear_vel_transform_required_{false};
@@ -69,6 +70,10 @@ class HgdoNode2{
     void publishCallback(const ros::TimerEvent&);
 
     void processState();
+
+    bool getRpmInterval(double &t_start, double &t_end, size_t &idx_end);
+
+    bool getStateInterval(double &t_start, double &t_end, size_t &idx_end);
 
     double watermark_time();
 
