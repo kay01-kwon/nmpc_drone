@@ -18,7 +18,7 @@ from math_tools.inverse_dynamics import InverseDynamics
 from nmpc.utils import math_tools
 from pos_control.pid_control import PosControl
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import WrenchStamped
 from ros_libcanard.msg import hexa_cmd_raw
 from nmpc_drone.msg import ref
 
@@ -67,17 +67,13 @@ class PosControlNode():
                                           Odometry,
                                           self.state_callback,
                                           queue_size=1)
-        # self.state_sub = rospy.Subscriber('/eskf/Odom',
-        #                                   Odometry,
-        #                                   self.state_callback,
-        #                                   queue_size=1)
 
         self.ref_sub = rospy.Subscriber('/pid_hexa/ref',
                                         ref,
                                         self.pid_ref_callback,
                                         queue_size=1)
         self.wrench_sub = rospy.Subscriber('/wrench',
-                                           Wrench,
+                                           WrenchStamped,
                                            self.wrench_callback)
 
         self.input_pub = rospy.Publisher('/uav/cmd_raw',
@@ -90,7 +86,7 @@ class PosControlNode():
         '''
         State call back function
         :param msg: Odometry message
-        Solve NMPC for quadrotor
+        Solve control input for quadrotor
         '''
 
         # Get current position
@@ -125,9 +121,6 @@ class PosControlNode():
         self.state[3] = v_ParentFrame[0]
         self.state[4] = v_ParentFrame[1]
         self.state[5] = v_ParentFrame[2]
-        # self.state[3] = msg.twist.twist.linear.x
-        # self.state[4] = msg.twist.twist.linear.y
-        # self.state[5] = msg.twist.twist.linear.z
 
         # Get current angular velocity
         self.state[10] = msg.twist.twist.angular.x
@@ -144,10 +137,10 @@ class PosControlNode():
         self.ref[7] = msg.dpsi_des
 
     def wrench_callback(self, msg):
-        f = msg.force.z
-        tau_new = np.array([msg.torque.x,
-                            msg.torque.y,
-                            msg.torque.z])
+        f = msg.wrench.force.z
+        tau_new = np.array([msg.wrench.torque.x,
+                            msg.wrench.torque.y,
+                            msg.wrench.torque.z])
 
         self.tau = low_pass_filter(self.tau, tau_new, self.alpha)
     def publish_control_input(self):

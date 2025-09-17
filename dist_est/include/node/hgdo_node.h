@@ -8,13 +8,13 @@
 
 #include "ros_libcanard/hexa_actual_rpm.h"
 #include "nav_msgs/Odometry.h"
-#include "geometry_msgs/Wrench.h"
+#include <geometry_msgs/WrenchStamped.h>
 
 #include <thread>
 #include <mutex>
 
 using nav_msgs::Odometry;
-using geometry_msgs::Wrench;
+using geometry_msgs::WrenchStamped;
 
 using std::thread;
 using std::mutex;
@@ -47,8 +47,9 @@ class HgdoNode{
 
     bool state_ready_{false};
     bool rpm_ready_{false};
+    bool linear_vel_transform_required_{false};
 
-    Wrench wrench_msg_;
+    WrenchStamped wrench_msg_;
 
     double t_input_{0.0};
 

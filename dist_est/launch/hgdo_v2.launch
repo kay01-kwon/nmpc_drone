@@ -4,6 +4,7 @@
     type="hgdo_node_v2"
     output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
+        <param name="linear_vel_tf_required" type="bool" value="false"/>
         <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
         <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>

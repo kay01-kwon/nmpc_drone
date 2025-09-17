@@ -20,6 +20,8 @@ from nav_msgs.msg import Odometry
 from ros_libcanard.msg import hexa_cmd_raw
 from nmpc_drone.msg import ref
 
+from math_tools import state_muxer_demuxer
+
 class Hexa_nmpc_node():
     def __init__(self):
         '''

@@ -1,5 +1,6 @@
 #include "hgdo_node_v2.h"
 #include "utils/interpolate_tool.h"
+#include "utils/quaternion_utils.h"
 
 HgdoNode2::HgdoNode2(ros::NodeHandle &nh)
 :nh_(nh)
@@ -12,8 +13,14 @@ HgdoNode2::HgdoNode2(ros::NodeHandle &nh)
     std::string node_name = ros::this_node::getName();
     std::string publish_rate_param_name = node_name + "/publish_rate";
     nh_.param(publish_rate_param_name, publish_rate, 100.0);
+
+    std::string tf_required_param_name = node_name + "/linear_vel_tf_required";
+    nh_.param(tf_required_param_name, linear_vel_transform_required_, false);
     ROS_INFO("HGDO publish rate: %f Hz", publish_rate);
+    ROS_INFO("HGDO linear vel transform required: %s", 
+             linear_vel_transform_required_ ? "true" : "false");
     double duration = 1.0/publish_rate;
+    period_ = duration;
 
     // Set hgdo parameters
     std::string hgdo_param_name = "/hgdo_param";
@@ -39,7 +46,7 @@ HgdoNode2::HgdoNode2(ros::NodeHandle &nh)
     odom_sub_ = nh_.subscribe("/mavros/odometry/in", 100, 
     &HgdoNode2::stateCallback, this, transport_hint);
 
-    wrench_pub_ = nh_.advertise<geometry_msgs::Wrench>("/hgdo/wrench", 10);
+    wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("/hgdo/wrench", 10);
     publish_timer_ = nh_.createTimer(ros::Duration(duration), &HgdoNode2::publishCallback, this);
 
     state_buffer_ = CircularBuffer<StateData>(10);
@@ -93,7 +100,7 @@ void HgdoNode2::rpmCallback(const ros_libcanard::hexa_actual_rpm &msg)
         rpm_buffer_.push(rpm_data);
     }
 
-    time_latest_[0] = std::max(time_latest_[1], rpm_data.time_stamp);
+    time_latest_[0] = std::max(time_latest_[0], rpm_data.time_stamp);
     last_rx_wall_[0] = ros::WallTime::now().toSec();
     cv_.notify_one();
 }
@@ -107,10 +114,30 @@ void HgdoNode2::stateCallback(const Odometry &msg)
     state_data.p << msg.pose.pose.position.x,
                     msg.pose.pose.position.y,
                     msg.pose.pose.position.z;
-                
-    state_data.v << msg.twist.twist.linear.x,
-                    msg.twist.twist.linear.y,
-                    msg.twist.twist.linear.z;
+
+
+    if(linear_vel_transform_required_)
+    {
+        Vec3d v_body, v_world;
+        v_body << msg.twist.twist.linear.x,
+                  msg.twist.twist.linear.y,
+                  msg.twist.twist.linear.z;
+        Quatd q;
+        q << msg.pose.pose.orientation.w,
+             msg.pose.pose.orientation.x,
+             msg.pose.pose.orientation.y,
+             msg.pose.pose.orientation.z;
+        Mat3x3 R = quaternion_to_rotm(q);
+        v_world = R * v_body;
+
+        state_data.v = v_world;
+    }
+    else
+    {
+        state_data.v << msg.twist.twist.linear.x,
+                        msg.twist.twist.linear.y,
+                        msg.twist.twist.linear.z;
+    }
 
     state_data.w << msg.twist.twist.angular.x,
                     msg.twist.twist.angular.y,
@@ -131,20 +158,21 @@ void HgdoNode2::stateCallback(const Odometry &msg)
         state_buffer_.push(state_data);
     }
 
-    time_latest_[1] = std::max(time_latest_[0], state_data.time_stamp);
+    time_latest_[1] = std::max(time_latest_[1], state_data.time_stamp);
     last_rx_wall_[1] = ros::WallTime::now().toSec();
     cv_.notify_one();
 }
 
 void HgdoNode2::publishCallback(const ros::TimerEvent& event)
 {
-    wrench_msg_.force.x = f_tau_ext_[0];
-    wrench_msg_.force.y = f_tau_ext_[1];
-    wrench_msg_.force.z = f_tau_ext_[2];
+    wrench_msg_.header.stamp = ros::Time(t_curr_);
+    wrench_msg_.wrench.force.x = f_tau_ext_[0];
+    wrench_msg_.wrench.force.y = f_tau_ext_[1];
+    wrench_msg_.wrench.force.z = f_tau_ext_[2];
 
-    wrench_msg_.torque.x = f_tau_ext_[3];
-    wrench_msg_.torque.y = f_tau_ext_[4];
-    wrench_msg_.torque.z = f_tau_ext_[5];
+    wrench_msg_.wrench.torque.x = f_tau_ext_[3];
+    wrench_msg_.wrench.torque.y = f_tau_ext_[4];
+    wrench_msg_.wrench.torque.z = f_tau_ext_[5];
 
     wrench_pub_.publish(wrench_msg_);
 }
@@ -159,7 +187,7 @@ void HgdoNode2::processState()
         if((state_buffer_.size() < 3) || (rpm_buffer_.size() < 3))
         {
             ROS_INFO("Wait for more data...");
-            std::chrono::milliseconds duration(10);
+            std::chrono::milliseconds duration(100);
             std::this_thread::sleep_for(duration);
             continue;
         }

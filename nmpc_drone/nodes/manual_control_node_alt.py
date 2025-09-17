@@ -21,7 +21,7 @@ from manual_control.rc_converter.rc_converter_alt import RcConverterAlt
 from manual_control.rp_yrate_controller.rp_alt_controller import RpyzController
 from math_tools.inverse_dynamics import InverseDynamics
 from math_tools import quaternion_math
-from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import WrenchStamped
 
 def low_pass_filter(data_prev, data_current, alpha):
     filtered = alpha*data_prev + (1-alpha) * data_current
@@ -82,8 +82,8 @@ class manual_control_node_alt():
         self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
                                        hexa_cmd_raw,
                                        queue_size=1)
-        self.wrench_subscriber = rospy.Subscriber('/ekf_wrench',
-                                                  Wrench,
+        self.wrench_subscriber = rospy.Subscriber('/wrench',
+                                                  WrenchStamped,
                                                   self.wrench_callback)
 
     def rc_callback(self, rc_msg):
@@ -133,13 +133,13 @@ class manual_control_node_alt():
         self.w[2] = odom_msg.twist.twist.angular.z
 
     def wrench_callback(self, wrench_msg):
-        f = wrench_msg.force.z
+        f = wrench_msg.wrench.force.z
         # self.tau[0] = wrench_msg.torque.x
         # self.tau[1] = wrench_msg.torque.y
         # self.tau[2] = wrench_msg.torque.z
-        tau_signal = np.array([wrench_msg.torque.x,
-                               wrench_msg.torque.y,
-                               wrench_msg.torque.z])
+        tau_signal = np.array([wrench_msg.wrench.torque.x,
+                               wrench_msg.wrench.torque.y,
+                               wrench_msg.wrench.torque.z])
 
         self.tau = low_pass_filter(self.tau, tau_signal, 0.0)
 
