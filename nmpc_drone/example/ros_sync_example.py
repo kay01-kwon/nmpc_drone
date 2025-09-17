@@ -109,11 +109,11 @@ class RosSyncExample():
     def odomCallback(self, msg):
         with self.cv_:
             odom_temp = odom_parsing(msg)
-            if self.ref_buffer_.full():
-                self.ref_buffer_.get()
-                self.ref_buffer_.put(odom_temp)
+            if self.state_buffer_.full():
+                self.state_buffer_.get()
+                self.state_buffer_.put(odom_temp)
             else:
-                self.ref_buffer_.put(odom_temp)
+                self.state_buffer_.put(odom_temp)
 
             self.time_latest_[1] = max(self.time_latest_[1], odom_temp[0])
             self.last_rx_wall_[1] = rospy.get_time()
@@ -122,11 +122,11 @@ class RosSyncExample():
     def wrenchCallback(self, msg):
         with self.cv_:
             wrench_temp = wrenchStamped_parsing(msg)
-            if self.ref_buffer_.full():
-                self.ref_buffer_.get()
-                self.ref_buffer_.put(wrench_temp)
+            if self.wrench_buffer_.full():
+                self.wrench_buffer_.get()
+                self.wrench_buffer_.put(wrench_temp)
             else:
-                self.ref_buffer_.put(wrench_temp)
+                self.wrench_buffer_.put(wrench_temp)
             self.time_latest_[2] = max(self.time_latest_[2], wrench_temp[0])
             self.last_rx_wall_[2] = rospy.get_time()
             self.cv_.notify()
@@ -135,11 +135,11 @@ class RosSyncExample():
     def rcInCallback(self, msg):
         with self.cv_:
             rcIn_temp = rcIn_parsing(msg)
-            if self.ref_buffer_.full():
-                self.ref_buffer_.get()
-                self.ref_buffer_.put(rcIn_temp)
+            if self.rc_in_buffer_.full():
+                self.rc_in_buffer_.get()
+                self.rc_in_buffer_.put(rcIn_temp)
             else:
-                self.ref_buffer_.put(rcIn_temp)
+                self.rc_in_buffer_.put(rcIn_temp)
             self.time_latest_[3] = max(self.time_latest_[3], rcIn_temp[0])
             self.last_rx_wall_[3] = rospy.get_time()
             self.cv_.notify()
