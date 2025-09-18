@@ -21,7 +21,7 @@ from nav_msgs.msg import Odometry
 from mavros_msgs.msg import RCIn
 from ros_libcanard.msg import hexa_cmd_raw
 
-from manual_control.rc_converter import RcConverter
+from manual_control.rc_converter import RcConverter, FlightMode
 from manual_control.rc_controller import RcController
 from utils.inverse_dynamics import InverseDynamics
 
@@ -90,16 +90,21 @@ class ManualControlNode():
                                          queue_size=10,
                                          callback=self._rcCallback,
                                          tcp_nodelay=True)
+
         self.state_sub = rospy.Subscriber('/mavros/odometry/in',
                                           data_class=Odometry,
                                           queue_size=10,
                                           callback=self._mocapCallback,
                                           tcp_nodelay=True)
+
         self.wrench_sub = rospy.Subscriber('/wrench',
                                            data_class=WrenchStamped,
                                            queue_size=10,
                                            callback=self._wrenchCallback,
                                            tcp_nodelay=True)
+
+        self.cmd_pub_timer = rospy.Timer(rospy.Duration(0.01),
+                                         self._publishCallback)
 
         # Publisher
         self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
@@ -122,6 +127,10 @@ class ManualControlNode():
         self.time_out_ = np.array([0.015,
                                    0.015,
                                    0.015])
+
+        self.process_thread = threading.Thread(target=self._process_func,
+                                               daemon=True)
+        self.process_thread.start()
 
     def _rcCallback(self, msg:RCIn):
         with self.cv_:
@@ -152,6 +161,9 @@ class ManualControlNode():
             else:
                 self.wrench_buffer_.push(wrench_temp)
             self.cv_.notify_all()
+
+    def _publishCallback(self, event):
+        self.cmd_pub.publish(self.u_msg)
     def _process_func(self):
 
         MAX_CATCHUP_STEPS = 3
@@ -176,18 +188,69 @@ class ManualControlNode():
                 # Advance the current time by the period
                 self.t_curr_ = self.t_prev_ + self.period_
 
+                rc_available = self._getBufferAfter(self.rc_in_buffer_, self.t_prev_)
+                mocap_state_available = self._getBufferAfter(self.mocap_state_buffer_, self.t_prev_)
+                wrench_available = self._getBufferAfter(self.wrench_buffer_, self.t_prev_)
 
+                self._rc_update(rc_available, mocap_state_available, wrench_available)
 
                 self.t_prev_ = self.t_curr_
                 steps = steps + 1
 
-    def _getStateInterval(self, t_start, t_end) -> bool:
-        if self.mocap_state_buffer_.empty():
+            self.cv_.notify_all()
+
+    def _rc_update(self, rc_available:bool,
+                           mocap_state_available:bool,
+                           wrench_available:bool):
+
+        if rc_available:
+            rc_recent = self.rc_in_buffer_.back()
+            RcConverter.set_rc(rc_recent)
+            a_des, z_des, dpsi_dt_des, mode = RcConverter.get_rc_state()
+
+            if mode == FlightMode.KILL:
+                self._put_rpm_same_input(0)
+            elif mode == FlightMode.ARMED:
+                self._put_rpm_same_input(2000)
+            elif mode == FlightMode.MANUAL_STAB:
+                is_updated = self._rc_control_update(mocap_state_available, wrench_available)
+                if is_updated:
+                    ref = np.array([a_des, z_des, dpsi_dt_des])
+                    state_curr = self.mocap_state_buffer_.front()[1:]
+                    RcController.set_ref_state(ref, state_curr)
+                    u = RcController.get_control_input()
+                    rpm_des = InverseDynamics.compute_des_rpm(u[0],u[1:])
+                    self._put_cmd_from_rpm_des(rpm_des)
+        else:
+            # RC io should be received.
+            for i in range(6):
+                self.u_msg.raw[i] = int(0)
+
+    def _rc_control_update(self, mocap_state_available:bool, wrench_available:bool)->bool:
+        if mocap_state_available and wrench_available:
+            mocap_again = self._getBufferAfter(self.mocap_state_buffer_, self.t_curr_)
+            wrench_again = self._getBufferAfter(self.wrench_buffer_, self.t_curr_)
+            # assert mocap_again and wrench_again
+            return mocap_again and wrench_again
+        else:
             return False
-        while self.mocap_state_buffer_.front()[0] <= t_start:
-            self.mocap_state_buffer_.pop()
-            if self.mocap_state_buffer_.empty():
+
+    def _getBufferAfter(self, buffer, t_start) -> bool:
+        if buffer.empty():
+            return False
+        while buffer.front()[0] < t_start:
+            buffer.pop()
+            if buffer.empty():
                 return False
+        return True
+
+    def _put_rpm_same_input(self, u):
+        for i in range(6):
+            self.u_msg.raw[i] = int(u)
+
+    def _put_cmd_from_rpm_des(self, rpm_des):
+        for i in range(6):
+            self.u_msg.raw[i] = int(rpm_des[i]*self.MaxBit/self.MaxRpm)
 
     def _watermark_time(self):
         now = rospy.get_time()
@@ -255,3 +318,9 @@ class ManualControlNode():
                       'T_min': T_min,
                       'T_max': T_max}
         return droneParam
+
+if __name__ == '__main__':
+    rospy.init_node('manual_control_node')
+    node = ManualControlNode()
+    rospy.spin()
+    node.process_thread.join()
