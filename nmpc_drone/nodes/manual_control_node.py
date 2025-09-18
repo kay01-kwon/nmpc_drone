@@ -12,87 +12,246 @@ pkg_dir = dir_path[:dir_path.rfind('/')]
 print(pkg_dir)
 sys.path.append(pkg_dir)
 
-import numpy as np
+import threading
+from utils import CustomQueue
+
 import rospy
+import numpy as np
 from nav_msgs.msg import Odometry
 from mavros_msgs.msg import RCIn
 from ros_libcanard.msg import hexa_cmd_raw
-from manual_control.rc_converter.rc_converter import RcConverter
-from manual_control.rp_yrate_controller.rp_yrate_controller import RpYrateController
-from math_tools.inverse_dynamics import InverseDynamics
-class manual_control_node():
+
+from manual_control.rc_converter import RcConverter
+from manual_control.rc_controller import RcController
+from utils.inverse_dynamics import InverseDynamics
+
+from utils import quaternion_math
+from geometry_msgs.msg import WrenchStamped
+
+def rcIn_parsing(msg:RCIn):
+    return np.array([msg.header.stamp.to_sec(),
+                     msg.channels])
+def odom_parsing(msg:Odometry):
+    return np.array([msg.header.stamp.to_sec(),
+                     msg.pose.pose.position.x,
+                     msg.pose.pose.position.y,
+                     msg.pose.pose.position.z,
+                     msg.twist.twist.linear.x,
+                     msg.twist.twist.linear.y,
+                     msg.twist.twist.linear.z,
+                     msg.pose.pose.orientation.w,
+                     msg.pose.pose.orientation.x,
+                     msg.pose.pose.orientation.y,
+                     msg.pose.pose.orientation.z])
+
+def wrench_parsing(msg:WrenchStamped):
+    return np.array([msg.header.stamp.to_sec(),
+                     msg.wrench.force.x,
+                     msg.wrench.force.y,
+                     msg.wrench.force.z,
+                     msg.wrench.torque.x,
+                     msg.wrench.torque.y,
+                     msg.wrench.torque.z])
+class ManualControlNode():
     def __init__(self):
 
-        rospy.init_node('manual_control', anonymous=True)
+        rospy.init_node('manual_control_node')
 
-        self.rc_state = np.zeros((12,))
-        self.q = np.array([1.0, 0.0, 0.0, 0.0])
-        self.w = np.zeros((3,))
+        p = np.zeros((3,))
+        v = np.zeros((3,))
+        q = np.array([1.0,0.0,0.0,0.0])
+        w = np.zeros((3,))
 
-        self.rc_subsriber = []
-        self.odom_subsriber = []
-        self.cmd_pub = []
+        self.state = np.array([p,v,q,w])
 
-        self.RcConverter = RcConverter(f_max = 0.9*9.81*6, phi_max=10, psidot_max=10)
-
-        Kp = np.diag([4, 4, 0.3])
-        Kd = np.diag([1, 1, 0.01])
-        J = np.diag([0.052, 0.052, 0.070])
-        self.RpYrateController = RpYrateController(Kp, Kd, J)
-
-        param = {'arm_length': 0.265,
-                 'rotor_const': 1.456e-07,
-                'moment_const': 0.01569,
-                'T_min': 0.100*9.81,
-                'T_max': 0.90*9.81}
-
-        self.InverseDynamics = InverseDynamics(param)
+        self.tau = np.zeros((3,))
 
         self.MaxBit = 8191
-        self.MaxRPM = 9800
+        self.MaxRpm = 9800
+
+        self.rc_in_buffer_ = CustomQueue(maxsize=10)
+        self.mocap_state_buffer_ = CustomQueue(maxsize=10)
+        self.wrench_buffer_ = CustomQueue(maxsize=10)
+
+        manualParam = self._setup_rc_param()
+        GainParam, DynParam = self._setup_gain_param()
+        droneParam = self._setup_drone_param()
+
+        # RC converter, controller and inverse dynamics object
+        self.RcConverter = RcConverter(manualParam=manualParam)
+        self.RcController = RcController(GainParam=GainParam,
+                                         DynParam=DynParam)
+        self.InverseDynamics = InverseDynamics(Param=droneParam)
+
+
+        # Subscriber setup
+        self.rcIn_sub = rospy.Subscriber('/mavros/rc/in',
+                                         data_class=RCIn,
+                                         queue_size=10,
+                                         callback=self._rcCallback,
+                                         tcp_nodelay=True)
+        self.state_sub = rospy.Subscriber('/mavros/odometry/in',
+                                          data_class=Odometry,
+                                          queue_size=10,
+                                          callback=self._mocapCallback,
+                                          tcp_nodelay=True)
+        self.wrench_sub = rospy.Subscriber('/wrench',
+                                           data_class=WrenchStamped,
+                                           queue_size=10,
+                                           callback=self._wrenchCallback,
+                                           tcp_nodelay=True)
+
+        # Publisher
+        self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
+                                       data_class=hexa_cmd_raw,
+                                       queue_size=10)
 
         self.u_msg = hexa_cmd_raw()
 
-        self.ros_setup()
+        self.cv_ = threading.Condition()
+        self.period_ = 0.010
 
-    def ros_setup(self):
-        self.rc_subscriber = rospy.Subscriber('/mavros/rc/in',
-                                              RCIn,
-                                              self.rc_callback)
-        self.odom_subscriber = rospy.Subscriber('/custom_hexacopter/ground_truth/odometry'
-                                                , Odometry
-                                                , self.odom_callback)
-        self.cmd_pub = rospy.Publisher('/uav/cmd_raw',
-                                       hexa_cmd_raw,
-                                       queue_size=10)
+        self.t_curr_ = rospy.get_time()
+        self.t_prev_ = self.t_curr_
 
-    def rc_callback(self, rc_msg):
-        self.rc_state = rc_msg.channels
-        self.RcConverter.set_throttle_rp_y_rate(self.rc_state)
-        f, r, y_rate = self.RcConverter.get_throttle_rp_y_rate()
+        # RC, mocap state, wrench in turn
+        self.time_latest_ = np.array([-1e3,
+                                      -1e3,
+                                      -1e3])
+        self.latest_tx_wall_ = np.zeros((4,))
+        self.time_out_ = np.array([0.015,
+                                   0.015,
+                                   0.015])
 
-        self.RpYrateController.set_rp_yrate(r, y_rate, self.q, self.w)
-        M = self.RpYrateController.compute_moment()
+    def _rcCallback(self, msg:RCIn):
+        with self.cv_:
+            rc_temp = rcIn_parsing(msg)
+            if self.rc_in_buffer_.full():
+                self.rc_in_buffer_.pop()
+                self.rc_in_buffer_.push(rc_temp)
+            else:
+                self.rc_in_buffer_.push(rc_temp)
 
-        rotor_speed = self.InverseDynamics.compute_des_rpm(f,M)
-        print(rotor_speed)
-        for i in range(6):
-            self.u_msg.raw[i] = int(rotor_speed[i]*self.MaxBit/self.MaxRPM)
-        self.cmd_pub.publish(self.u_msg)
+            self.cv_.notify_all()
+    def _mocapCallback(self, msg:Odometry):
+        with self.cv_:
+            mocap_temp = odom_parsing(msg)
+            if self.mocap_state_buffer_.full():
+                self.mocap_state_buffer_.pop()
+                self.mocap_state_buffer_.push(mocap_temp)
+            else:
+                self.mocap_state_buffer_.push(mocap_temp)
+            self.cv_.notify_all()
+
+    def _wrenchCallback(self, msg:WrenchStamped):
+        with self.cv_:
+            wrench_temp = wrench_parsing(msg)
+            if self.wrench_buffer_.full():
+                self.wrench_buffer_.pop()
+                self.wrench_buffer_.push(wrench_temp)
+            else:
+                self.wrench_buffer_.push(wrench_temp)
+            self.cv_.notify_all()
+    def _process_func(self):
+
+        MAX_CATCHUP_STEPS = 3
+        rospy.loginfo("Starting thread")
+
+        while not rospy.is_shutdown():
+
+            with self.cv_:
+
+                self.cv_.wait_for(timeout=2*self.period_,
+                                  predicate=
+                                  lambda :
+                                  (self._watermark_time() - self.t_prev_ >= self.period_)
+                                  or
+                                  rospy.is_shutdown())
+                w = self._watermark_time()
+
+            steps = 0
+
+            while self.t_prev_ + self.period_ <= w and steps < MAX_CATCHUP_STEPS:
+
+                # Advance the current time by the period
+                self.t_curr_ = self.t_prev_ + self.period_
 
 
-    def odom_callback(self, odom_msg):
-        self.q[0] = odom_msg.pose.pose.orientation.w
-        self.q[1] = odom_msg.pose.pose.orientation.x
-        self.q[2] = odom_msg.pose.pose.orientation.y
-        self.q[3] = odom_msg.pose.pose.orientation.z
 
-        self.w[0] = odom_msg.twist.twist.angular.x
-        self.w[1] = odom_msg.twist.twist.angular.y
-        self.w[2] = odom_msg.twist.twist.angular.z
+                self.t_prev_ = self.t_curr_
+                steps = steps + 1
+
+    def _getStateInterval(self, t_start, t_end) -> bool:
+        if self.mocap_state_buffer_.empty():
+            return False
+        while self.mocap_state_buffer_.front()[0] <= t_start:
+            self.mocap_state_buffer_.pop()
+            if self.mocap_state_buffer_.empty():
+                return False
+
+    def _watermark_time(self):
+        now = rospy.get_time()
+        fresh_idxs = [i for i in range(len(self.time_latest_)) if self._freshByTTL(i, now)]
+
+        if not fresh_idxs:
+            return self.t_prev_
+        return min(self.time_latest_[i] for i in fresh_idxs)
+
+    def _freshByTTL(self, i, now_wall):
+        return bool(now_wall - self.latest_tx_wall_[i])
+
+    def _setup_rc_param(self):
+
+        node_name = rospy.get_name()
+
+        a_max = rospy.get_param(node_name + '/constraint/a_max')
+        z_max = rospy.get_param(node_name + '/constraint/z_max')
+        dpsi_dt_max = rospy.get_param(node_name + '/constraint/dpsi_dt_max')
 
 
-if __name__ == '__main__':
-    print('manual control')
-    manual_control_obj = manual_control_node()
-    rospy.spin()
+        manualParam = {'a_max': a_max,
+                       'z_max': z_max,
+                       'dpsi_dt_max': dpsi_dt_max}
+
+        return manualParam
+
+    def _setup_gain_param(self):
+
+        node_name = rospy.get_name()
+
+        # Get translational control gain (PID)
+        Kp_trans = rospy.get_param(node_name + '/pid/trans/Kp')
+        Kd_trans = rospy.get_param(node_name + '/pid/trans/Kd')
+
+        # Get rotational control gain (PD)
+        Kp_ori = rospy.get_param(node_name + '/pid/ori/Kp')
+        Kd_ori = rospy.get_param(node_name + '/pid/ori/Kd')
+
+        # Get nominal dynamics parameter
+        m = rospy.get_param(node_name + '/nominal_dynamics/m')
+        J = rospy.get_param(node_name + '/nominal_dynamics/J')
+
+        GainParam = {'Kp_trans': Kp_trans,
+                     'Kd_trans': Kd_trans,
+                     'Kp_ori': Kp_ori,
+                     'Kd_ori': Kd_ori}
+
+        DynParam = {'m': m,
+                    'J': J}
+
+        return GainParam, DynParam
+
+    def _setup_drone_param(self):
+        node_name = rospy.get_name()
+        l = rospy.get_param(node_name + '/drone/arm_length')
+        C_T = rospy.get_param(node_name + '/drone/rotor_const')
+        K_m = rospy.get_param(node_name + '/drone/moment_const')
+        T_min = rospy.get_param(node_name + '/drone/T_min')
+        T_max = rospy.get_param(node_name + '/drone/T_max')
+
+        droneParam = {'arm_length': l,
+                      'rotor_const': C_T,
+                      'moment_const': K_m,
+                      'T_min': T_min,
+                      'T_max': T_max}
+        return droneParam
