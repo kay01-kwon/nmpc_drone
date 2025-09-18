@@ -1,2 +1,3 @@
 from manual_control.rc_converter.rc_converter import RcConverter
+from manual_control.rc_converter.rc_converter import FlightMode
 from manual_control.rc_converter.rc_converter_alt import RcConverterAlt
