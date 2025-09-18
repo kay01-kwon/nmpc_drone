@@ -267,7 +267,7 @@ class ManualControlNode():
         return min(self.time_latest_[i] for i in fresh_idxs)
 
     def _freshByTTL(self, i, now_wall):
-        return bool(now_wall - self.latest_tx_wall_[i])
+        return bool(now_wall - self.latest_tx_wall_[i] <= self.time_out_[i])
 
     def _setup_rc_param(self):
 
