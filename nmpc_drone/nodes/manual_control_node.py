@@ -123,7 +123,7 @@ class ManualControlNode():
         self.time_latest_ = np.array([-1e3,
                                       -1e3,
                                       -1e3])
-        self.latest_tx_wall_ = np.zeros((4,))
+        self.latest_rx_wall_ = np.zeros((4,))
         self.time_out_ = np.array([0.015,
                                    0.015,
                                    0.015])
@@ -141,6 +141,8 @@ class ManualControlNode():
             else:
                 self.rc_in_buffer_.push(rc_temp)
 
+            self.time_latest_[0] = max(self.time_latest_[0], rc_temp[0])
+            self.latest_rx_wall_[0] = rospy.get_time()
             self.cv_.notify_all()
     def _mocapCallback(self, msg:Odometry):
         with self.cv_:
@@ -150,6 +152,8 @@ class ManualControlNode():
                 self.mocap_state_buffer_.push(mocap_temp)
             else:
                 self.mocap_state_buffer_.push(mocap_temp)
+            self.time_latest_[1] = max(self.time_latest_[1], mocap_temp[0])
+            self.latest_rx_wall_[1] = rospy.get_time()
             self.cv_.notify_all()
 
     def _wrenchCallback(self, msg:WrenchStamped):
@@ -160,6 +164,8 @@ class ManualControlNode():
                 self.wrench_buffer_.push(wrench_temp)
             else:
                 self.wrench_buffer_.push(wrench_temp)
+            self.time_latest_[2] = max(self.time_latest_[2], wrench_temp[0])
+            self.latest_rx_wall_[2] = rospy.get_time()
             self.cv_.notify_all()
 
     def _publishCallback(self, event):

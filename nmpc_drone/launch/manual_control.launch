@@ -1,13 +1,13 @@
 <launch>
     <node name="manual_control"
-          type="manual_control_node_alt.py"
+          type="manual_control_node.py"
           pkg="nmpc_drone"
           output="screen">
-        <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
+        <rosparam file="$(find nmpc_drone)/config/manual_control_param.yaml"/>
     </node>
 
     <node name="hgdo"
-          type="hgdo_node"
+          type="hgdo_node_v2"
           pkg="dist_est"
           output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
