@@ -1,0 +1,23 @@
+constraint:
+  a_max: 0.1
+  z_max: 1.0
+  dpsi_dt_max: 0.2
+
+pid:
+  trans:
+    Kp: [6, 6, 6]
+    Kd: [4.0, 4.0, 4.0]
+  rot:
+    Kp: [3, 3, 0.05]
+    Kd: [0.52, 0.52, 0.025]
+
+nominal_dynamics:
+  m: 2.90
+  J: [0.052, 0.052, 0.080]
+
+drone:
+  arm_length: 0.265
+  rotor_const: 1.465e-07
+  moment_const: 0.01569
+  T_min: 0.840
+  T_max: 9.370
