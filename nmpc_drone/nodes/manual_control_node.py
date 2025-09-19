@@ -213,16 +213,6 @@ class ManualControlNode():
                       'mocap: ', self.mocap_state_buffer_.size(),
                       'wrench: ', self.wrench_buffer_.size())
 
-                if not (rc_available and mocap_state_available and wrench_available):
-                    # print(f'RC: {rc_available},'
-                    #   f'mocap: {mocap_state_available},'
-                    #   f'wrench: {wrench_available}')
-
-                    print('rc: ', self.rc_in_buffer_.size())
-                    print('state:', self.mocap_state_buffer_.size())
-                    print('wrench:', self.wrench_buffer_.size())
-                # print(1000.0*(self.time_latest_[0] - self.time_latest_[1]))
-
                 self.t_prev_ = self.t_curr_
                 steps = steps + 1
 

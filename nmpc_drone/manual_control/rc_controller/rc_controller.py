@@ -55,24 +55,25 @@ class RcController():
         p_err = p - p_des
         v_err = R @ v
 
-        f_des = (self.m_ * a_des
+        f_des = (  self.m_ * a_des
                  - self.Kp_trans_ @ p_err
                  - self.Kd_trans_ @ v_err
-                 -self.m_ * self.g_vec)
+                 - self.m_ * self.g_vec)
 
         self.u_[0] = np.sqrt(f_des.transpose() @ f_des)
 
         r = f_des/self.u_[0]
-
-        rz = np.sqrt(1 - (r[0]**2 + r[1]**2))
+        rx = r[0]
+        ry = r[1]
+        rz = r[2]
 
         cos_half_phi = np.sqrt( (1 + rz) / 2.0 )
         sin_half_phi = np.sqrt( (1 - rz) / 2.0)
         sin_phi = np.sqrt( 1 - rz**2)
 
         if np.abs(sin_phi) > 1e-30:
-            self.axis_des_[0] = -1 / sin_phi * r[1]
-            self.axis_des_[1] = 1 / sin_phi * r[0]
+            self.axis_des_[0] = -1 / sin_phi * ry
+            self.axis_des_[1] = 1 / sin_phi * rx
         else:
             self.axis_des_[0] = 0
             self.axis_des_[1] = 0
@@ -84,22 +85,20 @@ class RcController():
 
         half_psi = np.arctan2(q[3], q[0])
         cos_half_psi = np.cos(half_psi)
-        sin_half_phi = np.sin(half_psi)
-        q_yaw = np.array([cos_half_psi, 0, 0, sin_half_phi])
+        sin_half_psi = np.sin(half_psi)
+        q_yaw = np.array([cos_half_psi, 0, 0, sin_half_psi])
 
         q_des = quaternion_math.otimes(q_rp_des, q_yaw)
-
-
-        q_err = quaternion_math.otimes(q_des, q)
-        q_err_vec = self._signum(q_err[0])*q_err[1:]
-
+        q_des_conj = quaternion_math.conjugate(q_des)
+        q_err = quaternion_math.otimes(q_des_conj, q)
+        q_err_vec = self._signum(q_err[0])*q_err[1:4]
         R_des = quaternion_math.quaternion_to_rotm(q_des)
 
         w_err = w - R.transpose() @ R_des @ w_des
 
         M_pd = (-self.Kp_ori_ @ q_err_vec
-             - self.Kd_ori_ @ w_err
-             + np.cross(w, self.J_ @ w))
+                -self.Kd_ori_ @ w_err
+                +np.cross(w, self.J_ @ w))
 
         self.u_[1:] = M_pd - tau
 

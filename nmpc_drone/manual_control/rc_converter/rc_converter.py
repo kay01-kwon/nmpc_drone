@@ -36,9 +36,11 @@ class RcConverter:
 
         R_temp = np.sqrt(ax_temp**2 + ay_temp**2)
 
+        scale = self.R_max_ / R_temp
+
         if R_temp > self.R_max_ and R_temp > 1e-9:
-            ax_des = self.R_max_ * ax_temp / R_temp
-            ay_des = self.R_max_ * ay_temp / R_temp
+            ax_des = scale * ax_temp
+            ay_des = scale * ay_temp
         else:
             ax_des = ax_temp
             ay_des = ay_temp
