@@ -1,4 +1,4 @@
 from manual_control.rp_yrate_controller.rp_yrate_controller import RpYrateController
 from manual_control.rp_yrate_controller.rp_alt_controller import RpyzController
-from math_tools.inverse_dynamics import InverseDynamics
-import math_tools
+from utils.inverse_dynamics import InverseDynamics
+import utils

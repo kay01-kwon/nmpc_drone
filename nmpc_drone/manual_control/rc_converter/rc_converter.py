@@ -31,9 +31,8 @@ class RcConverter:
         self.dpsi_dt_des_ = np.zeros((1,))
 
     def set_rc(self, rc_in):
-
-        ax_temp = -self.a_max_ * self._constrain(rc_in[0])
-        ay_temp = self.a_max_ * self._constrain(rc_in[1])
+        ax_temp =  self.a_max_ * self._constrain(rc_in[1])
+        ay_temp = -self.a_max_ * self._constrain(rc_in[0])
 
         R_temp = np.sqrt(ax_temp**2 + ay_temp**2)
 
@@ -51,7 +50,8 @@ class RcConverter:
         self.dpsi_dt_des_ = (- self.dpsi_dt_max_
                              * self._constrain(rc_in[3]))
 
-        if self._two_pos(rc_in[10]) == 'LOW':
+
+        if self._two_pos(rc_in[9]) == 'LOW':
             self.mode_ = FlightMode.KILL
         else:
             if self._three_pos(rc_in[5]) == 'LOW':

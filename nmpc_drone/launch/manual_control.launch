@@ -4,6 +4,8 @@
           pkg="nmpc_drone"
           output="screen">
         <rosparam file="$(find nmpc_drone)/config/manual_control_param.yaml"/>
+        <remap from="/wrench" to="/hgdo/wrench"/>
+        <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
 
     <node name="hgdo"
@@ -12,6 +14,6 @@
           output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
         <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
-        <remap from="/wrench" to="/hgdo/wrench"/>
+        <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
 </launch>

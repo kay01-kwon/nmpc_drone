@@ -19,8 +19,8 @@ from ros_libcanard.msg import hexa_cmd_raw
 
 from manual_control.rc_converter.rc_converter_alt import RcConverterAlt
 from manual_control.rp_yrate_controller.rp_alt_controller import RpyzController
-from math_tools.inverse_dynamics import InverseDynamics
-from math_tools import quaternion_math
+from utils.inverse_dynamics import InverseDynamics
+from utils import quaternion_math
 from geometry_msgs.msg import WrenchStamped
 
 def low_pass_filter(data_prev, data_current, alpha):
@@ -76,7 +76,7 @@ class manual_control_node_alt():
         self.rc_subscriber = rospy.Subscriber('/mavros/rc/in',
                                               RCIn,
                                               self.rc_callback)
-        self.odom_subscriber = rospy.Subscriber('/eskf_state'
+        self.odom_subscriber = rospy.Subscriber('/mavros/odometry/in'
                                                 , Odometry
                                                 , self.odom_callback)
         self.cmd_pub = rospy.Publisher('/uav/cmd_raw',

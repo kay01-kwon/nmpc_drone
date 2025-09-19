@@ -1,25 +1,33 @@
 import numpy as np
-from math_tools import quaternion_math
+from utils import quaternion_math
 class RcController():
 
     def __init__(self, GainParam, DynParam):
 
         # Translational control gain
-        self.Kp_trans_ = GainParam['Kp_trans']
-        self.Kd_trans_ = GainParam['Kd_trans']
+        Kp_trans_diag = GainParam['Kp_trans']
+        Kd_trans_diag = GainParam['Kd_trans']
+
+        self.Kp_trans_ = np.diag(Kp_trans_diag)
+        self.Kd_trans_ = np.diag(Kd_trans_diag)
 
         # Orientational control gain
-        self.Kp_ori_ = GainParam['Kp_ori']
-        self.Kd_ori_ = GainParam['Kd_ori']
+        Kp_ori_diag = GainParam['Kp_ori']
+        Kd_ori_diag = GainParam['Kd_ori']
+
+        self.Kp_ori_ = np.diag(Kp_ori_diag)
+        self.Kd_ori_ = np.diag(Kd_ori_diag)
 
         self.m_ = DynParam['m']
-        self.J_ = DynParam['J']
+
+        J_diag = DynParam['J']
+        self.J_ = np.diag(J_diag)
 
         self.g_vec = np.array([0.0, 0.0, -9.81])
 
         self.axis_des_ = np.zeros((3,))
 
-        self.u_ = np.zeros((3,))
+        self.u_ = np.zeros((4,))
 
     def set_ref_state(self, ref, state, tau):
         '''
@@ -69,9 +77,10 @@ class RcController():
             self.axis_des_[0] = 0
             self.axis_des_[1] = 0
 
-        q_rp_des = np.array((4,))
-        q_rp_des[0] = cos_half_phi
-        q_rp_des[1:] = self.axis_des_ * sin_half_phi
+        q_rp_des = np.array([cos_half_phi,
+                             sin_half_phi*self.axis_des_[0],
+                             sin_half_phi*self.axis_des_[1],
+                             sin_half_phi*self.axis_des_[2]])
 
         half_psi = np.arctan2(q[3], q[0])
         cos_half_psi = np.cos(half_psi)

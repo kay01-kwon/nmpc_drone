@@ -29,8 +29,9 @@ from utils import quaternion_math
 from geometry_msgs.msg import WrenchStamped
 
 def rcIn_parsing(msg:RCIn):
-    return np.array([msg.header.stamp.to_sec(),
-                     msg.channels])
+    t_ros = rospy.get_rostime().to_sec()
+    return (t_ros,
+            np.array(object=msg.channels,dtype=np.int32))
 def odom_parsing(msg:Odometry):
     return np.array([msg.header.stamp.to_sec(),
                      msg.pose.pose.position.x,
@@ -42,7 +43,10 @@ def odom_parsing(msg:Odometry):
                      msg.pose.pose.orientation.w,
                      msg.pose.pose.orientation.x,
                      msg.pose.pose.orientation.y,
-                     msg.pose.pose.orientation.z])
+                     msg.pose.pose.orientation.z,
+                     msg.twist.twist.angular.x,
+                     msg.twist.twist.angular.y,
+                     msg.twist.twist.angular.z])
 
 def wrench_parsing(msg:WrenchStamped):
     return np.array([msg.header.stamp.to_sec(),
@@ -55,14 +59,12 @@ def wrench_parsing(msg:WrenchStamped):
 class ManualControlNode():
     def __init__(self):
 
-        rospy.init_node('manual_control_node')
-
         p = np.zeros((3,))
         v = np.zeros((3,))
         q = np.array([1.0,0.0,0.0,0.0])
         w = np.zeros((3,))
 
-        self.state = np.array([p,v,q,w])
+        self.state = np.concatenate([p,v,q,w])
 
         self.tau = np.zeros((3,))
 
@@ -78,10 +80,10 @@ class ManualControlNode():
         droneParam = self._setup_drone_param()
 
         # RC converter, controller and inverse dynamics object
-        self.RcConverter = RcConverter(manualParam=manualParam)
-        self.RcController = RcController(GainParam=GainParam,
+        self.RcConverter_obj = RcConverter(manualParam=manualParam)
+        self.RcController_obj = RcController(GainParam=GainParam,
                                          DynParam=DynParam)
-        self.InverseDynamics = InverseDynamics(Param=droneParam)
+        self.InverseDynamics_obj = InverseDynamics(Param=droneParam)
 
 
         # Subscriber setup
@@ -116,14 +118,16 @@ class ManualControlNode():
         self.cv_ = threading.Condition()
         self.period_ = 0.010
 
-        self.t_curr_ = rospy.get_time()
+        self.is_first_run = True
+
+        self.t_curr_ = 0
         self.t_prev_ = self.t_curr_
 
         # RC, mocap state, wrench in turn
         self.time_latest_ = np.array([-1e3,
                                       -1e3,
                                       -1e3])
-        self.latest_rx_wall_ = np.zeros((4,))
+        self.latest_rx_wall_ = np.zeros((3,))
         self.time_out_ = np.array([0.015,
                                    0.015,
                                    0.015])
@@ -137,9 +141,7 @@ class ManualControlNode():
             rc_temp = rcIn_parsing(msg)
             if self.rc_in_buffer_.full():
                 self.rc_in_buffer_.pop()
-                self.rc_in_buffer_.push(rc_temp)
-            else:
-                self.rc_in_buffer_.push(rc_temp)
+            self.rc_in_buffer_.push(rc_temp)
 
             self.time_latest_[0] = max(self.time_latest_[0], rc_temp[0])
             self.latest_rx_wall_[0] = rospy.get_time()
@@ -149,9 +151,8 @@ class ManualControlNode():
             mocap_temp = odom_parsing(msg)
             if self.mocap_state_buffer_.full():
                 self.mocap_state_buffer_.pop()
-                self.mocap_state_buffer_.push(mocap_temp)
-            else:
-                self.mocap_state_buffer_.push(mocap_temp)
+            self.mocap_state_buffer_.push(mocap_temp)
+
             self.time_latest_[1] = max(self.time_latest_[1], mocap_temp[0])
             self.latest_rx_wall_[1] = rospy.get_time()
             self.cv_.notify_all()
@@ -161,9 +162,7 @@ class ManualControlNode():
             wrench_temp = wrench_parsing(msg)
             if self.wrench_buffer_.full():
                 self.wrench_buffer_.pop()
-                self.wrench_buffer_.push(wrench_temp)
-            else:
-                self.wrench_buffer_.push(wrench_temp)
+            self.wrench_buffer_.push(wrench_temp)
             self.time_latest_[2] = max(self.time_latest_[2], wrench_temp[0])
             self.latest_rx_wall_[2] = rospy.get_time()
             self.cv_.notify_all()
@@ -176,6 +175,11 @@ class ManualControlNode():
         rospy.loginfo("Starting thread")
 
         while not rospy.is_shutdown():
+
+            if self.is_first_run is True:
+                self.t_curr_ = rospy.get_time()
+                self.t_prev_ = self.t_curr_ - self.period_
+                self.is_first_run = False
 
             with self.cv_:
 
@@ -194,52 +198,59 @@ class ManualControlNode():
                 # Advance the current time by the period
                 self.t_curr_ = self.t_prev_ + self.period_
 
-                rc_available = self._getBufferAfter(self.rc_in_buffer_, self.t_prev_)
-                mocap_state_available = self._getBufferAfter(self.mocap_state_buffer_, self.t_prev_)
-                wrench_available = self._getBufferAfter(self.wrench_buffer_, self.t_prev_)
+                t_ref = self.t_curr_ - 0.030
+
+                rc_available = self._getBufferAfter(self.rc_in_buffer_,
+                                                    t_ref)
+                mocap_state_available = self._getBufferAfter(self.mocap_state_buffer_,
+                                                             t_ref)
+                wrench_available = self._getBufferAfter(self.wrench_buffer_,
+                                                        t_ref)
 
                 self._rc_update(rc_available, mocap_state_available, wrench_available)
 
+                print('rc: ', self.rc_in_buffer_.size(),
+                      'mocap: ', self.mocap_state_buffer_.size(),
+                      'wrench: ', self.wrench_buffer_.size())
+
+                if not (rc_available and mocap_state_available and wrench_available):
+                    # print(f'RC: {rc_available},'
+                    #   f'mocap: {mocap_state_available},'
+                    #   f'wrench: {wrench_available}')
+
+                    print('rc: ', self.rc_in_buffer_.size())
+                    print('state:', self.mocap_state_buffer_.size())
+                    print('wrench:', self.wrench_buffer_.size())
+                # print(1000.0*(self.time_latest_[0] - self.time_latest_[1]))
+
                 self.t_prev_ = self.t_curr_
                 steps = steps + 1
-
-            self.cv_.notify_all()
 
     def _rc_update(self, rc_available:bool,
                            mocap_state_available:bool,
                            wrench_available:bool):
 
-        if rc_available:
-            rc_recent = self.rc_in_buffer_.back()
-            RcConverter.set_rc(rc_recent)
-            a_des, z_des, dpsi_dt_des, mode = RcConverter.get_rc_state()
+        if rc_available and mocap_state_available and wrench_available:
+            t_rc, rc_recent = self.rc_in_buffer_.back()
+            self.RcConverter_obj.set_rc(rc_recent)
+            a_des, z_des, dpsi_dt_des, mode = self.RcConverter_obj.get_rc_state()
 
             if mode == FlightMode.KILL:
                 self._put_rpm_same_input(0)
             elif mode == FlightMode.ARMED:
                 self._put_rpm_same_input(2000)
             elif mode == FlightMode.MANUAL_STAB:
-                is_updated = self._rc_control_update(mocap_state_available, wrench_available)
-                if is_updated:
-                    ref = np.array([a_des, z_des, dpsi_dt_des])
-                    state_curr = self.mocap_state_buffer_.front()[1:]
-                    RcController.set_ref_state(ref, state_curr)
-                    u = RcController.get_control_input()
-                    rpm_des = InverseDynamics.compute_des_rpm(u[0],u[1:])
-                    self._put_cmd_from_rpm_des(rpm_des)
+                ref = np.concatenate([a_des, np.array([z_des, dpsi_dt_des])])
+                state_curr = self.mocap_state_buffer_.front()[1:]
+                tau_curr = self.wrench_buffer_.front()[4:]
+                self.RcController_obj.set_ref_state(ref, state_curr, tau_curr)
+                u = self.RcController_obj.get_control_input()
+                rpm_des = self.InverseDynamics_obj.compute_des_rpm(u[0],u[1:])
+                self._put_cmd_from_rpm_des(rpm_des)
         else:
             # RC io should be received.
             for i in range(6):
                 self.u_msg.raw[i] = int(0)
-
-    def _rc_control_update(self, mocap_state_available:bool, wrench_available:bool)->bool:
-        if mocap_state_available and wrench_available:
-            mocap_again = self._getBufferAfter(self.mocap_state_buffer_, self.t_curr_)
-            wrench_again = self._getBufferAfter(self.wrench_buffer_, self.t_curr_)
-            # assert mocap_again and wrench_again
-            return mocap_again and wrench_again
-        else:
-            return False
 
     def _getBufferAfter(self, buffer, t_start) -> bool:
         if buffer.empty():
@@ -267,7 +278,7 @@ class ManualControlNode():
         return min(self.time_latest_[i] for i in fresh_idxs)
 
     def _freshByTTL(self, i, now_wall):
-        return bool(now_wall - self.latest_tx_wall_[i] <= self.time_out_[i])
+        return bool(now_wall - self.latest_rx_wall_[i] <= self.time_out_[i])
 
     def _setup_rc_param(self):
 
