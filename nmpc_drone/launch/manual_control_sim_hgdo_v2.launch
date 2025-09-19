@@ -8,11 +8,12 @@
         <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
 
-    <node name="hgdo"
+    <node name="hgdo_node_v2"
           type="hgdo_node_v2"
           pkg="dist_est"
           output="screen">
         <param name="publish_rate" type="double" value="100.0"/>
         <rosparam file="$(find dist_est)/config/hgdo_param.yaml"/>
+        <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
 </launch>

@@ -51,8 +51,8 @@ class manual_control_node_alt():
         self.RcConverter = RcConverterAlt(ax_max = 0.3, ay_max = 0.3,
                                          z_max = 0.9, psidot_max = 10)
 
-        GainParam = {'Kp_trans': np.diag([0,0,4]),
-                     'Kd_trans': np.diag([0,0,1]),
+        GainParam = {'Kp_trans': np.diag([0,0,6]),
+                     'Kd_trans': np.diag([0,0,4]),
                      'Kp_rot': np.diag([3, 3, 0.05]),
                      'Kd_rot': np.diag([0.52, 0.52, 0.025])}
         DynParam = {'m': 2.9,
