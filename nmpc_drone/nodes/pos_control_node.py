@@ -14,7 +14,7 @@ sys.path.append(pkg_dir)
 
 import numpy as np
 import rospy
-from math_tools.inverse_dynamics import InverseDynamics
+from utils.inverse_dynamics import InverseDynamics
 from nmpc.utils import math_tools
 from pos_control.pid_control import PosControl
 from nav_msgs.msg import Odometry

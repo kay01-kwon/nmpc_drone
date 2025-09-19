@@ -197,7 +197,7 @@ void HgdoNode2::processState()
     {
         if(state_buffer_.empty() || rpm_buffer_.empty())
         {
-            ROS_INFO("Wait for more data...");
+            // ROS_INFO("Wait for more data...");
             std::chrono::milliseconds duration(100);
             std::this_thread::sleep_for(duration);
             continue;
@@ -241,7 +241,7 @@ void HgdoNode2::processState()
 
             // ROS_INFO("t_curr: %.3f, rpm_back_time: %.3f, state_back_time: %.3f", 
             //          t_curr_, rpm_buffer_.back().time_stamp, state_buffer_.back().time_stamp);
-            ROS_INFO("rpm idx: %zu, state idx: %zu", idx_rpm_curr, idx_state_curr);
+            // ROS_INFO("rpm idx: %zu, state idx: %zu", idx_rpm_curr, idx_state_curr);
             // ROS_INFO("rpm size: %zu, state size: %zu", rpm_buffer_.size(), state_buffer_.size());
             // ROS_INFO("Hgdo update: t_prev = %.3f, t_curr = %.3f", t_prev_, t_curr_);
             
