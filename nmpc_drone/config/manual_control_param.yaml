@@ -1,5 +1,5 @@
 constraint:
-  a_max: 0.1
+  a_max: 0.3
   z_max: 1.0
   dpsi_dt_max: 0.2
 

@@ -8,7 +8,7 @@
         <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>
 
-    <node name="hgdo"
+    <node name="hgdo_node_v2"
           type="hgdo_node_v2"
           pkg="dist_est"
           output="screen">
