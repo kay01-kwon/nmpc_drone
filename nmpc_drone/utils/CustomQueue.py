@@ -23,9 +23,7 @@ class CustomQueue():
         if self.size_ <= self.maxsize_:
             self.queue_.append(data)
         else:
-            print("Queue is full")
-            print("Terminate the program")
-            sys.exit(1)
+            assert self.size_ > self.maxsize_, 'size is greater than maxsize'
 
     def pop(self)->bool:
         self.size_ = self.size_ - 1

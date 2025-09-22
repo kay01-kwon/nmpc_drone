@@ -1,9 +1,9 @@
 <launch>
     <node name="manual_control"
-          type="manual_control_node_alt.py"
+          type="manual_control_node_claude_version.py"
           pkg="nmpc_drone"
           output="screen">
-        <rosparam file="$(find nmpc_drone)/config/control_param.yaml"/>
+        <rosparam file="$(find nmpc_drone)/config/manual_control_param.yaml"/>
         <remap from="/wrench" to="/hgdo/wrench"/>
         <remap from="/mavros/odometry/in" to="/custom_hexacopter/ground_truth/odometry"/>
     </node>

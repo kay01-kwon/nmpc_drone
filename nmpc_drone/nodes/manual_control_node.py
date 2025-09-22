@@ -215,15 +215,6 @@ class ManualControlNode():
 
                     self._rc_update(rc_ok, mocap_ok, wrench_ok)
 
-                    # rospy.loginfo('t_curr: %.2f, t_rc: %.2f, t_mocap: %.2f, t_wrench: %.2f'
-                    #               , self.t_curr_,
-                    #               self.time_latest_[0],
-                    #               self.time_latest_[1],
-                    #               self.time_latest_[2])
-                    # rospy.loginfo('t_mocap - t_wrench: %.2f ms',
-                    #               (self.time_latest_[1] - self.time_latest_[2])*1000.0)
-
-
                     self.t_prev_ = self.t_curr_
                     steps = steps + 1
                 self.cv_.notify_all()
@@ -252,18 +243,6 @@ class ManualControlNode():
             rospy.loginfo('Not available mocap and wrench')
             return
 
-        ok = self._align_fronts_inplace(
-            self.mocap_state_buffer_,
-            self.wrench_buffer_,
-            self.t_curr_,
-            self.sync_tol_,
-            self.loopback_
-        )
-
-        if not ok:
-            rospy.logwarn('Not available mocap and wrench')
-            return
-
         mocap_item = self.mocap_state_buffer_.back()
         wrench_item = self.wrench_buffer_.back()
 
@@ -283,29 +262,6 @@ class ManualControlNode():
         while not buffer.empty() and buffer.front()[0] < cutoff:
             buffer.pop()
         return not buffer.empty()
-
-    def _align_fronts_inplace(self, buf_a, buf_b, t_ref, tol, loopback) -> bool:
-
-        if not self._prepareBufferNear(buf_a, t_ref, loopback):
-            return False
-        if not self._prepareBufferNear(buf_b, t_ref, loopback):
-            return False
-
-        ta = buf_a.front()[0]
-        tb = buf_b.front()[0]
-
-        while abs(ta - tb) > tol:
-            if ta < tb:
-                buf_a.pop()
-                if buf_a.empty():
-                    return False
-                ta = buf_a.front()[0]
-            else:
-                buf_b.pop()
-                if buf_b.empty():
-                    return False
-                tb = buf_b.front()[0]
-        return True
 
     def _put_rpm_same_input(self, u):
         for i in range(6):
