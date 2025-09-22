@@ -104,3 +104,35 @@ ry = 0.03
         <xacro:insert_block name="inertia" />
       </inertial>
 ```
+
+# Manual control - Real world
+
+Jetson orin nx
+
+1. Mavros
+
+```
+roslaunch ros_mavlink px4.launch
+```
+
+Remote pc
+
+2. Motion capture
+
+```
+roslaunch natnet_ros_cpp natnet_ros.launch
+```
+
+3. Increase mavros rate
+
+```
+rosrun ros_mavlink ros_mavlink_client
+```
+
+Jetson orin nx
+
+3. Run manual control and HGDO
+
+```
+roslaunch nmpc_drone manual_control.launch
+```
