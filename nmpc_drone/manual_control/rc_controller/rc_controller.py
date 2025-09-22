@@ -68,8 +68,8 @@ class RcController():
         rz = r[2]
 
         cos_half_phi = np.sqrt( (1 + rz) / 2.0 )
-        sin_half_phi = np.sqrt( (1 - rz) / 2.0)
-        sin_phi = np.sqrt( 1 - rz**2)
+        sin_half_phi = np.sqrt( (1 - rz) / 2.0 )
+        sin_phi = np.sqrt( 1 - rz**2 )
 
         if np.abs(sin_phi) > 1e-30:
             self.axis_des_[0] = -1 / sin_phi * ry
@@ -92,6 +92,7 @@ class RcController():
         q_des_conj = quaternion_math.conjugate(q_des)
         q_err = quaternion_math.otimes(q_des_conj, q)
         q_err_vec = self._signum(q_err[0])*q_err[1:4]
+
         R_des = quaternion_math.quaternion_to_rotm(q_des)
 
         w_err = w - R.transpose() @ R_des @ w_des

@@ -36,9 +36,8 @@ class RcConverter:
 
         R_temp = np.sqrt(ax_temp**2 + ay_temp**2)
 
-        scale = self.R_max_ / R_temp
-
         if R_temp > self.R_max_ and R_temp > 1e-9:
+            scale = self.R_max_ / R_temp
             ax_des = scale * ax_temp
             ay_des = scale * ay_temp
         else:
@@ -53,7 +52,7 @@ class RcConverter:
                              * self._constrain(rc_in[3]))
 
 
-        if self._two_pos(rc_in[9]) == 'LOW':
+        if self._two_pos(rc_in[8]) == 'LOW':
             self.mode_ = FlightMode.KILL
         else:
             if self._three_pos(rc_in[5]) == 'LOW':
