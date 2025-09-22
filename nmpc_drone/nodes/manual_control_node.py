@@ -222,6 +222,7 @@ class ManualControlNode():
                          mocap_ok:bool,
                          wrench_ok:bool):
 
+        rospy.loginfo("rc_ok? %d", rc_ok)
         if not rc_ok:
             self._put_rpm_same_input(0)
             return
@@ -280,7 +281,7 @@ class ManualControlNode():
         return min(self.time_latest_[i] for i in fresh_idxs)
 
     def _freshByTTL(self, i, now_wall):
-        return (self.latest_rx_wall_[i] > 0.0) and (now_wall - self.latest_rx_wall_[i] <= self.time_out_[i])
+        return (self.latest_rx_wall_[i] >= 0.0) and (now_wall - self.latest_rx_wall_[i] <= self.time_out_[i])
 
     def _setup_rc_param(self):
 
