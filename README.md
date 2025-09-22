@@ -109,7 +109,21 @@ ry = 0.03
 
 Jetson orin nx
 
-1. Mavros
+1. ROS_LIBCANARD
+
+```
+cd ~/can_setup
+```
+
+```
+./setup_can.bash
+```
+
+```
+roslaunch ros_libcanard esc_bringup.launch
+```
+
+2. Mavros
 
 ```
 roslaunch ros_mavlink px4.launch
@@ -117,13 +131,13 @@ roslaunch ros_mavlink px4.launch
 
 Remote pc
 
-2. Motion capture
+3. Motion capture
 
 ```
 roslaunch natnet_ros_cpp natnet_ros.launch
 ```
 
-3. Increase mavros rate
+4. Increase mavros rate
 
 ```
 rosrun ros_mavlink ros_mavlink_client
@@ -131,7 +145,7 @@ rosrun ros_mavlink ros_mavlink_client
 
 Jetson orin nx
 
-3. Run manual control and HGDO
+5. Run manual control and HGDO
 
 ```
 roslaunch nmpc_drone manual_control.launch
