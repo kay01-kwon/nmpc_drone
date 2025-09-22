@@ -230,6 +230,7 @@ class DataBuffer:
                 buffer.pop()
             buffer.push(data)
 
+
         self.time_latest[idx] = max(
             self.time_latest[idx] - self.latency[idx],
             data[0]
