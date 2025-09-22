@@ -33,6 +33,10 @@ class CustomQueue():
             self.queue_.pop(0)
             return True
 
+    def clear(self):
+        self.size_ = 0
+        self.queue_ = []
+
     def front(self):
         return self.queue_[0]
 

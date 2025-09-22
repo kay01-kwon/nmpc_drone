@@ -114,16 +114,18 @@ class WrenchInterpolator:
 
         # Clean old data
         cutoff = target_time - self.config.loopback_time
+        # rospy.loginfo('cutoff - wrench back: %.2f'
+        #               , (cutoff-self.buffer.front()[0])*1000)
         while not self.buffer.empty() and self.buffer.front()[0] < cutoff:
             self.buffer.pop()
 
         if self.buffer.empty():
+            # rospy.loginfo('buffer emtpy')
             return None
 
         # Find the two closest points for interpolation
         data_list = []
         temp_buffer = CustomQueue(maxsize=self.config.buffer_size)
-
         # Extract data from buffer (preserving buffer state)
         while not self.buffer.empty():
             item = self.buffer.front()
@@ -134,6 +136,7 @@ class WrenchInterpolator:
         # Restore buffer
         while not temp_buffer.empty():
             self.buffer.push(temp_buffer.front())
+            temp_buffer.pop()
 
         if len(data_list) == 0:
             return None
@@ -428,6 +431,9 @@ class ManualControlNode:
             mocap_ok = self.data_buffer.prepare_buffer_near(DataType.MOCAP, self.t_curr)
             wrench_ok = self.data_buffer.is_data_fresh(DataType.WRENCH)
 
+            # rospy.loginfo("rc_ok: %d, mocap_ok: %d, wrench_ok: %d",
+            #               rc_ok, mocap_ok, wrench_ok)
+
             # Update control
             self._update_control(rc_ok, mocap_ok, wrench_ok)
 
@@ -476,7 +482,7 @@ class ManualControlNode:
         # Interpolate wrench at mocap time
         wrench_curr = self.data_buffer.interpolate_wrench_at_time(mocap_time)
         if wrench_curr is None:
-            rospy.logwarn('Wrench interpolation failed or extrapolation required')
+            # rospy.logwarn('Wrench interpolation failed or extrapolation required')
             return
 
         # Use only torque part of wrench (indices 3:6 in wrench data)
@@ -558,7 +564,7 @@ def main():
     node = ManualControlNode()
 
     # Setup shutdown hook
-    rospy.on_shutdown(node.shutdown)
+    # rospy.on_shutdown(node.shutdown)
 
     # Keep the node running
     rospy.spin()
